@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
+using ExpertSync;
 
 /*
  * ==============================================================
@@ -55,23 +56,36 @@ namespace JeromeControl
     {
         // Icon graphic from http://prothemedesign.com/circular-icons/
         private static readonly string IconFileName = "icon_ant1.ico";
-        private static readonly string DefaultTooltip = "Route HOST entries via context menu";
+        private static readonly string DefaultTooltip = "Управление антеннами";
 
+        public JCConfig config;
+
+        private ExpertSyncConnector esConnector;
+        private ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
         /// <summary>
 		/// This class should be created and passed into Application.Run( ... )
 		/// </summary>
 		public JCAppContext()
         {
             InitializeContext();
+
         }
 
-
+        public void writeConfig()
+        {
+            config.write();
+        }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
-            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            notifyIcon.ContextMenuStrip.Items.Add(ToolStripMenuItemWithHandler("Выход", exitItem_Click));
+            miExpertSync.Text = "ExpertSync";
+            miExpertSync.Image = null;
+            if (config.esHost != null && config.esPort != 0)
+            {
+                miExpertSync.Text += " " + config.esHost + ":" + config.esPort.ToString();
+                miExpertSync.Image = esConnector.connected ? Properties.Resources.signal_green : Properties.Resources.signal_red;
+            }
         }
 
         # region the child forms
@@ -133,6 +147,23 @@ namespace JeromeControl
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             notifyIcon.DoubleClick += notifyIcon_DoubleClick;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
+            config = JCConfig.read();
+            esConnect();
+            miExpertSync.Click += esItem_Click;
+            notifyIcon.ContextMenuStrip.Items.Add(miExpertSync);
+            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+            ToolStripMenuItem miExit = new ToolStripMenuItem("Выход");
+            miExit.Click += exitItem_Click;
+            notifyIcon.ContextMenuStrip.Items.Add(miExit);
+        }
+
+        private void esConnect()
+        {
+            if (config.esHost != null && config.esPort != 0)
+            {
+                esConnector = ExpertSyncConnector.create(config.esHost, config.esPort);
+                esConnector.connect();
+            }
         }
 
         /// <summary>
@@ -154,6 +185,17 @@ namespace JeromeControl
             ExitThread();
         }
 
+        private void esItem_Click( object sender, EventArgs e )
+        {
+            FESConnection fesc = new FESConnection();
+            if ( fesc.ShowDialog() == DialogResult.OK )
+            {
+                config.esHost = fesc.host;
+                config.esPort = fesc.port;
+                esConnect();
+            }
+        }
+
         /// <summary>
         /// If we are presently showing a form, clean it up.
         /// </summary>
@@ -171,24 +213,6 @@ namespace JeromeControl
 
         # region support methods
 
-        private ToolStripMenuItem ToolStripMenuItemWithHandler(
-            string displayText, int enabledCount, int disabledCount, EventHandler eventHandler)
-        {
-            var item = new ToolStripMenuItem(displayText);
-            if (eventHandler != null) { item.Click += eventHandler; }
-
-            item.ToolTipText = (enabledCount > 0 && disabledCount > 0) ?
-                                                 string.Format("{0} enabled, {1} disabled", enabledCount, disabledCount)
-                         : (enabledCount > 0) ? string.Format("{0} enabled", enabledCount)
-                         : (disabledCount > 0) ? string.Format("{0} disabled", disabledCount)
-                         : "";
-            return item;
-        }
-
-        public ToolStripMenuItem ToolStripMenuItemWithHandler(string displayText, EventHandler eventHandler)
-        {
-            return ToolStripMenuItemWithHandler(displayText, 0, 0, eventHandler);
-        }
 
         # endregion support methods
 
