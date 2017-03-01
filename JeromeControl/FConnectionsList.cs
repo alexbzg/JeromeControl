@@ -11,11 +11,11 @@ namespace AntennaeRotator
 {
     public partial class FConnectionsList : Form
     {
-        FormState state;
-        public FConnectionsList(FormState fs)
+        AntennaeRotatorConfig config;
+        public FConnectionsList(AntennaeRotatorConfig fs)
         {
             InitializeComponent();
-            state = fs;
+            config = fs;
             fillList();
             if ( lbConnections.Items.Count > 0 )
                 lbConnections.SelectedIndex = 0;
@@ -24,14 +24,14 @@ namespace AntennaeRotator
         private void fillList()
         {
             lbConnections.Items.Clear();
-            foreach (ConnectionSettings cs in state.connections)
+            foreach (AntennaeRotatorConnectionSettings cs in config.connections)
                 lbConnections.Items.Add(cs.name);
 
         }
 
         private void bEdit_Click(object sender, EventArgs e)
         {
-            if (((fMain)this.Owner).editConnection(state.connections[lbConnections.SelectedIndex]))
+            if (((FRotator)this.Owner).editConnection(config.connections[lbConnections.SelectedIndex]))
             {
                 int sel = lbConnections.SelectedIndex;
                 fillList();
@@ -46,9 +46,9 @@ namespace AntennaeRotator
                 "Удаление соединения", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 int sel = lbConnections.SelectedIndex;
-                state.connections.RemoveAt(lbConnections.SelectedIndex);
+                config.connections.RemoveAt(lbConnections.SelectedIndex);
                 lbConnections.Items.RemoveAt(lbConnections.SelectedIndex);
-                ((fMain)this.Owner).writeConfig();
+                ((FRotator)this.Owner).writeConfig();
                 if (lbConnections.Items.Count > 0)
                 {
                     if (sel < lbConnections.Items.Count)

@@ -1,4 +1,4 @@
-﻿namespace AntennaeRotator
+﻿namespace EncRotator
 {
     partial class FSetNorth
     {

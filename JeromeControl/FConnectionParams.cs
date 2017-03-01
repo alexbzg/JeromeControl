@@ -16,7 +16,7 @@ namespace AntennaeRotator
         private Bitmap bmIcon;
         public int icon = 1;
 
-        public fConnectionParams(ConnectionSettings cSettings)
+        public fConnectionParams(AntennaeRotatorConnectionSettings cSettings)
         {
             InitializeComponent();
 

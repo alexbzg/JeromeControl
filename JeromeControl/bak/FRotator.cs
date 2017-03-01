@@ -73,18 +73,15 @@ namespace AntennaeRotator
         int connectionFromArgs = -1;
         IPEndPoint esEndPoint;
         ExpertSyncConnector esConnector;
-        JCAppContext appContext;
 
-        public int getCurrentAngle()
-        {
+        public int getCurrentAngle() {
             return currentAngle;
         }
 
-        public FRotator(JCAppContext _appContext)
+        public FRotator( JCAppContext appContext )
         {
             InitializeComponent();
-            appContext = _appContext;
-            config = _appContext.config.antennaeRotatorConfig;
+            config = appContext.config.antennaeRotatorConfig;
             updateConnectionsMenu();
             Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));
             Trace.AutoFlush = true;
@@ -92,17 +89,17 @@ namespace AntennaeRotator
             Trace.WriteLine("Initialization");
 
             string currentMapStr = "";
-            if (this.config.currentMap != -1 && this.config.currentMap < this.config.maps.Count)
-                currentMapStr = this.config.maps[this.config.currentMap];
-            this.config.maps.RemoveAll(item => !File.Exists(item));
+            if ( this.config.currentMap != -1 && this.config.currentMap < this.config.maps.Count )
+                currentMapStr = this.config.maps[ this.config.currentMap ];
+            this.config.maps.RemoveAll( item => !File.Exists(item) );
             if (!currentMapStr.Equals(string.Empty))
                 this.config.currentMap = this.config.maps.IndexOf(currentMapStr);
             else
                 this.config.currentMap = -1;
-            this.config.maps.ForEach(item => loadMap(item));
+            this.config.maps.ForEach( item => loadMap( item ) );
             if (this.config.currentMap != -1)
                 setCurrentMap(this.config.currentMap);
-            else if (this.config.maps.Count > 0)
+            else if (this.config.maps.Count > 0 )
                 setCurrentMap(0);
             prevHeight = Height;
         }
@@ -113,12 +110,12 @@ namespace AntennaeRotator
                 obj =>
                 {
                     this.Invoke((MethodInvoker)delegate
-                    {
-                        if (currentConnection != null)
+                   {
+                        if ( currentConnection != null )
                             showMessage("Потеряна связь с устройством!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         if (controller != null && controller.connected)
                             disconnect();
-                    });
+                   });
                 },
                 null, 1000, Timeout.Infinite);
         }
@@ -132,10 +129,8 @@ namespace AntennaeRotator
             adjustToMap();
         }
 
-        private void updateConnectionsMenu()
-        {
-            while (miConnections.DropDownItems.Count > 2)
-            {
+        private void updateConnectionsMenu() {
+            while ( miConnections.DropDownItems.Count > 2 ) {
                 miConnections.DropDownItems.RemoveAt(0);
 
             }
@@ -159,11 +154,11 @@ namespace AntennaeRotator
         {
             currentConnection = config.connections[index];
             config.currentConnection = index;
-            if (!formSPmodified)
+            if ( !formSPmodified )
                 formSPfromConnection(index);
 
-            currentTemplate = getTemplate(currentConnection.deviceType);
-            if (currentConnection.limitsSerialize != null)
+            currentTemplate = getTemplate( currentConnection.deviceType );
+            if ( currentConnection.limitsSerialize != null )
             {
                 currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.limitsSerialize[0] },
                     { -1, currentConnection.limitsSerialize[1] }
@@ -197,8 +192,7 @@ namespace AntennaeRotator
 
         public void engine(int val)
         {
-            if (val != engineStatus && (limitReached == 0 || limitReached != val))
-            {
+            if ( val != engineStatus && ( limitReached == 0 || limitReached != val )) {
                 //System.Diagnostics.Debug.WriteLine("Engine switch begins");
                 this.UseWaitCursor = true;
                 /*Cursor tmpCursor = Cursor.Current;
@@ -209,14 +203,14 @@ namespace AntennaeRotator
                     toggleLine(currentTemplate.engineLines[prevDir][1], 0);
                     System.Diagnostics.Debug.WriteLine("Scheduling Delayed switch off");
                     this.Invoke((MethodInvoker)delegate
-                    {
-                        if (slCalibration.Text != "Концевик" || !slCalibration.Visible)
-                        {
-                            slCalibration.Text = "Остановка";
-                            slCalibration.Visible = true;
-                        }
-
-                    });
+                  {
+                      if ( slCalibration.Text != "Концевик" || !slCalibration.Visible )
+                      {
+                          slCalibration.Text = "Остановка";
+                          slCalibration.Visible = true;
+                      }
+    
+                  });
                     if (engineTaskActive)
                     {
                         engineTaskCTS.Cancel();
@@ -231,14 +225,13 @@ namespace AntennaeRotator
                     engineTask = TaskEx.Run(
                         async () =>
                         {
-                            await TaskEx.Delay(currentConnection.switchIntervals[1] * 1000);
+                            await TaskEx.Delay( currentConnection.switchIntervals[1] * 1000 );
                             System.Diagnostics.Debug.WriteLine("Delayed switch off");
                             toggleLine(currentTemplate.engineLines[prevDir][0], 0);
                             clearEngineTask();
                         });
                 }
-                if (val != 0 && !engineTaskActive)
-                {
+                if ( val != 0 && !engineTaskActive) {
                     toggleLine(currentTemplate.engineLines[val][0], 1);
                     pMap.Enabled = false;
                     this.Invoke((MethodInvoker)delegate
@@ -279,12 +272,12 @@ namespace AntennaeRotator
             engineTaskCTS.Dispose();
             engineTaskCTS = new CancellationTokenSource();
             this.Invoke((MethodInvoker)delegate
-            {
-                if (slCalibration.Text != "Концевик")
-                    slCalibration.Visible = false;
-                pMap.Enabled = true;
-                this.UseWaitCursor = false;
-            });
+              {
+                  if (slCalibration.Text != "Концевик")
+                      slCalibration.Visible = false;
+                  pMap.Enabled = true;
+                  this.UseWaitCursor = false;
+              });
 
         }
 
@@ -314,12 +307,11 @@ namespace AntennaeRotator
             }
         }
 
-        private void onDisconnect(object obj, DisconnectEventArgs e)
-        {
+        private void onDisconnect(object obj, DisconnectEventArgs e) {
             currentConnection = null;
-            if (!closingFl)
+            if ( !closingFl )
                 this.Invoke((MethodInvoker)delegate
-                {
+                {                
                     Text = "Нет соединения";
                     lCaption.Text = "Нет соединения";
                     Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[0]);
@@ -344,7 +336,7 @@ namespace AntennaeRotator
                 System.Drawing.Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
                 currentConnection.formLocation = bounds.Location;
                 currentConnection.formSize = bounds.Size;
-                if (currentConnection.limits != null)
+                if ( currentConnection.limits != null )
                 {
                     currentConnection.limitsSerialize = new int[] { -1, -1 };
                     if (currentConnection.limits.ContainsKey(1))
@@ -353,8 +345,11 @@ namespace AntennaeRotator
                         currentConnection.limitsSerialize[1] = currentConnection.limits[-1];
                 }
             }
-            appContext.config.antennaeRotatorConfig = config;
-            appContext.writeConfig();
+            using (StreamWriter sw = new StreamWriter( Application.StartupPath + "\\config.xml"))
+            {
+                XmlSerializer ser = new XmlSerializer(typeof(FormState));
+                ser.Serialize(sw, config);
+            }
         }
 
 
@@ -364,7 +359,7 @@ namespace AntennaeRotator
                 controller.setLineMode(line, mode);
         }
 
-        private void toggleLine(int line, int state)
+        private void toggleLine(int line, int state )
         {
             if (controller != null && controller.connected)
                 controller.switchLine(line, state);
@@ -379,13 +374,13 @@ namespace AntennaeRotator
             limitReached = 0;
         }
 
-        private void onLimit(int dir)
+        private void onLimit( int dir )
         {
             if (limitReached == dir)
                 return;
             if (engineStatus == dir)
                 engine(0);
-            if (currentConnection.hwLimits)
+            if ( currentConnection.hwLimits )
                 currentConnection.limits[dir] = currentAngle;
             writeConfig();
             this.Invoke((MethodInvoker)delegate
@@ -401,9 +396,9 @@ namespace AntennaeRotator
         }
 
 
-        private void lineStateChanged(object sender, LineStateChangedEventArgs e)
+        private void lineStateChanged( object sender, LineStateChangedEventArgs e )
         {
-            if (currentTemplate.limitsLines.Values.Contains(e.line))
+            if ( currentTemplate.limitsLines.Values.Contains( e.line ) )
             {
                 if (e.state == 0)
                 {
@@ -412,13 +407,13 @@ namespace AntennaeRotator
                 }
                 else if (slCalibration.Text == "Концевик")
                     this.Invoke((MethodInvoker)delegate
-                    {
-                        slCalibration.Visible = false;
-                    });
+                   {
+                       slCalibration.Visible = false;
+                   });
             }
         }
 
-        private void usartBytesReceived(object sender, BytesReceivedEventArgs e)
+        private void usartBytesReceived( object sender, BytesReceivedEventArgs e )
         {
             if (timeoutTimer != null)
                 timeoutTimer.Change(1000, Timeout.Infinite);
@@ -430,14 +425,14 @@ namespace AntennaeRotator
                     hi = (e.bytes[co] - 128) << 5;
                 else
                     lo = e.bytes[co] - 64;
-            if (lo != -1 && hi != -1 && encGrayVal != lo + hi)
+            if ( lo != -1 && hi != -1 && encGrayVal != lo + hi )
             {
                 encGrayVal = lo + hi;
                 int val = encGrayVal;
-                for (int mask = val >> 1; mask != 0; mask = mask >> 1)
-                {
-                    val = val ^ mask;
-                }
+	            for (int mask = val >> 1; mask != 0; mask = mask >> 1)
+	            {
+		            val = val ^ mask;
+	            }
                 this.Invoke((MethodInvoker)delegate { setCurrentAngle(val); });
             }
         }
@@ -448,16 +443,15 @@ namespace AntennaeRotator
             if (controller == null)
                 controller = JeromeController.create(currentConnection.jeromeParams);
             UseWaitCursor = true;
-            if (controller.connect())
-            {
+            if ( controller.connect() ) {                           
                 miConnections.Text = "Отключиться";
                 controller.usartBinaryMode = true;
-                if (currentConnection.hwLimits)
+                if ( currentConnection.hwLimits )
                     controller.lineStateChanged += lineStateChanged;
                 controller.usartBytesReceived += usartBytesReceived;
                 controller.disconnected += onDisconnect;
                 connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
-                miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
+                miConnections.DropDownItems.CopyTo(connectionsDropdown,0);
                 miConnections.DropDownItems.Clear();
 
                 miConnectionGroups.Visible = false;
@@ -466,10 +460,9 @@ namespace AntennaeRotator
 
                 setLine(currentTemplate.ledLine, 0);
                 foreach (int[] dir in currentTemplate.engineLines.Values)
-                    foreach (int line in dir)
-                    {
-                        setLine(line, 0);
-                        toggleLine(line, 0);
+                    foreach ( int line in dir) { 
+                        setLine( line, 0 );
+                        toggleLine( line, 0 );
                     }
                 setLine(currentTemplate.uartTRLine, 0);
                 foreach (int line in currentTemplate.limitsLines.Values)
@@ -482,7 +475,7 @@ namespace AntennaeRotator
 
                 Text = currentConnection.name;
                 lCaption.Text = currentConnection.name;
-                Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+                Icon = (Icon) Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
                 if (currentConnection.hwLimits)
                 {
                     string lines = controller.readlines();
@@ -515,8 +508,7 @@ namespace AntennaeRotator
 
         private void rotateToAngle(int angle)
         {
-            if (controller != null && controller.connected)
-            {
+            if ( controller != null && controller.connected ) {
                 targetAngle = currentConnection.northAngle + angle - (currentConnection.northAngle + angle > 360 ? 360 : 0);
                 pMap.Invalidate();
                 System.Diagnostics.Debug.WriteLine("start " + currentAngle.ToString() + " - " + angle.ToString());
@@ -560,7 +552,7 @@ namespace AntennaeRotator
 
 
 
-                    if (Math.Abs(tD) < 3)
+                    if (Math.Abs(tD) < 3 )
                     {
                         engine(0);
                         targetAngle = -1;
@@ -579,7 +571,7 @@ namespace AntennaeRotator
                 }
                 int displayAngle = currentAngle;
                 if (currentConnection.northAngle != -1)
-                    displayAngle += (displayAngle < currentConnection.northAngle ? 360 : 0) - currentConnection.northAngle;
+                    displayAngle += ( displayAngle < currentConnection.northAngle ? 360 : 0 ) - currentConnection.northAngle;
 
                 showAngleLabel(displayAngle, -1);
             }
@@ -589,7 +581,7 @@ namespace AntennaeRotator
         {
             if (File.Exists(fMap))
             {
-                maps.Add(new Bitmap(fMap));
+                maps.Add( new Bitmap(fMap) );
                 if (config.maps.IndexOf(fMap) == -1)
                     config.maps.Add(fMap);
             }
@@ -614,20 +606,20 @@ namespace AntennaeRotator
 
         private void pMap_Paint(object sender, PaintEventArgs e)
         {
-            if (config.currentMap != -1 && currentConnection != null && currentConnection.northAngle != -1)
+            if (config.currentMap != -1 && currentConnection != null && currentConnection.northAngle != -1 )
             {
-                Action<int, Color> drawAngle = (int angle, Color color) =>
-                {
-                    if (angle == -1)
-                        return;
-                    double rAngle = (((double)(angle - currentConnection.northAngle)) / 180) * Math.PI;
-                    e.Graphics.DrawLine(new Pen(color, 2), pMap.Width / 2, pMap.Height / 2,
-                        pMap.Width / 2 + (int)(Math.Sin(rAngle) * (pMap.Height / 2)),
-                        pMap.Height / 2 - (int)(Math.Cos(rAngle) * (pMap.Height / 2)));
+                Action<int,Color> drawAngle = (int angle, Color color) =>
+                    {
+                        if (angle == -1)
+                            return;
+                        double rAngle = (((double)(angle - currentConnection.northAngle)) / 180) * Math.PI;
+                        e.Graphics.DrawLine(new Pen(color, 2), pMap.Width / 2, pMap.Height / 2,
+                            pMap.Width / 2 + (int)(Math.Sin(rAngle) * (pMap.Height / 2)), 
+                            pMap.Height / 2 - (int)(Math.Cos(rAngle) * ( pMap.Height / 2 ) ) );
 
-                };
-                drawAngle(currentAngle, Color.Red);
-                drawAngle(targetAngle, Color.Green);
+                    };
+                drawAngle(currentAngle, Color.Red );
+                drawAngle(targetAngle, Color.Green );
                 currentConnection.limits.Values.ToList().ForEach(item => drawAngle(item, Color.Gray));
                 //e.Graphics.DrawImage(bmpMap, new Rectangle( 0, 0, pMap.Width, pMap.Height) );
                 mapAngle = currentAngle;
@@ -680,8 +672,8 @@ namespace AntennaeRotator
                     else
                         setCurrentMap(0);
             }
-            else if (currentConnection != null && currentConnection.northAngle != -1 && currentAngle != -1 && !engineTaskActive)
-                rotateToAngle(mouse2Angle(e.X, e.Y));
+            else if ( currentConnection != null && currentConnection.northAngle != -1 && currentAngle != -1 && !engineTaskActive)            
+                rotateToAngle(mouse2Angle( e.X, e.Y ));            
         }
 
         private void miSetNorth_Click(object sender, EventArgs e)
@@ -690,7 +682,7 @@ namespace AntennaeRotator
             if (fSNorth.ShowDialog(this) == DialogResult.OK)
             {
                 currentConnection.northAngle = fSNorth.northAngle;
-                if (!currentConnection.hwLimits)
+                if ( !currentConnection.hwLimits )
                     currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
                 writeConfig();
                 pMap.Invalidate();
@@ -742,7 +734,7 @@ namespace AntennaeRotator
             //pMap.Refresh();
         }
 
-
+     
         private void miConnections_Click(object sender, EventArgs e)
         {
             if (controller != null && controller.connected)
@@ -766,8 +758,8 @@ namespace AntennaeRotator
         private void createConnectionMenuItem(int index)
         {
             ToolStripMenuItem miConn = new ToolStripMenuItem();
-            miConn.Text = config.connections[index].name;
-            miConn.Click += delegate (object sender, EventArgs e)
+            miConn.Text = config.connections[ index ].name;
+            miConn.Click += delegate(object sender, EventArgs e)
             {
                 loadConnection(index);
             };
@@ -782,17 +774,17 @@ namespace AntennaeRotator
             if (result)
             {
                 conn.jeromeParams.host = fParams.tbHost.Text.Trim();
-                conn.jeromeParams.port = Convert.ToInt16(fParams.tbPort.Text.Trim());
+                conn.jeromeParams.port = Convert.ToInt16( fParams.tbPort.Text.Trim() );
                 conn.name = fParams.tbName.Text.Trim();
-                conn.jeromeParams.usartPort = Convert.ToInt16(fParams.tbUSARTPort.Text.Trim());
+                conn.jeromeParams.usartPort = Convert.ToInt16( fParams.tbUSARTPort.Text.Trim() );
                 conn.icon = fParams.icon;
                 conn.hwLimits = fParams.chbHwLimits.Checked;
-                conn.switchIntervals[0] = Convert.ToInt32(fParams.nudIntervalOn.Value);
+                conn.switchIntervals[0] = Convert.ToInt32( fParams.nudIntervalOn.Value );
                 conn.switchIntervals[1] = Convert.ToInt32(fParams.nudIntervalOff.Value);
                 writeConfig();
-                if (conn.Equals(currentConnection))
+                if ( conn.Equals( currentConnection ) )
                 {
-                    Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[conn.icon]);
+                    Icon = (Icon) Resources.ResourceManager.GetObject(CommonInf.icons[conn.icon]);
                 }
             }
             return result;
@@ -928,17 +920,17 @@ namespace AntennaeRotator
         private void esMessage(object sender, MessageEventArgs e)
         {
             int mhz = ((int)e.vfoa) / 1000000;
-            /*   if (currentConnectionGroup != null && currentConnectionGroup.items.Exists( x => x.esMhz == mhz))
-                   this.Invoke((MethodInvoker)delegate {
-                       int dst = currentConnectionGroup.items.First(x => x.esMhz == mhz).connectionId;
-                       if ( config.connections[dst] != currentConnection )
-                       {
-                           if (controller != null && controller.connected)
-                               disconnect();
-                           loadConnection(dst);
-                       }
-                   });
-                   */
+         /*   if (currentConnectionGroup != null && currentConnectionGroup.items.Exists( x => x.esMhz == mhz))
+                this.Invoke((MethodInvoker)delegate {
+                    int dst = currentConnectionGroup.items.First(x => x.esMhz == mhz).connectionId;
+                    if ( config.connections[dst] != currentConnection )
+                    {
+                        if (controller != null && controller.connected)
+                            disconnect();
+                        loadConnection(dst);
+                    }
+                });
+                */
         }
 
     }
@@ -951,7 +943,7 @@ namespace AntennaeRotator
         internal int ledLine;
     }
 
-    public class ConnectionSettings
+    public class ConnectionSettings 
     {
 
 
@@ -969,12 +961,12 @@ namespace AntennaeRotator
         public string name;
         public List<ConnectionGroupEntry> items = new List<ConnectionGroupEntry>();
 
-        public bool contains(int id)
+        public bool contains( int id )
         {
             return items.Exists(x => x.connectionId == id);
         }
 
-        public string mhzStr(int id)
+        public string mhzStr( int id )
         {
             if (contains(id))
                 return string.Join(";", items.Where(x => x.connectionId == id).Select(x => x.esMhz.ToString()));
@@ -982,7 +974,7 @@ namespace AntennaeRotator
                 return "";
         }
 
-        public void removeConnection(int id)
+        public void removeConnection( int id )
         {
             if (contains(id))
                 items.RemoveAll(x => x.connectionId == id);

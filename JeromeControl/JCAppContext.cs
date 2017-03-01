@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
 using ExpertSync;
+using AntennaeRotator;
 
 /*
  * ==============================================================
@@ -62,6 +63,8 @@ namespace JeromeControl
 
         private ExpertSyncConnector esConnector;
         private ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
+
+        private FRotator fRotator;
         /// <summary>
 		/// This class should be created and passed into Application.Run( ... )
 		/// </summary>
@@ -149,9 +152,19 @@ namespace JeromeControl
             notifyIcon.MouseUp += notifyIcon_MouseUp;
             config = JCConfig.read();
             esConnect();
+
+            ToolStripMenuItem miRotator = new ToolStripMenuItem("AntennaNetRotator");
+            miRotator.Click += miRotator_Click;
+            notifyIcon.ContextMenuStrip.Items.Add(miRotator);
+
+
+            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+
             miExpertSync.Click += esItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExpertSync);
+
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+
             ToolStripMenuItem miExit = new ToolStripMenuItem("Выход");
             miExit.Click += exitItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExit);
@@ -161,6 +174,7 @@ namespace JeromeControl
         {
             if (config.esHost != null && config.esPort != 0)
             {
+                writeConfig();
                 esConnector = ExpertSyncConnector.create(config.esHost, config.esPort);
                 esConnector.connect();
             }
@@ -194,6 +208,23 @@ namespace JeromeControl
                 config.esPort = fesc.port;
                 esConnect();
             }
+        }
+
+        private void miRotator_Click( object sender, EventArgs e )
+        {
+            if (fRotator == null)
+            {
+                fRotator = new FRotator(this);
+                fRotator.Closed += formClosed;
+            }
+            fRotator.Show();
+            fRotator.Focus();
+        }
+
+        private void formClosed( object sender, EventArgs e )
+        {
+            if (sender == fRotator)
+                fRotator = null;
         }
 
         /// <summary>

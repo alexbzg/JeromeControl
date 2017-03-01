@@ -138,8 +138,8 @@
             // 
             // pMap
             // 
-            this.pMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.pMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pMap.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pMap.Location = new System.Drawing.Point(0, 58);
@@ -172,7 +172,7 @@
             // 
             this.bSizeM.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.bSizeM.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.bSizeM.Image = ((System.Drawing.Image)(resources.GetObject("bSizeM.Image")));
+            //this.bSizeM.Image = ((System.Drawing.Image)(resources.GetObject("bSizeM.Image")));
             this.bSizeM.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bSizeM.Name = "bSizeM";
             this.bSizeM.Size = new System.Drawing.Size(23, 23);
@@ -183,7 +183,7 @@
             // 
             this.bSizeP.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.bSizeP.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.bSizeP.Image = ((System.Drawing.Image)(resources.GetObject("bSizeP.Image")));
+            //this.bSizeP.Image = ((System.Drawing.Image)(resources.GetObject("bSizeP.Image")));
             this.bSizeP.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bSizeP.Name = "bSizeP";
             this.bSizeP.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
@@ -195,7 +195,7 @@
             // 
             this.slMvt.AutoSize = false;
             this.slMvt.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.slMvt.Image = ((System.Drawing.Image)(resources.GetObject("slMvt.Image")));
+            //this.slMvt.Image = ((System.Drawing.Image)(resources.GetObject("slMvt.Image")));
             this.slMvt.ImageTransparentColor = System.Drawing.Color.White;
             this.slMvt.IsLink = true;
             this.slMvt.Name = "slMvt";
@@ -214,7 +214,7 @@
             this.bStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.bStop.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.bStop.ForeColor = System.Drawing.Color.White;
-            this.bStop.Image = ((System.Drawing.Image)(resources.GetObject("bStop.Image")));
+            //this.bStop.Image = ((System.Drawing.Image)(resources.GetObject("bStop.Image")));
             this.bStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bStop.Name = "bStop";
             this.bStop.Size = new System.Drawing.Size(49, 23);
@@ -236,7 +236,7 @@
             this.miExpertSync,
             this.miAbout});
             this.ddSettings.ForeColor = System.Drawing.Color.Transparent;
-            this.ddSettings.Image = ((System.Drawing.Image)(resources.GetObject("ddSettings.Image")));
+            //this.ddSettings.Image = ((System.Drawing.Image)(resources.GetObject("ddSettings.Image")));
             this.ddSettings.ImageTransparentColor = System.Drawing.Color.Black;
             this.ddSettings.Name = "ddSettings";
             this.ddSettings.Size = new System.Drawing.Size(29, 23);
@@ -292,8 +292,8 @@
             // 
             // lCaption
             // 
-            this.lCaption.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.lCaption.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lCaption.AutoSize = true;
             this.lCaption.BackColor = System.Drawing.SystemColors.Control;
@@ -313,7 +313,7 @@
             this.Controls.Add(this.lCaption);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.pMap);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            //this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "fMain";
             this.Text = "Нет соединения";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.fMain_FormClosing);

@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AntennaeRotatorConfig.cs" />
     <Compile Include="AsyncSocket.cs" />
     <Compile Include="ExpertSync.cs">
       <SubType>Form</SubType>
@@ -94,7 +95,9 @@
     <Compile Include="FRotator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FRotator.Designer.cs" />
+    <Compile Include="FRotator.designer.cs">
+      <DependentUpon>FRotator.cs</DependentUpon>
+    </Compile>
     <Compile Include="FModuleSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,7 +105,9 @@
     <Compile Include="FSetNorth.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FSetNorth.Designer.cs" />
+    <Compile Include="FSetNorth.designer.cs">
+      <DependentUpon>FSetNorth.cs</DependentUpon>
+    </Compile>
     <Compile Include="JCAppContext.cs" />
     <Compile Include="JCConfig.cs" />
     <Compile Include="Jerome.cs" />
@@ -119,9 +124,13 @@
     <EmbeddedResource Include="FConnectionsList.resx">
       <DependentUpon>FConnectionsList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FRotator.resx" />
+    <EmbeddedResource Include="FRotator.resx">
+      <DependentUpon>FRotator.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FModuleSettings.resx" />
-    <EmbeddedResource Include="FSetNorth.resx" />
+    <EmbeddedResource Include="FSetNorth.resx">
+      <DependentUpon>FSetNorth.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -154,6 +163,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\signal-yellow.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_10.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_40.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_left.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_right.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_up.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_ant1.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />

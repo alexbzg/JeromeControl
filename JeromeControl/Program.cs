@@ -22,16 +22,16 @@ namespace JeromeControl
                     GC.KeepAlive(mutex);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
-                    try
-                    {
+                   /* try
+                    {*/
                         var applicationContext = new JCAppContext();
                         Application.Run(applicationContext);
-                    }
+                   /* }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "Program Terminated Unexpectedly",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    }*/
                 }
         }
     }

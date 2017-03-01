@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using AntennaeRotator;
 
 namespace JeromeControl
 {
@@ -13,6 +14,7 @@ namespace JeromeControl
     {
         public string esHost = null;
         public int esPort = 0;
+        public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
 
         public void write()
         {
