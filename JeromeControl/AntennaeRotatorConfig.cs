@@ -22,6 +22,7 @@ namespace AntennaeRotator
         internal bool ignoreEngineOffMovement;
         public bool hwLimits;
         public int[] limitsSerialize;
+        public int esMhz;
 
         public override string ToString()
         {

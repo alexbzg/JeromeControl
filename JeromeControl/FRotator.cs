@@ -892,29 +892,6 @@ namespace AntennaeRotator
 
         private void miExpertSync_Click(object sender, EventArgs e)
         {
-            if (miExpertSync.Checked)
-            {
-                FESConnection fes;
-                if (esEndPoint != null)
-                    fes = new FESConnection(esEndPoint.Address.ToString(), esEndPoint.Port);
-                else
-                    fes = new FESConnection();
-                fes.ShowDialog();
-                if (fes.DialogResult == DialogResult.OK)
-                {
-                    esConnector = ExpertSyncConnector.create(fes.host, fes.port);
-                    esEndPoint = new IPEndPoint(IPAddress.Parse(fes.host), fes.port);
-                    esConnector.disconnected += esDisconnected;
-                    esConnector.onMessage += esMessage;
-                    writeConfig();
-                    miExpertSync.Checked = esConnector.connect();
-                }
-            }
-            else
-            {
-                esConnector.disconnect();
-                miExpertSync.Checked = false;
-            }
 
         }
 
@@ -925,12 +902,12 @@ namespace AntennaeRotator
             miExpertSync.Checked = false;
         }
 
-        private void esMessage(object sender, MessageEventArgs e)
+        public void esMessage(int mhz)
         {
-            int mhz = ((int)e.vfoa) / 1000000;
-            /*   if (currentConnectionGroup != null && currentConnectionGroup.items.Exists( x => x.esMhz == mhz))
+            //int mhz = ((int)e.vfoa) / 1000000;
+            if ( config.connections.Exists( x => x.esMhz == mhz) ) 
                    this.Invoke((MethodInvoker)delegate {
-                       int dst = currentConnectionGroup.items.First(x => x.esMhz == mhz).connectionId;
+                       int dst = config.connections.FindIndex(x => x.esMhz == mhz);
                        if ( config.connections[dst] != currentConnection )
                        {
                            if (controller != null && controller.connected)
@@ -938,7 +915,6 @@ namespace AntennaeRotator
                            loadConnection(dst);
                        }
                    });
-                   */
         }
 
     }

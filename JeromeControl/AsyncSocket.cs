@@ -11,6 +11,7 @@ using System.IO;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace AsyncConnectionNS
 {
@@ -45,7 +46,7 @@ namespace AsyncConnectionNS
     public class AsyncConnection
     {
 
-        private static int timeout = 10000;
+        protected static int _timeout = 10000;
 
         // ManualResetEvent instances signal completion.
         private ManualResetEvent connectDone =
@@ -66,6 +67,8 @@ namespace AsyncConnectionNS
         
         public string lineBreak = "\r\n";
         public bool binaryMode;
+        public bool reconnect;
+        public int timeout = _timeout;
 
         public bool connected
         {
@@ -98,32 +101,58 @@ namespace AsyncConnectionNS
 
                 while ((socket == null || !socket.Connected) && retryCo++ < 3)
                 {
-                    System.Diagnostics.Debug.WriteLine("Connecting...");
-                    // Create a TCP/IP socket.
-                    socket = new Socket(AddressFamily.InterNetwork,
-                        SocketType.Stream, ProtocolType.Tcp);
-
-                    // Connect to the remote endpoint.
-                    IAsyncResult ar = socket.BeginConnect(host, port,
-                        new AsyncCallback(connectCallback), null);
+                    IAsyncResult ar = _connect();
                     ar.AsyncWaitHandle.WaitOne(timeout, true);
 
                     if (socket != null && !socket.Connected)
                     {
                         socket.Close();
-                        System.Diagnostics.Debug.WriteLine("Timeout");
+                        System.Diagnostics.Debug.WriteLine("Connect timeout");
                     }
                     else
                         receive();
                 }
                 if (socket == null || !socket.Connected)
+                {
                     System.Diagnostics.Debug.WriteLine("Retries limit reached. Connect failed");
+                    if (reconnect)
+                        asyncConnect();
+                }
                 return (socket != null && socket.Connected);
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
                 return false;
+            }
+        }
+
+        public IAsyncResult _connect()
+        {
+            System.Diagnostics.Debug.WriteLine("Connecting...");
+            // Create a TCP/IP socket.
+            socket = new Socket(AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp);
+
+            // Connect to the remote endpoint.
+            return socket.BeginConnect(_host, _port,
+                new AsyncCallback(connectCallback), null);
+        }
+
+        public void asyncConnect()
+        {
+            IAsyncResult ar = _connect();
+            ThreadPool.RegisterWaitForSingleObject(ar.AsyncWaitHandle, new WaitOrTimerCallback(asyncConnectTimeout), null, timeout, true);
+        }
+
+        private void asyncConnectTimeout(object state, bool timedOut)
+        {
+            if (socket != null && !socket.Connected)
+            {
+                Debug.WriteLine("Async connect timeout");
+                socket.Close();
+                if (reconnect)
+                    asyncConnect();
             }
         }
 
@@ -136,9 +165,13 @@ namespace AsyncConnectionNS
         {
             System.Diagnostics.Debug.WriteLine("disconnect");
             receiveDone.Set();
+            if (requested)
+                reconnect = false;
             if (socket != null && socket.Connected)
                 socket.Close();
             disconnected?.Invoke(this, new DisconnectEventArgs { requested = requested });
+            if (reconnect)
+                asyncConnect();
         }
 
         private void connectCallback(IAsyncResult ar)

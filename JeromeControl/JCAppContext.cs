@@ -91,6 +91,13 @@ namespace JeromeControl
             }
         }
 
+        private void esMessage( object Sender, MessageEventArgs e )
+        {
+            int mhz = ((int)e.vfoa) / 1000000;
+            if (fRotator != null)
+                fRotator.esMessage(mhz);
+        }
+
         # region the child forms
 
         private void ShowIntroForm()
@@ -175,8 +182,10 @@ namespace JeromeControl
             if (config.esHost != null && config.esPort != 0)
             {
                 writeConfig();
-                esConnector = ExpertSyncConnector.create(config.esHost, config.esPort);
+                esConnector = new ExpertSyncConnector(config.esHost, config.esPort);
+                esConnector.reconnect = true;
                 esConnector.connect();
+                esConnector.onMessage += esMessage;
             }
         }
 
