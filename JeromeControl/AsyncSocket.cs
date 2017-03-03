@@ -60,8 +60,8 @@ namespace AsyncConnectionNS
         private int _port;
         private volatile Socket socket;
 
-
-        public event EventHandler<DisconnectEventArgs> disconnected;
+        public event EventHandler<EventArgs> onConnected;
+        public event EventHandler<DisconnectEventArgs> onDisconnected;
         public event EventHandler<LineReceivedEventArgs> lineReceived;
         public event EventHandler<BytesReceivedEventArgs> bytesReceived;
         
@@ -169,7 +169,7 @@ namespace AsyncConnectionNS
                 reconnect = false;
             if (socket != null && socket.Connected)
                 socket.Close();
-            disconnected?.Invoke(this, new DisconnectEventArgs { requested = requested });
+            onDisconnected?.Invoke(this, new DisconnectEventArgs { requested = requested });
             if (reconnect)
                 asyncConnect();
         }
@@ -187,6 +187,7 @@ namespace AsyncConnectionNS
 
                     // Signal that the connection has been made.
                     connectDone.Set();
+                    onConnected?.Invoke(this, new EventArgs { } );
                 }
             }
             catch (Exception e)

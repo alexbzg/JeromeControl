@@ -48,14 +48,10 @@
             this.bSizeM = new System.Windows.Forms.ToolStripButton();
             this.bSizeP = new System.Windows.Forms.ToolStripButton();
             this.slMvt = new System.Windows.Forms.ToolStripLabel();
-            this.lAngle = new System.Windows.Forms.ToolStripLabel();
             this.bStop = new System.Windows.Forms.ToolStripButton();
+            this.lAngle = new System.Windows.Forms.ToolStripLabel();
             this.ddSettings = new System.Windows.Forms.ToolStripDropDownButton();
-            this.miConnectionGroups = new System.Windows.Forms.ToolStripMenuItem();
-            this.miConnectionGroupsList = new System.Windows.Forms.ToolStripMenuItem();
             this.miIngnoreEngineOffMovement = new System.Windows.Forms.ToolStripMenuItem();
-            this.miExpertSync = new System.Windows.Forms.ToolStripMenuItem();
-            this.miAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.slCalibration = new System.Windows.Forms.ToolStripLabel();
             this.lCaption = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pMap)).BeginInit();
@@ -68,7 +64,7 @@
             this.miNewConnection,
             this.miEditConnections});
             this.miConnections.Name = "miConnections";
-            this.miConnections.Size = new System.Drawing.Size(221, 22);
+            this.miConnections.Size = new System.Drawing.Size(210, 22);
             this.miConnections.Text = "Соединения";
             this.miConnections.Click += new System.EventHandler(this.miConnections_Click);
             // 
@@ -92,27 +88,27 @@
             this.miMapAdd,
             this.miMapRemove});
             this.miMaps.Name = "miMaps";
-            this.miMaps.Size = new System.Drawing.Size(221, 22);
+            this.miMaps.Size = new System.Drawing.Size(210, 22);
             this.miMaps.Text = "Карты";
             // 
             // miMapAdd
             // 
             this.miMapAdd.Name = "miMapAdd";
-            this.miMapAdd.Size = new System.Drawing.Size(126, 22);
+            this.miMapAdd.Size = new System.Drawing.Size(152, 22);
             this.miMapAdd.Text = "Добавить";
             this.miMapAdd.Click += new System.EventHandler(this.miMapAdd_Click);
             // 
             // miMapRemove
             // 
             this.miMapRemove.Name = "miMapRemove";
-            this.miMapRemove.Size = new System.Drawing.Size(126, 22);
+            this.miMapRemove.Size = new System.Drawing.Size(152, 22);
             this.miMapRemove.Text = "Удалить";
             this.miMapRemove.Click += new System.EventHandler(this.miMapRemove_Click);
             // 
             // miSetNorth
             // 
             this.miSetNorth.Name = "miSetNorth";
-            this.miSetNorth.Size = new System.Drawing.Size(221, 22);
+            this.miSetNorth.Size = new System.Drawing.Size(210, 22);
             this.miSetNorth.Text = "Настройки антенны";
             this.miSetNorth.Visible = false;
             this.miSetNorth.Click += new System.EventHandler(this.miSetNorth_Click);
@@ -120,14 +116,14 @@
             // miCalibrate
             // 
             this.miCalibrate.Name = "miCalibrate";
-            this.miCalibrate.Size = new System.Drawing.Size(221, 22);
+            this.miCalibrate.Size = new System.Drawing.Size(210, 22);
             this.miCalibrate.Text = "Калибровать";
             this.miCalibrate.Visible = false;
             // 
             // miModuleSettings
             // 
             this.miModuleSettings.Name = "miModuleSettings";
-            this.miModuleSettings.Size = new System.Drawing.Size(221, 22);
+            this.miModuleSettings.Size = new System.Drawing.Size(210, 22);
             this.miModuleSettings.Text = "Настройки модуля";
             this.miModuleSettings.Click += new System.EventHandler(this.miModuleSettings_Click);
             // 
@@ -138,8 +134,8 @@
             // 
             // pMap
             // 
-            this.pMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.pMap.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pMap.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pMap.Location = new System.Drawing.Point(0, 58);
@@ -201,13 +197,6 @@
             this.slMvt.Name = "slMvt";
             this.slMvt.Size = new System.Drawing.Size(16, 23);
             // 
-            // lAngle
-            // 
-            this.lAngle.AutoSize = false;
-            this.lAngle.Name = "lAngle";
-            this.lAngle.Size = new System.Drawing.Size(70, 23);
-            this.lAngle.Text = "/";
-            // 
             // bStop
             // 
             this.bStop.BackColor = System.Drawing.Color.Red;
@@ -221,20 +210,24 @@
             this.bStop.Text = " Stop ";
             this.bStop.Click += new System.EventHandler(this.bStop_Click);
             // 
+            // lAngle
+            // 
+            this.lAngle.AutoSize = false;
+            this.lAngle.Name = "lAngle";
+            this.lAngle.Size = new System.Drawing.Size(70, 23);
+            this.lAngle.Text = "/";
+            // 
             // ddSettings
             // 
             this.ddSettings.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.ddSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.ddSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miConnections,
-            this.miConnectionGroups,
             this.miMaps,
             this.miSetNorth,
             this.miCalibrate,
             this.miModuleSettings,
-            this.miIngnoreEngineOffMovement,
-            this.miExpertSync,
-            this.miAbout});
+            this.miIngnoreEngineOffMovement});
             this.ddSettings.ForeColor = System.Drawing.Color.Transparent;
             this.ddSettings.Image = ((System.Drawing.Image)(resources.GetObject("ddSettings.Image")));
             this.ddSettings.ImageTransparentColor = System.Drawing.Color.Black;
@@ -242,44 +235,14 @@
             this.ddSettings.Size = new System.Drawing.Size(29, 23);
             this.ddSettings.Text = "Настройки";
             // 
-            // miConnectionGroups
-            // 
-            this.miConnectionGroups.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miConnectionGroupsList});
-            this.miConnectionGroups.Name = "miConnectionGroups";
-            this.miConnectionGroups.Size = new System.Drawing.Size(221, 22);
-            this.miConnectionGroups.Text = "Группы соединений";
-            // 
-            // miConnectionGroupsList
-            // 
-            this.miConnectionGroupsList.Name = "miConnectionGroupsList";
-            this.miConnectionGroupsList.Size = new System.Drawing.Size(196, 22);
-            this.miConnectionGroupsList.Text = "Редактировать список";
-            this.miConnectionGroupsList.Click += new System.EventHandler(this.miConnectionGroupsList_Click);
-            // 
             // miIngnoreEngineOffMovement
             // 
             this.miIngnoreEngineOffMovement.CheckOnClick = true;
             this.miIngnoreEngineOffMovement.Name = "miIngnoreEngineOffMovement";
-            this.miIngnoreEngineOffMovement.Size = new System.Drawing.Size(221, 22);
+            this.miIngnoreEngineOffMovement.Size = new System.Drawing.Size(210, 22);
             this.miIngnoreEngineOffMovement.Text = "Игнорировать движение";
             this.miIngnoreEngineOffMovement.Visible = false;
             this.miIngnoreEngineOffMovement.CheckStateChanged += new System.EventHandler(this.miIngnoreEngineOffMovement_CheckStateChanged);
-            // 
-            // miExpertSync
-            // 
-            this.miExpertSync.CheckOnClick = true;
-            this.miExpertSync.Name = "miExpertSync";
-            this.miExpertSync.Size = new System.Drawing.Size(221, 22);
-            this.miExpertSync.Text = "Подключение к ExpertSync";
-            this.miExpertSync.Click += new System.EventHandler(this.miExpertSync_Click);
-            // 
-            // miAbout
-            // 
-            this.miAbout.Name = "miAbout";
-            this.miAbout.Size = new System.Drawing.Size(221, 22);
-            this.miAbout.Text = "О программе";
-            this.miAbout.Click += new System.EventHandler(this.miAbout_Click);
             // 
             // slCalibration
             // 
@@ -292,8 +255,8 @@
             // 
             // lCaption
             // 
-            this.lCaption.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.lCaption.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lCaption.AutoSize = true;
             this.lCaption.BackColor = System.Drawing.SystemColors.Control;
@@ -305,7 +268,7 @@
             this.lCaption.TabIndex = 18;
             this.lCaption.Text = "Нет соединения";
             // 
-            // fMain
+            // FRotator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -314,7 +277,7 @@
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.pMap);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "fMain";
+            this.Name = "FRotator";
             this.Text = "Нет соединения";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.fMain_FormClosing);
             this.Load += new System.EventHandler(this.fMain_Load);
@@ -351,11 +314,7 @@
         private System.Windows.Forms.ToolStripLabel slMvt;
         private System.Windows.Forms.ToolStripLabel lAngle;
         private System.Windows.Forms.ToolStripLabel slCalibration;
-        private System.Windows.Forms.ToolStripMenuItem miAbout;
         private System.Windows.Forms.ToolStripMenuItem miIngnoreEngineOffMovement;
-        private System.Windows.Forms.ToolStripMenuItem miConnectionGroups;
-        private System.Windows.Forms.ToolStripMenuItem miConnectionGroupsList;
-        private System.Windows.Forms.ToolStripMenuItem miExpertSync;
         private System.Windows.Forms.Label lCaption;
     }
 }

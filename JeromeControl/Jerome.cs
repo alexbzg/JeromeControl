@@ -53,9 +53,14 @@ namespace Jerome
         private AsyncConnection connection;
         private AsyncConnection usartConnection;
 
-        public event EventHandler<DisconnectEventArgs> disconnected {
-            add { connection.disconnected += value; }
-            remove { connection.disconnected -= value; }
+        public event EventHandler<DisconnectEventArgs> onDisconnected {
+            add { connection.onDisconnected += value; }
+            remove { connection.onDisconnected -= value; }
+        }
+        public event EventHandler<EventArgs> onConnected
+        {
+            add { connection.onConnected += value; }
+            remove { connection.onConnected -= value; }
         }
         public event EventHandler<LineStateChangedEventArgs> lineStateChanged;
         public event EventHandler<LineReceivedEventArgs> usartLineReceived
@@ -157,12 +162,14 @@ namespace Jerome
             if (connection.connected)
             {
                 connection.lineReceived += processReply;
+                connection.reconnect = true;
                 if (connectionParams.usartPort != -1)
                 {
                     sendCommand("PSW,SET," + connectionParams.password);
                     sendCommand("EVT,ON");
                     usartConnection = new AsyncConnection();
-                    usartConnection.connect(connectionParams.host, connectionParams.usartPort);
+                    usartConnection.reconnect = true;
+                    usartConnection.connect(connectionParams.host, connectionParams.usartPort);                    
                 }
                 return true;
             } else
@@ -176,18 +183,24 @@ namespace Jerome
 
         public void disconnect()
         {
-            currentCmd = null;
-            cmdQuee.Clear();
-            _disconnect(true);
+            disconnect(false);
         }
 
-        private void _disconnect(bool requested)
+        public void disconnect( bool reconnect )
         {
+            currentCmd = null;
+            cmdQuee.Clear();
             System.Diagnostics.Debug.WriteLine("disconnect");
             if (connected)
                 connection.disconnect();
             if (usartConnected)
                 usartConnection.disconnect();
+            if ( reconnect )
+            {
+                connection.asyncConnect();
+                if (usartConnection != null)
+                    usartConnection.asyncConnect();
+            }
         }
 
 
@@ -242,7 +255,7 @@ namespace Jerome
         private void replyTimeout()
         {
             System.Diagnostics.Debug.WriteLine("Reply timeout");
-            _disconnect(false);
+            disconnect(true);
         }
 
 

@@ -29,6 +29,7 @@ namespace AntennaeRotator
             nudIntervalOff.Value = cSettings.switchIntervals[1];
             cbDeviceType.SelectedIndex = cSettings.deviceType;
             chbHwLimits.Checked = cSettings.hwLimits;
+            tbESMHz.Text = cSettings.esMhz.ToString();
             icon = cSettings.icon;
 
 

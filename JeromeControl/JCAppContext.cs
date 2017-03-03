@@ -179,6 +179,8 @@ namespace JeromeControl
 
         private void esConnect()
         {
+            if (esConnector != null && esConnector.connected)
+                esConnector.disconnect();
             if (config.esHost != null && config.esPort != 0)
             {
                 writeConfig();
@@ -211,7 +213,8 @@ namespace JeromeControl
         private void esItem_Click( object sender, EventArgs e )
         {
             FESConnection fesc = new FESConnection();
-            if ( fesc.ShowDialog() == DialogResult.OK )
+            if ( fesc.ShowDialog() == DialogResult.OK && 
+                ( config.esHost != fesc.host || config.esPort != fesc.port ) )
             {
                 config.esHost = fesc.host;
                 config.esPort = fesc.port;

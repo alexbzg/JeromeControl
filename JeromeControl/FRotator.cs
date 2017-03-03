@@ -57,6 +57,7 @@ namespace AntennaeRotator
         volatile Task engineTask;
         CancellationTokenSource engineTaskCTS = new CancellationTokenSource();
         volatile bool engineTaskActive;
+        volatile bool controllerTimeout;
 
         internal void clearLimits()
         {
@@ -117,7 +118,7 @@ namespace AntennaeRotator
                         if (currentConnection != null)
                             showMessage("Потеряна связь с устройством!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         if (controller != null && controller.connected)
-                            disconnect();
+                            controller.disconnect( true );
                     });
                 },
                 null, 1000, Timeout.Infinite);
@@ -316,25 +317,33 @@ namespace AntennaeRotator
 
         private void onDisconnect(object obj, DisconnectEventArgs e)
         {
-            currentConnection = null;
-            if (!closingFl)
-                this.Invoke((MethodInvoker)delegate
-                {
-                    Text = "Нет соединения";
-                    lCaption.Text = "Нет соединения";
-                    Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[0]);
-                    miConnections.Text = "Соединения";
-                    if (connectionsDropdown != null)
-                        miConnections.DropDownItems.AddRange(connectionsDropdown);
-                    miSetNorth.Visible = false;
-                    miCalibrate.Visible = false;
-                    miConnectionGroups.Visible = true;
-                    miIngnoreEngineOffMovement.Visible = false;
-                    timer.Enabled = false;
-                    targetAngle = -1;
-                    pMap.Invalidate();
-                    offLimit();
-                });
+            timer.Enabled = false;
+            targetAngle = -1;
+            pMap.Invalidate();
+            offLimit();
+            if (e.requested && !controllerTimeout)
+            {
+                currentConnection = null;
+                if (!closingFl)
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        Text = "Нет соединения";
+                        lCaption.Text = "Нет соединения";
+                        Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[0]);
+                        miConnections.Text = "Соединения";
+                        if (connectionsDropdown != null)
+                            miConnections.DropDownItems.AddRange(connectionsDropdown);
+                        miSetNorth.Visible = false;
+                        miCalibrate.Visible = false;
+                        miIngnoreEngineOffMovement.Visible = false;
+                    });
+            } else
+            {
+                Text += " - нет соединения";
+                lCaption.Text += " - нет соединения";
+                pMap.Enabled = false;
+                miSetNorth.Enabled = false;
+            }
         }
 
         public void writeConfig()
@@ -448,58 +457,60 @@ namespace AntennaeRotator
             if (controller == null)
                 controller = JeromeController.create(currentConnection.jeromeParams);
             UseWaitCursor = true;
-            if (controller.connect())
+            if (!controller.connect())
             {
-                miConnections.Text = "Отключиться";
-                controller.usartBinaryMode = true;
-                if (currentConnection.hwLimits)
-                    controller.lineStateChanged += lineStateChanged;
-                controller.usartBytesReceived += usartBytesReceived;
-                controller.disconnected += onDisconnect;
-                connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
-                miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
-                miConnections.DropDownItems.Clear();
-
-                miConnectionGroups.Visible = false;
-                //miConnectionParams.Enabled = false;
-
-
-                setLine(currentTemplate.ledLine, 0);
-                foreach (int[] dir in currentTemplate.engineLines.Values)
-                    foreach (int line in dir)
-                    {
-                        setLine(line, 0);
-                        toggleLine(line, 0);
-                    }
-                setLine(currentTemplate.uartTRLine, 0);
-                foreach (int line in currentTemplate.limitsLines.Values)
-                    setLine(line, 1);
-
-                timer.Enabled = true;
-
-                miSetNorth.Visible = true;
-                miSetNorth.Enabled = true;
-
-                Text = currentConnection.name;
-                lCaption.Text = currentConnection.name;
-                Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
-                if (currentConnection.hwLimits)
-                {
-                    string lines = controller.readlines();
-                    foreach (KeyValuePair<int, int> kv in currentTemplate.limitsLines)
-                        if (lines[kv.Value - 1] == '0')
-                            onLimit(kv.Key);
-                }
-                else if (currentConnection.northAngle != -1)
-                    currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
-                scheduleTimeoutTimer();
-            }
-            else
-            {
+                controller.disconnect();
                 showMessage("Подключение не удалось", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             miConnections.Enabled = true;
             UseWaitCursor = false;
+        }
+
+        private void onConnect( object sender, EventArgs e)
+        {
+            controllerTimeout = false;
+            miConnections.Text = "Отключиться";
+            controller.usartBinaryMode = true;
+            if (currentConnection.hwLimits)
+                controller.lineStateChanged += lineStateChanged;
+            controller.usartBytesReceived += usartBytesReceived;
+            controller.onDisconnected += onDisconnect;
+            controller.onConnected += onConnect;
+            connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
+            miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
+            miConnections.DropDownItems.Clear();
+
+            setLine(currentTemplate.ledLine, 0);
+            foreach (int[] dir in currentTemplate.engineLines.Values)
+                foreach (int line in dir)
+                {
+                    setLine(line, 0);
+                    toggleLine(line, 0);
+                }
+            setLine(currentTemplate.uartTRLine, 0);
+            foreach (int line in currentTemplate.limitsLines.Values)
+                setLine(line, 1);
+
+            timer.Enabled = true;
+
+            miSetNorth.Visible = true;
+            miSetNorth.Enabled = true;
+            pMap.Enabled = true;
+
+            Text = currentConnection.name;
+            lCaption.Text = currentConnection.name;
+            Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+            if (currentConnection.hwLimits)
+            {
+                string lines = controller.readlines();
+                foreach (KeyValuePair<int, int> kv in currentTemplate.limitsLines)
+                    if (lines[kv.Value - 1] == '0')
+                        onLimit(kv.Key);
+            }
+            else if (currentConnection.northAngle != -1)
+                currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
+            scheduleTimeoutTimer();
+
         }
 
 
@@ -789,6 +800,7 @@ namespace AntennaeRotator
                 conn.hwLimits = fParams.chbHwLimits.Checked;
                 conn.switchIntervals[0] = Convert.ToInt32(fParams.nudIntervalOn.Value);
                 conn.switchIntervals[1] = Convert.ToInt32(fParams.nudIntervalOff.Value);
+                conn.esMhz = Convert.ToInt32(fParams.tbESMHz.Text.Trim());
                 writeConfig();
                 if (conn.Equals(currentConnection))
                 {
@@ -886,21 +898,7 @@ namespace AntennaeRotator
             writeConfig();
         }
 
-        private void miConnectionGroupsList_Click(object sender, EventArgs e)
-        {
-        }
 
-        private void miExpertSync_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void esDisconnected(object sender, DisconnectEventArgs e)
-        {
-            if (!e.requested)
-                MessageBox.Show("Соединение с ExpertSync потеряно!");
-            miExpertSync.Checked = false;
-        }
 
         public void esMessage(int mhz)
         {

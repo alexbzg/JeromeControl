@@ -99,6 +99,11 @@ namespace ExpertSync
             return ac.connect(_host, _port);
         }
 
+        public void disconnect()
+        {
+            ac.disconnect();
+        }
+
         private void bytesReceived( object Sender, BytesReceivedEventArgs e )
         {
             GCHandle pinnedBuffer = GCHandle.Alloc(e.bytes, GCHandleType.Pinned);

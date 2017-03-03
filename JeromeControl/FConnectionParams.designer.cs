@@ -51,6 +51,8 @@
             this.nudIntervalOn = new System.Windows.Forms.NumericUpDown();
             this.tbUSARTPort = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.tbESMHz = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudIntervalOff)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudIntervalOn)).BeginInit();
             this.SuspendLayout();
@@ -153,7 +155,7 @@
             // 
             // nudIntervalOff
             // 
-            this.nudIntervalOff.Location = new System.Drawing.Point(282, 316);
+            this.nudIntervalOff.Location = new System.Drawing.Point(282, 335);
             this.nudIntervalOff.Name = "nudIntervalOff";
             this.nudIntervalOff.Size = new System.Drawing.Size(70, 26);
             this.nudIntervalOff.TabIndex = 14;
@@ -169,7 +171,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(99, 322);
+            this.label5.Location = new System.Drawing.Point(99, 341);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(183, 20);
             this.label5.TabIndex = 15;
@@ -237,7 +239,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(98, 289);
+            this.label7.Location = new System.Drawing.Point(98, 308);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(172, 20);
             this.label7.TabIndex = 21;
@@ -245,7 +247,7 @@
             // 
             // nudIntervalOn
             // 
-            this.nudIntervalOn.Location = new System.Drawing.Point(281, 283);
+            this.nudIntervalOn.Location = new System.Drawing.Point(281, 302);
             this.nudIntervalOn.Name = "nudIntervalOn";
             this.nudIntervalOn.Size = new System.Drawing.Size(70, 26);
             this.nudIntervalOn.TabIndex = 20;
@@ -275,11 +277,29 @@
             this.label8.TabIndex = 22;
             this.label8.Text = "Порт USART";
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(8, 263);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(124, 20);
+            this.label9.TabIndex = 24;
+            this.label9.Text = "ExpertSync Mhz";
+            // 
+            // tbESMHz
+            // 
+            this.tbESMHz.Location = new System.Drawing.Point(141, 260);
+            this.tbESMHz.Name = "tbESMHz";
+            this.tbESMHz.Size = new System.Drawing.Size(210, 26);
+            this.tbESMHz.TabIndex = 25;
+            // 
             // fConnectionParams
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(364, 446);
+            this.Controls.Add(this.tbESMHz);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.tbUSARTPort);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
@@ -339,5 +359,7 @@
         public System.Windows.Forms.NumericUpDown nudIntervalOn;
         public System.Windows.Forms.TextBox tbUSARTPort;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        public System.Windows.Forms.TextBox tbESMHz;
     }
 }
