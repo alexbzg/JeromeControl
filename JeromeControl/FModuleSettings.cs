@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net.Sockets;
 
-namespace AntennaeRotator
+namespace JeromeModuleSettings
 {
     public partial class fModuleSettings : Form
     {

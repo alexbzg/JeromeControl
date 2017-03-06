@@ -21,6 +21,7 @@ using AsyncConnectionNS;
 using System.Diagnostics;
 using JeromeControl;
 using JeromeControl.Properties;
+using JeromeModuleSettings;
 
 namespace AntennaeRotator
 {
@@ -339,10 +340,13 @@ namespace AntennaeRotator
                     });
             } else
             {
-                Text += " - нет соединения";
-                lCaption.Text += " - нет соединения";
-                pMap.Enabled = false;
-                miSetNorth.Enabled = false;
+                this.Invoke((MethodInvoker)delegate
+                {
+                    Text += " - нет соединения";
+                    lCaption.Text += " - нет соединения";
+                    pMap.Enabled = false;
+                    miSetNorth.Enabled = false;
+                });
             }
         }
 

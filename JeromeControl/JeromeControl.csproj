@@ -80,33 +80,65 @@
     <Compile Include="ExpertSync.designer.cs">
       <DependentUpon>ExpertSync.cs</DependentUpon>
     </Compile>
-    <Compile Include="FConnectionParams.cs">
+    <Compile Include="FARConnectionParams.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FConnectionParams.designer.cs">
-      <DependentUpon>FConnectionParams.cs</DependentUpon>
+    <Compile Include="FARConnectionParams.designer.cs">
+      <DependentUpon>FARConnectionParams.cs</DependentUpon>
     </Compile>
-    <Compile Include="FConnectionsList.cs">
+    <Compile Include="FARConnectionsList.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FConnectionsList.Designer.cs">
-      <DependentUpon>FConnectionsList.cs</DependentUpon>
+    <Compile Include="FARConnectionsList.Designer.cs">
+      <DependentUpon>FARConnectionsList.cs</DependentUpon>
     </Compile>
-    <Compile Include="FRotator.cs">
+    <Compile Include="FARotator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FRotator.designer.cs">
-      <DependentUpon>FRotator.cs</DependentUpon>
+    <Compile Include="FARotator.designer.cs">
+      <DependentUpon>FARotator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FARSetNorth.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FARSetNorth.designer.cs">
+      <DependentUpon>FARSetNorth.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FNCButtonProps.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FNCButtonProps.designer.cs">
+      <DependentUpon>FNCButtonProps.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FNCConnectionParams.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FNCConnectionParams.designer.cs">
+      <DependentUpon>FNCConnectionParams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FNCConnectionsList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FNCConnectionsList.designer.cs">
+      <DependentUpon>FNCConnectionsList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FNetComm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FNetComm.designer.cs">
+      <DependentUpon>FNetComm.cs</DependentUpon>
     </Compile>
     <Compile Include="FModuleSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FModuleSettings.designer.cs" />
-    <Compile Include="FSetNorth.cs">
+    <Compile Include="FModuleSettings.designer.cs">
+      <DependentUpon>FModuleSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FNCRelaySettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FSetNorth.designer.cs">
-      <DependentUpon>FSetNorth.cs</DependentUpon>
+    <Compile Include="FNCRelaySettings.designer.cs">
+      <DependentUpon>FNCRelaySettings.cs</DependentUpon>
     </Compile>
     <Compile Include="JCAppContext.cs" />
     <Compile Include="JCConfig.cs" />
@@ -118,18 +150,35 @@
     <EmbeddedResource Include="ExpertSync.resx">
       <DependentUpon>ExpertSync.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FConnectionParams.resx">
-      <DependentUpon>FConnectionParams.cs</DependentUpon>
+    <EmbeddedResource Include="FARConnectionParams.resx">
+      <DependentUpon>FARConnectionParams.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FConnectionsList.resx">
-      <DependentUpon>FConnectionsList.cs</DependentUpon>
+    <EmbeddedResource Include="FARConnectionsList.resx">
+      <DependentUpon>FARConnectionsList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FRotator.resx">
-      <DependentUpon>FRotator.cs</DependentUpon>
+    <EmbeddedResource Include="FARotator.resx">
+      <DependentUpon>FARotator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FModuleSettings.resx" />
-    <EmbeddedResource Include="FSetNorth.resx">
-      <DependentUpon>FSetNorth.cs</DependentUpon>
+    <EmbeddedResource Include="FNCButtonProps.resx">
+      <DependentUpon>FNCButtonProps.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FNCConnectionParams.resx">
+      <DependentUpon>FNCConnectionParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FNCConnectionsList.resx">
+      <DependentUpon>FNCConnectionsList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FNetComm.resx">
+      <DependentUpon>FNetComm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FModuleSettings.resx">
+      <DependentUpon>FModuleSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FARSetNorth.resx">
+      <DependentUpon>FARSetNorth.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FNCRelaySettings.resx">
+      <DependentUpon>FNCRelaySettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

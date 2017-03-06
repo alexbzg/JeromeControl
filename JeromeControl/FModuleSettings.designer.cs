@@ -1,4 +1,4 @@
-﻿namespace AntennaeRotator
+﻿namespace JeromeModuleSettings
 {
     partial class fModuleSettings
     {
