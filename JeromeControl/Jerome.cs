@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using AsyncConnectionNS;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Jerome
 {
@@ -136,7 +137,7 @@ namespace Jerome
                     cmdQuee.RemoveAt(0);
                 }
                 connection.sendCommand("$KE," + currentCmd.cmd);
-                replyTimer = new Timer( obj => replyTimeout(), null, timeout, Timeout.Infinite);
+                replyTimer = new System.Threading.Timer( obj => replyTimeout(), null, timeout, Timeout.Infinite);
             }
         }
 
@@ -270,6 +271,23 @@ namespace Jerome
         public int usartPort = 2525;
         public string password = "Jerome";
         public int httpPort = 80;
+
+        public bool edit()
+        {
+            FConnectionParams fcp = new FConnectionParams(this);
+            if (fcp.ShowDialog() == DialogResult.OK)
+            {
+                name = fcp.data.name;
+                host = fcp.data.host;
+                port = fcp.data.port;
+                httpPort = fcp.data.httpPort;
+                password = fcp.data.password;
+                return true;
+            }
+            else
+                return false;
+        }
+
 
         public JeromeControllerState getState()
         {

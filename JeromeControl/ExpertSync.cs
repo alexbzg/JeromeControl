@@ -92,6 +92,7 @@ namespace ExpertSync
             ac = new AsyncConnection();
             ac.binaryMode = true;
             ac.timeout = _timeout;
+            ac.bytesReceived += bytesReceived;
         }
 
         public bool connect()
