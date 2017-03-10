@@ -143,6 +143,7 @@
     <Compile Include="JCAppContext.cs" />
     <Compile Include="JCConfig.cs" />
     <Compile Include="Jerome.cs" />
+    <Compile Include="NetCommConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />

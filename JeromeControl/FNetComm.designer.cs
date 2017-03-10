@@ -1,6 +1,6 @@
 ﻿namespace NetComm
 {
-    partial class FMain
+    partial class FNetComm
     {
         /// <summary>
         /// Требуется переменная конструктора.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FNetComm));
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.ddbSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.miControl = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,7 +54,7 @@
             this.toolStrip.Location = new System.Drawing.Point(24, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip.Size = new System.Drawing.Size(42, 44);
+            this.toolStrip.Size = new System.Drawing.Size(42, 25);
             this.toolStrip.TabIndex = 0;
             // 
             // ddbSettings
@@ -113,7 +113,7 @@
             this.miModuleSettings.Text = "Настройки модуля";
             this.miModuleSettings.Click += new System.EventHandler(this.miModuleSettings_Click);
             // 
-            // FMain
+            // FNetComm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -126,7 +126,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FMain";
+            this.Name = "FNetComm";
             this.Text = "Ant Comm";
             this.Load += new System.EventHandler(this.FMain_Load);
             this.LocationChanged += new System.EventHandler(this.FMain_LocationChanged);

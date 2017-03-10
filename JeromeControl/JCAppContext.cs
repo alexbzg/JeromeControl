@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using ExpertSync;
 using AntennaeRotator;
+using NetComm;
 
 /*
  * ==============================================================
@@ -65,6 +66,8 @@ namespace JeromeControl
         private ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
 
         private FRotator fRotator;
+        private FNetComm fNetComm;
+        volatile bool exiting;
         /// <summary>
 		/// This class should be created and passed into Application.Run( ... )
 		/// </summary>
@@ -164,6 +167,10 @@ namespace JeromeControl
             miRotator.Click += miRotator_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miRotator);
 
+            ToolStripMenuItem miNetComm = new ToolStripMenuItem("NetComm");
+            miNetComm.Click += miNetComm_Click;
+            notifyIcon.ContextMenuStrip.Items.Add(miNetComm);
+
 
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 
@@ -175,6 +182,20 @@ namespace JeromeControl
             ToolStripMenuItem miExit = new ToolStripMenuItem("Выход");
             miExit.Click += exitItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExit);
+
+            if (config.antennaeRotatorActive)
+                createRotatorForm();
+
+            if (config.netCommActive)
+                createNetCommForm();
+        }
+
+        private void miNetComm_Click(object sender, EventArgs e)
+        {
+            createNetCommForm();
+            fNetComm.Focus();
+            config.netCommActive = true;
+            writeConfig();
         }
 
         private void esConnect()
@@ -224,19 +245,53 @@ namespace JeromeControl
 
         private void miRotator_Click( object sender, EventArgs e )
         {
+            createRotatorForm();
+            fRotator.Focus();
+            config.antennaeRotatorActive = true;
+            writeConfig();
+        }
+
+        private void createNetCommForm()
+        {
+            if (fNetComm == null)
+            {
+                fNetComm = new FNetComm(this);
+                fNetComm.Closed += formClosed;
+            }
+            fNetComm.Show();
+        }
+
+
+
+        private void createRotatorForm()
+        {
             if (fRotator == null)
             {
                 fRotator = new FRotator(this);
                 fRotator.Closed += formClosed;
             }
             fRotator.Show();
-            fRotator.Focus();
         }
 
         private void formClosed( object sender, EventArgs e )
         {
             if (sender == fRotator)
+            {
                 fRotator = null;
+                if (!exiting)
+                {
+                    config.antennaeRotatorActive = false;
+                    writeConfig();
+                }
+            } else if (sender == fNetComm)
+            {
+                fNetComm = null;
+                if (!exiting)
+                {
+                    config.netCommActive = false;
+                    writeConfig();
+                }
+            }
         }
 
         /// <summary>
@@ -244,9 +299,11 @@ namespace JeromeControl
         /// </summary>
         protected override void ExitThreadCore()
         {
-            // before we exit, let forms clean themselves up.
-  //          if (introForm != null) { introForm.Close(); }
- //           if (detailsForm != null) { detailsForm.Close(); }
+            exiting = true;
+            if (fRotator != null)
+                fRotator.Close();
+            if (fNetComm != null)
+                fNetComm.Close();
 
             notifyIcon.Visible = false; // should remove lingering tray icon
             base.ExitThreadCore();

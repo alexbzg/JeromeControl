@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using AntennaeRotator;
+using NetComm;
 
 namespace JeromeControl
 {
@@ -15,6 +16,9 @@ namespace JeromeControl
         public string esHost = null;
         public int esPort = 0;
         public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
+        public NetCommConfig netCommConfig = new NetCommConfig();
+        public bool antennaeRotatorActive;
+        public bool netCommActive;
 
         public void write()
         {

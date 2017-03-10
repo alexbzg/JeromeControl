@@ -26,7 +26,7 @@ namespace NetComm
             cbLines = new ComboBox[buttonLabels.Count()];
             for ( int co = 0; co < buttonLabels.Count(); co++ ) {
                 ComboBox cb = new ComboBox();
-                for ( int co1 = 0; co1 < FMain.lines.Count(); co1++ )
+                for ( int co1 = 0; co1 < FNetComm.lines.Count(); co1++ )
                     cb.Items.Add( ( co1 + 1 ).ToString() );
                 cb.Top = 50 + 35 * co;
                 cb.Left = 134;

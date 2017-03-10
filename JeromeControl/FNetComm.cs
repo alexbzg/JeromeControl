@@ -13,10 +13,11 @@ using System.Threading.Tasks;
 using System.Net;
 using AsyncConnectionNS;
 using JeromeModuleSettings;
+using JeromeControl;
 
 namespace NetComm
 {
-    public partial class FMain : Form
+    public partial class FNetComm : Form
     {
         public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
         //public static int buttonsQty = 6;
@@ -30,10 +31,11 @@ namespace NetComm
         private Color buttonsColor;
         private Dictionary<int, int> esBindings = new Dictionary< int, int> ();
         private IPEndPoint esEndPoint;
-        private AppState appState;
+        private NetCommConfig config;
         private bool loaded = false;
         private JeromeConnectionParams connectionFromArgs = null;
         private bool formSPModified = false;
+        private JCAppContext appContext;
 
         private bool connected
         {
@@ -51,13 +53,13 @@ namespace NetComm
                 buttons[no].Text = buttonLabels[no];
         }
 
-        public FMain( string[] args )
+        public FNetComm( JCAppContext _appContext )
         {
             InitializeComponent();
             Width = 200;
-            readConfig();
-            if (args.Count() > 0)
-                connectionFromArgs = connections.Keys.ToList().Find(item => item.name.Equals(args[0]));
+
+            appContext = _appContext;
+            initConfig( _appContext.config.netCommConfig );
             for (int co = buttonLabels.Count(); co < lines.Count(); co++)
                 buttonLabels.Add("");
             miRelaySettings.Enabled = connections.Count > 0;
@@ -214,12 +216,12 @@ namespace NetComm
             }
             buttonsColor = buttons[0].ForeColor;
             watchTimer = new System.Threading.Timer(obj => onWatchTimer(), null, 1000, 1000);
-            if (appState != null )
+            if (connections.Count > 0 )
             {
                 if (connectionFromArgs != null)
                     connect(connectionFromArgs);
-                else if (appState.lastConnection > -1 && connections.ContainsKey( appState.connections[appState.lastConnection] ) )
-                    connect(appState.connections[appState.lastConnection]);
+                else if (config.lastConnection > -1 && connections.ContainsKey( config.connections[config.lastConnection] ) )
+                    connect(config.connections[config.lastConnection]);
 
             }
             loaded = true;
@@ -230,91 +232,74 @@ namespace NetComm
         {
             if (!loaded)
                 return;
-            using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.xml"))
+            NetCommConfig s = new NetCommConfig();
+            s.lastConnection = -1;
+
+            s.connections = new JeromeConnectionParams[connections.Count];
+            s.states = new ConnectionFormState[connections.Count];
+            int co = 0;
+            foreach (KeyValuePair<JeromeConnectionParams, ConnectionFormState> x in connections)
             {
-                AppState s = new AppState();
-                s.lastConnection = -1;
-
-                s.connections = new JeromeConnectionParams[connections.Count];
-                s.states = new ConnectionFormState[connections.Count];
-                int co = 0;
-                foreach (KeyValuePair<JeromeConnectionParams, ConnectionFormState> x in connections)
+                if (x.Value.active)
                 {
-                    if (x.Value.active)
-                    {
-                        s.lastConnection = co;
-                        System.Drawing.Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
-                        x.Value.formLocation = bounds.Location;
-                        x.Value.formSize = bounds.Size;
-                        formSPModified = false;
-                    }
-                    s.connections[co] = x.Key;
-                    s.states[co] = x.Value;
-                    co++;
+                    s.lastConnection = co;
+                    System.Drawing.Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
+                    x.Value.formLocation = bounds.Location;
+                    x.Value.formSize = bounds.Size;
+                    formSPModified = false;
                 }
-
-                s.buttonLabels = buttonLabels.ToArray();
-
-                s.esMhzValues = new int[ esBindings.Count ];
-                s.esButtons = new int[esBindings.Count];
-                co = 0;
-                foreach ( KeyValuePair<int,int> x in esBindings ) {
-                    s.esMhzValues[co] = x.Key;
-                    s.esButtons[co] = x.Value;
-                    co++;
-                }
-
-                if (esEndPoint != null)
-                {
-                    s.esHost = esEndPoint.Address.ToString();
-                    s.esPort = esEndPoint.Port;
-                }
-
-
-                XmlSerializer ser = new XmlSerializer(typeof(AppState));
-                ser.Serialize(sw, s);
+                s.connections[co] = x.Key;
+                s.states[co] = x.Value;
+                co++;
             }
+
+            s.buttonLabels = buttonLabels.ToArray();
+
+            s.esMhzValues = new int[ esBindings.Count ];
+            s.esButtons = new int[esBindings.Count];
+            co = 0;
+            foreach ( KeyValuePair<int,int> x in esBindings ) {
+                s.esMhzValues[co] = x.Key;
+                s.esButtons[co] = x.Value;
+                co++;
+            }
+
+            if (esEndPoint != null)
+            {
+                s.esHost = esEndPoint.Address.ToString();
+                s.esPort = esEndPoint.Port;
+            }
+
+            appContext.config.netCommConfig = s;
+            appContext.writeConfig();
 
         }
 
-        private bool readConfig()
+        private void initConfig( NetCommConfig _config )
         {
-            bool result = false;
-            if (File.Exists(Application.StartupPath + "\\config.xml"))
+            config = _config;
+            if (config.connections != null)
             {
-                XmlSerializer ser = new XmlSerializer(typeof(AppState));
-                using (FileStream fs = File.OpenRead(Application.StartupPath + "\\config.xml"))
+                if (config.states == null || config.states.Count() == 0)
+                    config.states = new ConnectionFormState[config.connections.Count()];
+                for (int co = 0; co < config.connections.Count(); co++)
                 {
-                    try
-                    {
-                        appState = (AppState)ser.Deserialize(fs);
-                        if (appState.connections != null)
-                            if ( appState.states == null || appState.states.Count() == 0 )
-                                appState.states = new ConnectionFormState[appState.connections.Count()];
-                            for (int co = 0; co < appState.connections.Count(); co++)
-                            {
-                                if (appState.states[co] == null)
-                                    appState.states[co] = new ConnectionFormState();
-                                appState.states[co].active = false;
-                                connections[appState.connections[co]] = appState.states[co];
-                            }
-                        if (appState.buttonLabels != null) 
-                            buttonLabels = appState.buttonLabels.ToList();
-                        if ( appState.esMhzValues != null )
-                            for (int co = 0; co < appState.esButtons.Count(); co++)
-                                esBindings[appState.esMhzValues[co]] = appState.esButtons[co];
-                        IPAddress hostIP;
-                        if (IPAddress.TryParse(appState.esHost, out hostIP))
-                            esEndPoint = new IPEndPoint(hostIP, appState.esPort);
-                        result = true;
-                    }
-                    catch (Exception e)
-                    {
-                        System.Diagnostics.Debug.WriteLine(e.Message);
-                    }
+                    if (config.states[co] == null)
+                        config.states[co] = new ConnectionFormState();
+                    config.states[co].active = false;
+                    connections[config.connections[co]] = config.states[co];
                 }
             }
-            return result;
+            else
+                connections = new Dictionary<JeromeConnectionParams, ConnectionFormState>();
+            if (config.buttonLabels != null) 
+                buttonLabels = config.buttonLabels.ToList();
+            if ( config.esMhzValues != null )
+                for (int co = 0; co < config.esButtons.Count(); co++)
+                    esBindings[config.esMhzValues[co]] = config.esButtons[co];
+            IPAddress hostIP;
+            if (IPAddress.TryParse(config.esHost, out hostIP))
+                esEndPoint = new IPEndPoint(hostIP, config.esPort);
         }
 
         private void miModuleSettings_Click(object sender, EventArgs e)
@@ -461,49 +446,5 @@ namespace NetComm
 
     }
 
-    public class JeromeConnectionState
-    {
-        public bool watch = false;
-        public bool active = false;
-        public bool[] linesStates;
-        public JeromeController controller = null;
-        public int[] lines;
-        
-        public JeromeConnectionState() {
-            linesStates =  new bool[FMain.lines.Count()];
-            lines = new int[FMain.lines.Count()];
-            for (int co = 0; co < linesStates.Count(); co++)
-            {
-                linesStates[co] = false;
-                lines[co] = co + 1;
-            }
-                
-        }
 
-        public bool connected
-        {
-            get
-            {
-                return controller != null && controller.connected;
-            }
-        }
-    }
-
-    public class ConnectionFormState : JeromeConnectionState
-    {
-        public System.Drawing.Point formLocation;
-        public System.Drawing.Size formSize;
-    }
-
-    public class AppState
-    {
-        public JeromeConnectionParams[] connections;
-        public ConnectionFormState[] states;
-        public string[] buttonLabels;
-        public int[] esMhzValues;
-        public int[] esButtons;
-        public string esHost;
-        public int esPort;
-        public int lastConnection;
-    }
 }
