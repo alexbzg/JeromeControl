@@ -97,6 +97,7 @@ namespace JeromeControl
         private void esMessage( object Sender, MessageEventArgs e )
         {
             int mhz = ((int)e.vfoa) / 1000000;
+            System.Diagnostics.Debug.WriteLine("TRX " + (e.trx ? "ON" : "OFF"));
             if (fRotator != null)
                 fRotator.esMessage(mhz);
         }

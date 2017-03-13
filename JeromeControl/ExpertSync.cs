@@ -57,6 +57,7 @@ namespace ExpertSync
         public byte modulation;
         public double vfoa;
         public double vfob;
+        public bool trx;
     }
 
     public class ExpertSyncConnector
@@ -81,6 +82,7 @@ namespace ExpertSync
             public double vfoa;                //!< частота приёмника A
             public double vfob;                //!< частота приёмника B
             public byte modulation;   //!< индекс модуляции eSyncModulation
+            public byte trx;          // false - режим приёма, true - режим передачи
         }
 
         public event EventHandler<MessageEventArgs> onMessage;
@@ -114,7 +116,8 @@ namespace ExpertSync
             {
                 modulation = msg.modulation,
                 vfoa = msg.vfoa,
-                vfob = msg.vfob
+                vfob = msg.vfob,
+                trx = msg.trx == 1
             });
         }
 
