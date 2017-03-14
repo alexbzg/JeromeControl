@@ -35,6 +35,7 @@ namespace NetComm
         private bool loaded = false;
         private JeromeConnectionParams connectionFromArgs = null;
         private bool formSPModified = false;
+        private bool trx = false;
         private JCAppContext appContext;
 
         private bool connected
@@ -156,7 +157,7 @@ namespace NetComm
         private void updateButtonsMode()
         {
             for ( int co = 0; co < buttons.Count(); co++ )
-                buttons[co].Enabled = connected && 
+                buttons[co].Enabled = !trx && connected && 
                     !connections.Values.ToList().Exists(x => x.watch && x.linesStates[co]);
         }
 
@@ -173,7 +174,10 @@ namespace NetComm
                     connections[c].active = false;
                 }
                 else
+                {
                     this.Text = "Disconnected!";
+                    appContext.showNotification("NetComm", c.name + ": соединение потеряно!", ToolTipIcon.Error);
+                }
                 updateButtonsMode();
             });
         }
@@ -400,8 +404,15 @@ namespace NetComm
         }
 
 
-        public void esMessage(int mhz)
+        public void esMessage(int mhz, bool _trx)
         {
+            if (trx != _trx)
+            {
+                trx = _trx;
+                this.Invoke((MethodInvoker)delegate {
+                    updateButtonsMode();
+                });
+            }
             if ( esBindings.ContainsKey( mhz ) ) 
                 this.Invoke( (MethodInvoker) delegate {
                     buttons[esBindings[mhz]].Checked = true;

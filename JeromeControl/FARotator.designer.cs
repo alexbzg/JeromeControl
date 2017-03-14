@@ -94,14 +94,14 @@
             // miMapAdd
             // 
             this.miMapAdd.Name = "miMapAdd";
-            this.miMapAdd.Size = new System.Drawing.Size(152, 22);
+            this.miMapAdd.Size = new System.Drawing.Size(126, 22);
             this.miMapAdd.Text = "Добавить";
             this.miMapAdd.Click += new System.EventHandler(this.miMapAdd_Click);
             // 
             // miMapRemove
             // 
             this.miMapRemove.Name = "miMapRemove";
-            this.miMapRemove.Size = new System.Drawing.Size(152, 22);
+            this.miMapRemove.Size = new System.Drawing.Size(126, 22);
             this.miMapRemove.Text = "Удалить";
             this.miMapRemove.Click += new System.EventHandler(this.miMapRemove_Click);
             // 
@@ -119,6 +119,7 @@
             this.miCalibrate.Size = new System.Drawing.Size(210, 22);
             this.miCalibrate.Text = "Калибровать";
             this.miCalibrate.Visible = false;
+            this.miCalibrate.Click += new System.EventHandler(this.miCalibrate_Click);
             // 
             // miModuleSettings
             // 

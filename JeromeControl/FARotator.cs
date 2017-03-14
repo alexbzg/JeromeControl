@@ -32,8 +32,15 @@ namespace AntennaeRotator
                     new DeviceTemplate { engineLines = new Dictionary<int, int[]>{ { 1, new int[] { 16, 20 } }, {-1, new int[] { 15, 19} } },
                                             ledLine = 22, uartTRLine = 12,
                                             limitsLines = new Dictionary<int, int> {  { 1, 14 }, { -1, 13 } }
-                                        } //0 NetRotator5
+                                        }, //0 NetRotator5
+                    new DeviceTemplate { engineLines = new Dictionary<int,int[]>{ {1, new int[] { 12 } }, {-1, new int[] { 11 } } },
+                                            gearLines = new int[] { 10, 7, 6, 3 },
+                                            rotateButtonsLines = new Dictionary<int,int>{ {2, -1}, { 4, 1 } },
+                                            adc = 1 } //5 Yaesu v6.4
+
                     };
+        static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
+
 
         internal bool editConnectionGroup(ConnectionSettings connectionSettings)
         {
@@ -46,6 +53,7 @@ namespace AntennaeRotator
         int currentAngle = -1;
         int targetAngle = -1;
         int engineStatus = 0;
+        int currentGear = -1;
         int mapAngle = -1;
         int startAngle = -1;
         volatile int limitReached = 0;
@@ -59,6 +67,7 @@ namespace AntennaeRotator
         CancellationTokenSource engineTaskCTS = new CancellationTokenSource();
         volatile bool engineTaskActive;
         volatile bool controllerTimeout;
+        
 
         internal void clearLimits()
         {
@@ -76,6 +85,7 @@ namespace AntennaeRotator
         IPEndPoint esEndPoint;
         ExpertSyncConnector esConnector;
         JCAppContext appContext;
+        private int secOnGear0;
 
         public int getCurrentAngle()
         {
@@ -197,81 +207,106 @@ namespace AntennaeRotator
             (new fModuleSettings()).ShowDialog();
         }
 
+        private void setGear(int val)
+        {
+            if (currentGear != val)
+            {
+                currentGear = val;
+                if (val == -1)
+                    currentTemplate.gearLines.ToList().ForEach(x => toggleLine(x, 0));
+                else
+                {
+                    if (val == 0)
+                        secOnGear0 = 0;
+                    if (currentConnection.deviceType == 1)
+                        for (int co = 0; co < currentTemplate.gearLines.Count(); co++)
+                            toggleLine(currentTemplate.gearLines[co], co < val ? 1 : 0);
+
+                }
+            }
+        }
+
+
         public void engine(int val)
         {
             if (val != engineStatus && (limitReached == 0 || limitReached != val))
             {
-                //System.Diagnostics.Debug.WriteLine("Engine switch begins");
                 this.UseWaitCursor = true;
-                /*Cursor tmpCursor = Cursor.Current;
-                Cursor.Current = Cursors.WaitCursor;*/
                 if (val == 0 || engineStatus != 0)
                 {
                     int prevDir = engineStatus;
-                    toggleLine(currentTemplate.engineLines[prevDir][1], 0);
-                    System.Diagnostics.Debug.WriteLine("Scheduling Delayed switch off");
-                    this.Invoke((MethodInvoker)delegate
+                    if (currentConnection.deviceType == 0)
                     {
-                        if (slCalibration.Text != "Концевик" || !slCalibration.Visible)
+                        toggleLine(currentTemplate.engineLines[prevDir][1], 0);
+                        this.Invoke((MethodInvoker)delegate
                         {
-                            slCalibration.Text = "Остановка";
-                            slCalibration.Visible = true;
-                        }
+                            if (slCalibration.Text != "Концевик" || !slCalibration.Visible)
+                            {
+                                slCalibration.Text = "Остановка";
+                                slCalibration.Visible = true;
+                            }
 
-                    });
-                    if (engineTaskActive)
-                    {
-                        engineTaskCTS.Cancel();
-                        try
-                        {
-                            engineTask.Wait();
-                        }
-                        catch (AggregateException) { }
-                    }
-                    engineTaskActive = true;
-                    pMap.Enabled = false;
-                    engineTask = TaskEx.Run(
-                        async () =>
-                        {
-                            await TaskEx.Delay(currentConnection.switchIntervals[1] * 1000);
-                            System.Diagnostics.Debug.WriteLine("Delayed switch off");
-                            toggleLine(currentTemplate.engineLines[prevDir][0], 0);
-                            clearEngineTask();
                         });
+                        if (engineTaskActive)
+                        {
+                            engineTaskCTS.Cancel();
+                            try
+                            {
+                                engineTask.Wait();
+                            }
+                            catch (AggregateException) { }
+                        }
+                        engineTaskActive = true;
+                        pMap.Enabled = false;
+                        engineTask = TaskEx.Run(
+                            async () =>
+                            {
+                                await TaskEx.Delay(currentConnection.switchIntervals[1] * 1000);
+                                toggleLine(currentTemplate.engineLines[prevDir][0], 0);
+                                clearEngineTask();
+                            });
+                    } else if ( currentConnection.deviceType == 1 )
+                    {
+                        toggleLine(currentTemplate.engineLines[prevDir][0], 0);
+                    }
                 }
                 if (val != 0 && !engineTaskActive)
                 {
-                    toggleLine(currentTemplate.engineLines[val][0], 1);
-                    pMap.Enabled = false;
-                    this.Invoke((MethodInvoker)delegate
+                    if (currentConnection.deviceType == 0)
                     {
-                        if (slCalibration.Text != "Концевик" || !slCalibration.Visible)
+                        toggleLine(currentTemplate.engineLines[val][0], 1);
+                        pMap.Enabled = false;
+                        this.Invoke((MethodInvoker)delegate
                         {
-                            slCalibration.Text = "Пуск";
-                            slCalibration.Visible = true;
-                        }
-
-                    });
-                    engineTaskActive = true;
-                    CancellationToken ct = engineTaskCTS.Token;
-                    System.Diagnostics.Debug.WriteLine("Scheduling Delayed switch on");
-                    engineTask = TaskEx.Run(
-                        async () =>
-                        {
-                            await TaskEx.Delay(currentConnection.switchIntervals[0] * 1000, ct);
-                            if (!ct.IsCancellationRequested)
+                            if (slCalibration.Text != "Концевик" || !slCalibration.Visible)
                             {
-                                System.Diagnostics.Debug.WriteLine("Delayed switch on");
-                                toggleLine(currentTemplate.engineLines[val][1], 1);
+                                slCalibration.Text = "Пуск";
+                                slCalibration.Visible = true;
                             }
-                            clearEngineTask();
-                        }, ct);
-                    if (limitReached != 0 && !currentConnection.hwLimits)
-                        offLimit();
+
+                        });
+                        engineTaskActive = true;
+                        CancellationToken ct = engineTaskCTS.Token;
+                        engineTask = TaskEx.Run(
+                            async () =>
+                            {
+                                await TaskEx.Delay(currentConnection.switchIntervals[0] * 1000, ct);
+                                if (!ct.IsCancellationRequested)
+                                {
+                                    toggleLine(currentTemplate.engineLines[val][1], 1);
+                                }
+                                clearEngineTask();
+                            }, ct);
+                        if (limitReached != 0 && !currentConnection.hwLimits)
+                            offLimit();
+                    } else if ( currentConnection.deviceType == 1 )
+                    {
+                        toggleLine(currentTemplate.engineLines[val][0], 1);
+                    }
                 }
                 engineStatus = val;
-                System.Diagnostics.Debug.WriteLine("engine " + val.ToString());
-                //Cursor.Current = tmpCursor;
+                if (!engineTaskActive)
+                    UseWaitCursor = false;
             }
         }
 
@@ -289,6 +324,30 @@ namespace AntennaeRotator
             });
 
         }
+
+        private void processEVT(string msg)
+        {
+            Match match = rEVT.Match(msg);
+            int line = Convert.ToInt16( match.Groups[1].Value );
+            int lineState = match.Groups[2].Value == "0" ? 1 : 0;
+            if (currentTemplate.rotateButtonsLines != null && currentTemplate.rotateButtonsLines.Keys.Contains(line))
+                Task.Factory.StartNew(() => buttonCmd(line, lineState));
+        }
+
+        private void buttonCmd(int line, int state)
+        {
+            if (state == 0)
+            {
+                engine(0);
+                setGear(0);
+            }
+            else
+            {
+                engine(currentTemplate.rotateButtonsLines[line]);
+                setGear(1);
+            }
+        }
+
 
         private async void disconnect()
         {
@@ -346,6 +405,7 @@ namespace AntennaeRotator
                     lCaption.Text += " - нет соединения";
                     pMap.Enabled = false;
                     miSetNorth.Enabled = false;
+                    appContext.showNotification("AntennaNetRotator", currentConnection.name + ": соединение потеряно!", ToolTipIcon.Error);
                 });
             }
         }
@@ -919,12 +979,20 @@ namespace AntennaeRotator
                    });
         }
 
+        private void miCalibrate_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
     class DeviceTemplate
     {
         internal Dictionary<int, int[]> engineLines;
         internal Dictionary<int, int> limitsLines;
+        internal int[] gearLines;
+        internal Dictionary<int, int> rotateButtonsLines;
+        internal int adc;
+        internal bool uartEncoder;
         internal int uartTRLine;
         internal int ledLine;
     }

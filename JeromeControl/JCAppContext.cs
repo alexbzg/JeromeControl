@@ -82,6 +82,11 @@ namespace JeromeControl
             config.write();
         }
 
+        public void showNotification( string title, string txt, ToolTipIcon icon)
+        {
+            notifyIcon.ShowBalloonTip(60 * 1000, title, txt, icon);
+        }
+
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
@@ -100,6 +105,8 @@ namespace JeromeControl
             System.Diagnostics.Debug.WriteLine("TRX " + (e.trx ? "ON" : "OFF"));
             if (fRotator != null)
                 fRotator.esMessage(mhz);
+            if (fNetComm != null)
+                fNetComm.esMessage(mhz, e.trx);
         }
 
         # region the child forms
