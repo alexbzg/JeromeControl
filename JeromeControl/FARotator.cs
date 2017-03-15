@@ -63,11 +63,19 @@ namespace AntennaeRotator
         List<Bitmap> maps = new List<Bitmap>();
         ToolStripMenuItem[] connectionsDropdown;
         System.Threading.Timer timeoutTimer;
+        System.Threading.Timer adcTimer;
         volatile Task engineTask;
         CancellationTokenSource engineTaskCTS = new CancellationTokenSource();
         volatile bool engineTaskActive;
         volatile bool controllerTimeout;
-        
+        const int adcDataLength = 10;
+        int[] adcData = new int[adcDataLength];
+        int adcDataCount = 0;
+        bool calibration = false;
+        int curADCVal;
+        int calCount = 0;
+
+
 
         internal void clearLimits()
         {
@@ -530,6 +538,102 @@ namespace AntennaeRotator
             UseWaitCursor = false;
         }
 
+        private void readADC()
+        {
+            int adcVal = controller.readADC(currentTemplate.adc);
+            if (adcDataCount < adcDataLength - 1)
+            {
+                adcData[adcDataCount++] = adcVal;
+            }
+            else
+            {
+                Array.Copy(adcData, 1, adcData, 0, adcDataLength - 1);
+                adcData[adcDataLength - 1] = adcVal;
+            }
+            int newADCVal = 0;
+            for (int co = 0; co < adcDataCount; co++)
+            {
+                newADCVal += adcData[co];
+            }
+            newADCVal = Convert.ToInt16(newADCVal / adcDataCount);
+            if (currentConnection.calibrated)
+            {
+                int a = Convert.ToInt16(((double)(adcVal - currentConnection.limits[-1]) / (double)(currentConnection.limits[1] - currentConnection.limits[-1])) * 450);
+                setCurrentAngle(a);
+            }
+            else
+            {
+                showAngleLabel(newADCVal, -1);
+                if (calibration)
+                {
+                    if (newADCVal == 1023 || newADCVal == 0)
+                    {
+                        calibration = false;
+                        calibrationStop(false);
+                        currentConnection.calibrated = false;
+                        writeConfig();
+                        showMessage("Достигнут предел значений АЦП. Калибровка невозможна. Дождитесь остановки антенны, отрегулируйте АЦП и повторите калибровку.",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else if (curADCVal < newADCVal - 5 || curADCVal > newADCVal + 5)
+                    {
+                        curADCVal = newADCVal;
+                        calCount = 0;
+                    }
+                    else
+                    {
+                        if (calCount++ > 50)
+                        {
+                            calibration = false;
+                            calCount = 0;
+                            if (engineStatus == 1)
+                            {
+                                calibrationStop(true);
+                                currentConnection.limits[1] = newADCVal;
+                                currentConnection.calibrated = true;
+                                writeConfig();
+                                miSetNorth.Enabled = true;
+                                showMessage("Калибровка завершена.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else
+                            {
+                                currentConnection.limits[-1] = newADCVal;
+                                engine(1);
+                                calibrationStart(1);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+        }
+
+        private void calibrationStart(int dir)
+        {
+            currentConnection.calibrated = false;
+            writeConfig();
+            calibration = true;
+            miSetNorth.Enabled = false;
+            miCalibrate.Text = "Остановить калибровку";
+            slCalibration.Text = "Калибровка";
+            slCalibration.Visible = true;
+            engine(dir);
+            setGear(1);
+        }
+
+        private void calibrationStop(bool stopEngine)
+        {
+            calibration = false;
+            if (stopEngine)
+                engine(0);
+            setGear(0);
+            miCalibrate.Text = "Калибровать";
+            slCalibration.Visible = false;
+        }
+
+
         private void onConnect( object sender, EventArgs e)
         {
             controllerTimeout = false;
@@ -537,6 +641,8 @@ namespace AntennaeRotator
             controller.usartBinaryMode = true;
             if (currentConnection.hwLimits)
                 controller.lineStateChanged += lineStateChanged;
+            if (currentTemplate.adc != 0)
+                adcTimer = new System.Threading.Timer(obj => readADC(), null, 100, 100);
             controller.usartBytesReceived += usartBytesReceived;
             controller.onDisconnected += onDisconnect;
             controller.onConnected += onConnect;
@@ -981,6 +1087,12 @@ namespace AntennaeRotator
 
         private void miCalibrate_Click(object sender, EventArgs e)
         {
+            if (calibration)
+                calibrationStop(true);
+            else
+            {
+                calibrationStart(-1);
+            }
 
         }
     }
@@ -1004,47 +1116,6 @@ namespace AntennaeRotator
     }
 
 
-    public class ConnectionGroupEntry
-    {
-        public int connectionId;
-        public int esMhz;
-    }
-
-    public class ConnectionGroup : ICloneable
-    {
-        public string name;
-        public List<ConnectionGroupEntry> items = new List<ConnectionGroupEntry>();
-
-        public bool contains(int id)
-        {
-            return items.Exists(x => x.connectionId == id);
-        }
-
-        public string mhzStr(int id)
-        {
-            if (contains(id))
-                return string.Join(";", items.Where(x => x.connectionId == id).Select(x => x.esMhz.ToString()));
-            else
-                return "";
-        }
-
-        public void removeConnection(int id)
-        {
-            if (contains(id))
-                items.RemoveAll(x => x.connectionId == id);
-        }
-
-        public object Clone()
-        {
-            return this.MemberwiseClone();
-        }
-
-
-    }
-
-    public class FormState
-    {
-    }
 
     public static class CommonInf
     {

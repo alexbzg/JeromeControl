@@ -23,6 +23,7 @@ namespace AntennaeRotator
         public bool hwLimits;
         public int[] limitsSerialize;
         public int esMhz;
+        public bool calibrated;
 
         public override string ToString()
         {

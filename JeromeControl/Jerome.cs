@@ -251,6 +251,11 @@ namespace Jerome
             return reply.Substring(split + 1).TrimEnd('\r', '\n');
         }
 
+        public int readADC( int adc)
+        {
+            string reply = sendCommand("RID," + adc.ToString());
+            return Convert.ToInt16(reply.Substring(7, 4));
+        }
 
 
         private void replyTimeout()
