@@ -699,17 +699,26 @@ namespace AntennaeRotator
             if (controller != null && controller.connected)
             {
                 targetAngle = currentConnection.northAngle + angle - (currentConnection.northAngle + angle > 360 ? 360 : 0);
+                startAngle = currentAngle;
                 pMap.Invalidate();
                 System.Diagnostics.Debug.WriteLine("start " + currentAngle.ToString() + " - " + angle.ToString());
                 if (targetAngle != currentAngle)
                 {
                     int d = aD(targetAngle, currentAngle);
                     int dir = Math.Sign(d);
-                    int limit = currentConnection.limits[dir];
-                    if (limit != -1)
+                    if (currentTemplate.adc == 0)
                     {
-                        int dS = aD(limit, currentAngle);
-                        if (Math.Sign(dS) == dir && Math.Abs(dS) < Math.Abs(d))
+                        int limit = currentConnection.limits[dir];
+                        if (limit != -1)
+                        {
+                            int dS = aD(limit, currentAngle);
+                            if (Math.Sign(dS) == dir && Math.Abs(dS) < Math.Abs(d))
+                                dir = -dir;
+                        }
+                    } else
+                    {
+                        int rt = currentAngle + d;
+                        if (rt < 0 || rt > 450)
                             dir = -dir;
                     }
                     engine(dir);
@@ -747,6 +756,13 @@ namespace AntennaeRotator
                         targetAngle = -1;
                         pMap.Invalidate();
                     }
+                    if (Math.Sign(tD) == engineStatus && currentTemplate.gearLines != null && currentGear > 0
+                        && Math.Abs(tD) <= (currentGear + 1) * currentConnection.switchIntervals[0])
+                    {
+                        System.Diagnostics.Debug.WriteLine("gear- current: " + currentAngle.ToString() + " target: " + targetAngle.ToString());
+                        setGear(currentGear - 1);
+                    }
+
                 }
                 if (engineStatus != 0 && !currentConnection.hwLimits)
                 {
@@ -758,6 +774,7 @@ namespace AntennaeRotator
                             onLimit(engineStatus);
                     }
                 }
+
                 int displayAngle = currentAngle;
                 if (currentConnection.northAngle != -1)
                     displayAngle += (displayAngle < currentConnection.northAngle ? 360 : 0) - currentConnection.northAngle;

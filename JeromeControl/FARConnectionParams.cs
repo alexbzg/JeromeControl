@@ -51,8 +51,20 @@ namespace AntennaeRotator
 
         private void cbDeviceType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            chbHwLimits.Visible = (cbDeviceType.SelectedIndex == 0);
             if (!chbHwLimits.Visible)
                 chbHwLimits.Checked = false;
+            if ( cbDeviceType.SelectedIndex == 0)
+            {
+                lIntOff.Visible = true;
+                nudIntervalOff.Visible = true;
+                lIntOn.Text = "Интервал включения";
+            } else
+            {
+                lIntOff.Visible = false;
+                nudIntervalOff.Visible = false;
+                lIntOn.Text = "Интервал торможения";
+            }
         }
 
         private void bIconPrev_Click(object sender, EventArgs e)

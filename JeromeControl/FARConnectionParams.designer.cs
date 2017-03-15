@@ -40,14 +40,14 @@
             this.label4 = new System.Windows.Forms.Label();
             this.tbName = new System.Windows.Forms.TextBox();
             this.nudIntervalOff = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
+            this.lIntOff = new System.Windows.Forms.Label();
             this.cbDeviceType = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.chbHwLimits = new System.Windows.Forms.CheckBox();
             this.pIcon = new System.Windows.Forms.Panel();
             this.bIconPrev = new System.Windows.Forms.Button();
             this.bIconNext = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
+            this.lIntOn = new System.Windows.Forms.Label();
             this.nudIntervalOn = new System.Windows.Forms.NumericUpDown();
             this.tbUSARTPort = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -168,14 +168,14 @@
             0});
             this.nudIntervalOff.Validating += new System.ComponentModel.CancelEventHandler(this.nudInterval_Validating);
             // 
-            // label5
+            // lIntOff
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(99, 341);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(183, 20);
-            this.label5.TabIndex = 15;
-            this.label5.Text = "Интервал выключения";
+            this.lIntOff.AutoSize = true;
+            this.lIntOff.Location = new System.Drawing.Point(99, 341);
+            this.lIntOff.Name = "lIntOff";
+            this.lIntOff.Size = new System.Drawing.Size(183, 20);
+            this.lIntOff.TabIndex = 15;
+            this.lIntOff.Text = "Интервал выключения";
             // 
             // cbDeviceType
             // 
@@ -236,14 +236,14 @@
             this.bIconNext.UseVisualStyleBackColor = true;
             this.bIconNext.Click += new System.EventHandler(this.bIconNext_Click);
             // 
-            // label7
+            // lIntOn
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(98, 308);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(172, 20);
-            this.label7.TabIndex = 21;
-            this.label7.Text = "Интервал включения";
+            this.lIntOn.AutoSize = true;
+            this.lIntOn.Location = new System.Drawing.Point(98, 308);
+            this.lIntOn.Name = "lIntOn";
+            this.lIntOn.Size = new System.Drawing.Size(172, 20);
+            this.lIntOn.TabIndex = 21;
+            this.lIntOn.Text = "Интервал включения";
             // 
             // nudIntervalOn
             // 
@@ -302,7 +302,7 @@
             this.Controls.Add(this.label9);
             this.Controls.Add(this.tbUSARTPort);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.label7);
+            this.Controls.Add(this.lIntOn);
             this.Controls.Add(this.nudIntervalOn);
             this.Controls.Add(this.bIconPrev);
             this.Controls.Add(this.bIconNext);
@@ -310,7 +310,7 @@
             this.Controls.Add(this.chbHwLimits);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.cbDeviceType);
-            this.Controls.Add(this.label5);
+            this.Controls.Add(this.lIntOff);
             this.Controls.Add(this.nudIntervalOff);
             this.Controls.Add(this.tbName);
             this.Controls.Add(this.label4);
@@ -348,14 +348,14 @@
         private System.Windows.Forms.Label label4;
         public System.Windows.Forms.TextBox tbName;
         public System.Windows.Forms.NumericUpDown nudIntervalOff;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label lIntOff;
         public System.Windows.Forms.ComboBox cbDeviceType;
         private System.Windows.Forms.Label label6;
         public System.Windows.Forms.CheckBox chbHwLimits;
         private System.Windows.Forms.Panel pIcon;
         private System.Windows.Forms.Button bIconPrev;
         private System.Windows.Forms.Button bIconNext;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label lIntOn;
         public System.Windows.Forms.NumericUpDown nudIntervalOn;
         public System.Windows.Forms.TextBox tbUSARTPort;
         private System.Windows.Forms.Label label8;
