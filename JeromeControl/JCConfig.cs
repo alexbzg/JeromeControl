@@ -15,6 +15,8 @@ namespace JeromeControl
     {
         public string esHost = null;
         public int esPort = 0;
+        public string WX0BHost = null;
+        public int WX0BPort = 0;
         public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
         public NetCommConfig netCommConfig = new NetCommConfig();
         public bool antennaeRotatorActive;

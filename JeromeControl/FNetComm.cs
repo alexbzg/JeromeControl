@@ -14,6 +14,7 @@ using System.Net;
 using AsyncConnectionNS;
 using JeromeModuleSettings;
 using JeromeControl;
+using System.Threading;
 
 namespace NetComm
 {
@@ -453,8 +454,12 @@ namespace NetComm
             writeConfig();
         }
 
-
-
+        private void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            watchTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            Parallel.ForEach(connections.Where(x => x.Value.controller != null),
+                x => x.Value.controller.disconnect());
+        }
     }
 
 

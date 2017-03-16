@@ -364,7 +364,12 @@ namespace AntennaeRotator
                 timeoutTimer.Dispose();
                 timeoutTimer = null;
             }
-            if (controller != null && controller.connected)
+            if (adcTimer != null)
+            {
+                adcTimer.Dispose();
+                adcTimer = null;
+            }
+            if (controller != null )
             {
                 if (engineStatus != 0)
                 {
@@ -906,8 +911,7 @@ namespace AntennaeRotator
         private void fMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             closingFl = true;
-            if (controller != null && controller.connected)
-                disconnect();
+            disconnect();
         }
 
         private void timer_Tick(object sender, EventArgs e)

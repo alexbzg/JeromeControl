@@ -5,6 +5,7 @@ using System.Reflection;
 using ExpertSync;
 using AntennaeRotator;
 using NetComm;
+using WX0B;
 
 /*
  * ==============================================================
@@ -64,6 +65,7 @@ namespace JeromeControl
 
         private ExpertSyncConnector esConnector;
         private ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
+        private ToolStripMenuItem miWX0B = new ToolStripMenuItem("WX0B");
 
         private FRotator fRotator;
         private FNetComm fNetComm;
@@ -182,6 +184,9 @@ namespace JeromeControl
 
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 
+            miWX0B.Click += miWX0B_Click;
+            notifyIcon.ContextMenuStrip.Items.Add(miWX0B);
+
             miExpertSync.Click += esItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExpertSync);
 
@@ -196,6 +201,18 @@ namespace JeromeControl
 
             if (config.netCommActive)
                 createNetCommForm();
+        }
+
+        private void miWX0B_Click( object sender, EventArgs e)
+        {
+            FWX0BConnection fWX0Bc = new FWX0BConnection();
+            if (fWX0Bc.ShowDialog() == DialogResult.OK &&
+                (config.WX0BHost != fWX0Bc.host || config.WX0BPort != fWX0Bc.port))
+            {
+                config.WX0BHost = fWX0Bc.host;
+                config.WX0BPort = fWX0Bc.port;
+            }
+
         }
 
         private void miNetComm_Click(object sender, EventArgs e)
