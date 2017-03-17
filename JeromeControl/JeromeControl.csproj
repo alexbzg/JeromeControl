@@ -74,6 +74,12 @@
   <ItemGroup>
     <Compile Include="AntennaeRotatorConfig.cs" />
     <Compile Include="AsyncSocket.cs" />
+    <Compile Include="WX0BControllerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WX0BControllerPanel.Designer.cs">
+      <DependentUpon>WX0BControllerPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="WX0B.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -116,11 +122,11 @@
     <Compile Include="FNCButtonProps.designer.cs">
       <DependentUpon>FNCButtonProps.cs</DependentUpon>
     </Compile>
-    <Compile Include="FNCConnectionParams.cs">
+    <Compile Include="FJeromeConnectionParams.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FNCConnectionParams.designer.cs">
-      <DependentUpon>FNCConnectionParams.cs</DependentUpon>
+    <Compile Include="FJeromeConnectionParams.designer.cs">
+      <DependentUpon>FJeromeConnectionParams.cs</DependentUpon>
     </Compile>
     <Compile Include="FNCConnectionsList.cs">
       <SubType>Form</SubType>
@@ -172,8 +178,8 @@
     <EmbeddedResource Include="FNCButtonProps.resx">
       <DependentUpon>FNCButtonProps.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FNCConnectionParams.resx">
-      <DependentUpon>FNCConnectionParams.cs</DependentUpon>
+    <EmbeddedResource Include="FJeromeConnectionParams.resx">
+      <DependentUpon>FJeromeConnectionParams.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FNCConnectionsList.resx">
       <DependentUpon>FNCConnectionsList.cs</DependentUpon>
@@ -200,6 +206,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="WX0BControllerPanel.resx">
+      <DependentUpon>WX0BControllerPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

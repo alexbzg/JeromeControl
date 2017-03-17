@@ -205,7 +205,7 @@ namespace JeromeControl
 
         private void miWX0B_Click( object sender, EventArgs e)
         {
-            FWX0BConnection fWX0Bc = new FWX0BConnection();
+            FWX0B fWX0Bc = new FWX0B();
             if (fWX0Bc.ShowDialog() == DialogResult.OK &&
                 (config.WX0BHost != fWX0Bc.host || config.WX0BPort != fWX0Bc.port))
             {

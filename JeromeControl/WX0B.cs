@@ -10,7 +10,7 @@ using System.IO;
 
 namespace WX0B
 {
-    public partial class FWX0BConnection : Form
+    public partial class FWX0B : Form
     {
         public string host
         {
@@ -28,12 +28,12 @@ namespace WX0B
             }
         }
 
-        public FWX0BConnection()
+        public FWX0B()
         {
             InitializeComponent();
         }
 
-        public FWX0BConnection( string host, int port)
+        public FWX0B( string host, int port)
         {
             InitializeComponent();
             tbAddress.Text = host;
