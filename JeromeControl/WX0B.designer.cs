@@ -28,54 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.tbAddress = new System.Windows.Forms.TextBox();
-            this.tbPort = new System.Windows.Forms.TextBox();
             this.bCancel = new System.Windows.Forms.Button();
             this.bOK = new System.Windows.Forms.Button();
             this.gbTerminal = new System.Windows.Forms.GroupBox();
             this.cbConnectTerminal = new System.Windows.Forms.CheckBox();
+            this.bTerminalConnectionParams = new System.Windows.Forms.Button();
             this.gbTerminal.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(7, 30);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(57, 20);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Адрес";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(216, 30);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(48, 20);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Порт";
-            // 
-            // tbAddress
-            // 
-            this.tbAddress.Location = new System.Drawing.Point(65, 27);
-            this.tbAddress.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.tbAddress.Name = "tbAddress";
-            this.tbAddress.Size = new System.Drawing.Size(146, 26);
-            this.tbAddress.TabIndex = 2;
-            this.tbAddress.Text = "127.0.0.1";
-            // 
-            // tbPort
-            // 
-            this.tbPort.Location = new System.Drawing.Point(272, 27);
-            this.tbPort.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.tbPort.Name = "tbPort";
-            this.tbPort.Size = new System.Drawing.Size(129, 26);
-            this.tbPort.TabIndex = 3;
-            this.tbPort.Text = "8080";
             // 
             // bCancel
             // 
@@ -99,14 +58,12 @@
             // 
             // gbTerminal
             // 
+            this.gbTerminal.Controls.Add(this.bTerminalConnectionParams);
             this.gbTerminal.Controls.Add(this.cbConnectTerminal);
-            this.gbTerminal.Controls.Add(this.tbPort);
-            this.gbTerminal.Controls.Add(this.label1);
-            this.gbTerminal.Controls.Add(this.label2);
-            this.gbTerminal.Controls.Add(this.tbAddress);
-            this.gbTerminal.Location = new System.Drawing.Point(6, 4);
+            this.gbTerminal.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gbTerminal.Location = new System.Drawing.Point(0, 0);
             this.gbTerminal.Name = "gbTerminal";
-            this.gbTerminal.Size = new System.Drawing.Size(414, 106);
+            this.gbTerminal.Size = new System.Drawing.Size(432, 98);
             this.gbTerminal.TabIndex = 7;
             this.gbTerminal.TabStop = false;
             this.gbTerminal.Text = "Терминал";
@@ -115,14 +72,24 @@
             // 
             this.cbConnectTerminal.Appearance = System.Windows.Forms.Appearance.Button;
             this.cbConnectTerminal.AutoSize = true;
-            this.cbConnectTerminal.Location = new System.Drawing.Point(275, 61);
+            this.cbConnectTerminal.Location = new System.Drawing.Point(303, 59);
             this.cbConnectTerminal.Name = "cbConnectTerminal";
             this.cbConnectTerminal.Size = new System.Drawing.Size(126, 30);
             this.cbConnectTerminal.TabIndex = 5;
             this.cbConnectTerminal.Text = "Подключение";
             this.cbConnectTerminal.UseVisualStyleBackColor = true;
             // 
-            // FWX0BConnection
+            // bTerminalConnectionParams
+            // 
+            this.bTerminalConnectionParams.Dock = System.Windows.Forms.DockStyle.Top;
+            this.bTerminalConnectionParams.Location = new System.Drawing.Point(3, 22);
+            this.bTerminalConnectionParams.Name = "bTerminalConnectionParams";
+            this.bTerminalConnectionParams.Size = new System.Drawing.Size(426, 31);
+            this.bTerminalConnectionParams.TabIndex = 6;
+            this.bTerminalConnectionParams.Text = "button1";
+            this.bTerminalConnectionParams.UseVisualStyleBackColor = true;
+            // 
+            // FWX0B
             // 
             this.AcceptButton = this.bOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -135,7 +102,7 @@
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.Name = "FWX0BConnection";
+            this.Name = "FWX0B";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "WX0B";
             this.gbTerminal.ResumeLayout(false);
@@ -145,14 +112,10 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox tbAddress;
-        private System.Windows.Forms.TextBox tbPort;
         private System.Windows.Forms.Button bCancel;
         private System.Windows.Forms.Button bOK;
         private System.Windows.Forms.GroupBox gbTerminal;
         private System.Windows.Forms.CheckBox cbConnectTerminal;
+        private System.Windows.Forms.Button bTerminalConnectionParams;
     }
 }

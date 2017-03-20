@@ -7,40 +7,74 @@ using System.Threading;
 using System.Windows.Forms;
 using AsyncConnectionNS;
 using System.IO;
+using JeromeControl;
+using Jerome;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace WX0B
 {
     public partial class FWX0B : Form
     {
-        public string host
+        JCAppContext appContext;
+        WX0BConfig config;
+
+        JeromeController terminalJController;
+
+        public FWX0B(JCAppContext _appContext)
         {
-            get
+            appContext = _appContext;
+            config = _appContext.config.WX0BConfig;
+            InitializeComponent();
+            if (config.terminalConnectionParams != null)
             {
-                return tbAddress.Text;
+                bTerminalConnectionParams.Text = config.terminalConnectionParams.host;
+                cbConnectTerminal.Enabled = true;
+                if (config.terminalActive)
+                    connectTerminal();
+            }
+            else
+            {
+                bTerminalConnectionParams.Text = "Настроить соединение";
+                cbConnectTerminal.Enabled = false;
             }
         }
 
-        public int port
+        public void connectTerminal()
         {
-            get
+            cbConnectTerminal.Checked = true;
+            terminalJController = JeromeController.create(config.terminalConnectionParams);
+            terminalJController.onConnected += TerminalJControllerConnected;
+            terminalJController.onDisconnected += TerminalJControllerDisconnected;
+        }
+
+        private void TerminalJControllerConnected(object sender, EventArgs e)
+        {
+            cbConnectTerminal.ForeColor = Color.Green;
+        }
+
+        private void TerminalJController_onDisconnected(object sender, DisconnectEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void TerminalJControllerDisconnected(object sender, DisconnectEventArgs e)
+        {
+            this.Invoke((MethodInvoker)delegate
             {
-                return Convert.ToInt32(tbPort.Text);
-            }
+                if (e.requested)
+                {
+                    cbConnectTerminal.Checked = false;
+                }
+                else
+                {
+                    appContext.showNotification("NetComm", c.name + ": соединение потеряно!", ToolTipIcon.Error);
+                }
+                updateButtonsMode();
+            });
+
         }
 
-        public FWX0B()
-        {
-            InitializeComponent();
-        }
-
-        public FWX0B( string host, int port)
-        {
-            InitializeComponent();
-            tbAddress.Text = host;
-            tbPort.Text = port.ToString();
-        }
-
-    
     }
 
     public class WX0BController
@@ -59,47 +93,20 @@ namespace WX0B
 
     }
 
-    public class WX0BData
+    public class WX0BControllerConfigEntry
     {
-        public WX0BData( string host, int port)
-        {
-            WebClient webClient = new WebClient();
-            try
-            {
-               /* dynamic result = JsonValue.Parse(webClient.DownloadString("http://" + host + ":" + port.ToString() + "/data");
-                Console.WriteLine(result.response.user.firstName);
-                HttpWebResponse resp = (HttpWebResponse)rq.GetResponse();
-                if (resp.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    using (StreamReader stream = new StreamReader(resp.GetResponseStream(), Encoding.UTF8))
-                    {
-                        xr = XElement.Parse(stream.ReadToEnd());
-                    }
-                    JeromeControllerState result = new JeromeControllerState();
-                    string linesModes = xr.XPathSelectElement("iotable").Value;
-                    string linesStates = xr.XPathSelectElement("iovalue").Value;
-                    for (int co = 0; co < 22; co++)
-                    {
-                        result.linesModes[co] = linesModes[co] == '1';
-                        result.linesStates[co] = linesStates[co] == '1';
-                    }
-                    for (int co = 0; co < 4; co++)
-                        result.adcsValues[co] = (int)xr.XPathSelectElement("adc" + (co + 1).ToString());
-                    return result;
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("Query to " + host + ":" + httpPort.ToString() +
-                        " returned status code" + resp.StatusCode.ToString());
-                }*/
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine("Query to " + host + ":" + port.ToString() +
-                    " error: " + e.ToString());
-            }
-        }
+        public JeromeConnectionParams connectionParams;
+        public int esMHz;
     }
+
+    public class WX0BConfig
+    {
+        public JeromeConnectionParams terminalConnectionParams;
+        public List<WX0BControllerConfigEntry> controllers;
+        public int activeController;
+        public bool terminalActive;
+    }
+
 
 
 
