@@ -18,7 +18,7 @@ using System.Threading;
 
 namespace NetComm
 {
-    public partial class FNetComm : Form
+    public partial class FNetComm : Form, IJCChildForm
     {
         public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
         //public static int buttonsQty = 6;

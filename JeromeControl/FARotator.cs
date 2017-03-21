@@ -26,7 +26,7 @@ using JeromeModuleSettings;
 namespace AntennaeRotator
 {
 
-    public partial class FRotator : Form
+    public partial class FRotator : Form, IJCChildForm
     {
         static DeviceTemplate[] templates = {
                     new DeviceTemplate { engineLines = new Dictionary<int, int[]>{ { 1, new int[] { 16, 20 } }, {-1, new int[] { 15, 19} } },
@@ -1091,7 +1091,7 @@ namespace AntennaeRotator
 
 
 
-        public void esMessage(int mhz)
+        public void esMessage(int mhz, bool trx)
         {
             //int mhz = ((int)e.vfoa) / 1000000;
             if ( config.connections.Exists( x => x.esMhz == mhz) ) 

@@ -19,8 +19,7 @@ namespace JeromeControl
         public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
         public NetCommConfig netCommConfig = new NetCommConfig();
         public WX0BConfig WX0BConfig = new WX0BConfig();
-        public bool antennaeRotatorActive;
-        public bool netCommActive;
+        public bool[] activeChildForms = new bool[JCAppContext.ChildFormsTypes.Count()];
 
         public void write()
         {

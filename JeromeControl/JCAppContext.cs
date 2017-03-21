@@ -6,6 +6,8 @@ using ExpertSync;
 using AntennaeRotator;
 using NetComm;
 using WX0B;
+using System.Collections.Generic;
+using System.Linq;
 
 /*
  * ==============================================================
@@ -60,15 +62,17 @@ namespace JeromeControl
         // Icon graphic from http://prothemedesign.com/circular-icons/
         private static readonly string IconFileName = "icon_ant1.ico";
         private static readonly string DefaultTooltip = "Управление антеннами";
+        internal static readonly string[] ChildFormsTypes = new string[] { "AntennaeRotator.FRotator", "NetComm.FNetComm", "WX0B.FWX0B" };
+        private static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
 
         public JCConfig config;
 
-        private ExpertSyncConnector esConnector;
-        private ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
-        private ToolStripMenuItem miWX0B = new ToolStripMenuItem("WX0B");
 
-        private FRotator fRotator;
-        private FNetComm fNetComm;
+        private ExpertSyncConnector esConnector;
+        ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
+
+        private Dictionary<string, IJCChildForm> childForms = new Dictionary<string, IJCChildForm>();
+
         volatile bool exiting;
         /// <summary>
 		/// This class should be created and passed into Application.Run( ... )
@@ -105,10 +109,9 @@ namespace JeromeControl
         {
             int mhz = ((int)e.vfoa) / 1000000;
             System.Diagnostics.Debug.WriteLine("TRX " + (e.trx ? "ON" : "OFF"));
-            if (fRotator != null)
-                fRotator.esMessage(mhz);
-            if (fNetComm != null)
-                fNetComm.esMessage(mhz, e.trx);
+            foreach (IJCChildForm form in childForms.Values)
+                if (form != null)
+                    form.esMessage(mhz, e.trx);
         }
 
         # region the child forms
@@ -173,19 +176,22 @@ namespace JeromeControl
             config = JCConfig.read();
             esConnect();
 
-            ToolStripMenuItem miRotator = new ToolStripMenuItem("AntennaNetRotator");
-            miRotator.Click += miRotator_Click;
-            notifyIcon.ContextMenuStrip.Items.Add(miRotator);
-
-            ToolStripMenuItem miNetComm = new ToolStripMenuItem("NetComm");
-            miNetComm.Click += miNetComm_Click;
-            notifyIcon.ContextMenuStrip.Items.Add(miNetComm);
+            for (var c = 0; c < ChildFormsTypes.Count(); c++)
+            {
+                ToolStripMenuItem mi = new ToolStripMenuItem(ChildFormsTitles[c]);
+                string childFormTypeStr = ChildFormsTypes[c];
+                mi.Click += new EventHandler(delegate (object obj, EventArgs ea)
+                {
+                    createForm(childFormTypeStr);
+                });
+                notifyIcon.ContextMenuStrip.Items.Add(mi);
+                childForms[ChildFormsTypes[c]] = null;
+                if (config.activeChildForms[c])
+                    createForm(ChildFormsTypes[c]);
+            }
 
 
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-
-            miWX0B.Click += miWX0B_Click;
-            notifyIcon.ContextMenuStrip.Items.Add(miWX0B);
 
             miExpertSync.Click += esItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExpertSync);
@@ -196,32 +202,10 @@ namespace JeromeControl
             miExit.Click += exitItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExit);
 
-            if (config.antennaeRotatorActive)
-                createRotatorForm();
 
-            if (config.netCommActive)
-                createNetCommForm();
-        }
-
-        private void miWX0B_Click( object sender, EventArgs e)
-        {
-            FWX0B fWX0Bc = new FWX0B();
-            if (fWX0Bc.ShowDialog() == DialogResult.OK &&
-                (config.WX0BHost != fWX0Bc.host || config.WX0BPort != fWX0Bc.port))
-            {
-                config.WX0BHost = fWX0Bc.host;
-                config.WX0BPort = fWX0Bc.port;
-            }
 
         }
 
-        private void miNetComm_Click(object sender, EventArgs e)
-        {
-            createNetCommForm();
-            fNetComm.Focus();
-            config.netCommActive = true;
-            writeConfig();
-        }
 
         private void esConnect()
         {
@@ -268,54 +252,33 @@ namespace JeromeControl
             }
         }
 
-        private void miRotator_Click( object sender, EventArgs e )
+        private void createForm( string childFormTypeStr)
         {
-            createRotatorForm();
-            fRotator.Focus();
-            config.antennaeRotatorActive = true;
-            writeConfig();
-        }
-
-        private void createNetCommForm()
-        {
-            if (fNetComm == null)
+            if (childForms[childFormTypeStr] != null)
+                ((Form)childForms[childFormTypeStr]).Focus();
+            else
             {
-                fNetComm = new FNetComm(this);
-                fNetComm.Closed += formClosed;
+                Type childFormType = Type.GetType(childFormTypeStr);
+                var constructor = childFormType.GetConstructors()[0];
+                Form childForm = (Form)constructor.Invoke(new object[] { this });
+                childForm.Show();
+                childForm.FormClosed += formClosed;
+                childForms[childFormTypeStr] = (IJCChildForm)childForm;
+                int idx = Array.IndexOf(ChildFormsTypes, childFormTypeStr);
+                config.activeChildForms[idx] = true;
+                writeConfig();
             }
-            fNetComm.Show();
-        }
-
-
-
-        private void createRotatorForm()
-        {
-            if (fRotator == null)
-            {
-                fRotator = new FRotator(this);
-                fRotator.Closed += formClosed;
-            }
-            fRotator.Show();
         }
 
         private void formClosed( object sender, EventArgs e )
         {
-            if (sender == fRotator)
+            string childFormTypeStr = childForms.FirstOrDefault(x => x.Value == sender).Key;
+            childForms[childFormTypeStr] = null;
+            if (!exiting)
             {
-                fRotator = null;
-                if (!exiting)
-                {
-                    config.antennaeRotatorActive = false;
-                    writeConfig();
-                }
-            } else if (sender == fNetComm)
-            {
-                fNetComm = null;
-                if (!exiting)
-                {
-                    config.netCommActive = false;
-                    writeConfig();
-                }
+                int idx = Array.IndexOf(ChildFormsTypes, childFormTypeStr);
+                config.activeChildForms[idx] = false;
+                writeConfig();
             }
         }
 
@@ -325,10 +288,9 @@ namespace JeromeControl
         protected override void ExitThreadCore()
         {
             exiting = true;
-            if (fRotator != null)
-                fRotator.Close();
-            if (fNetComm != null)
-                fNetComm.Close();
+            /*foreach (string childFormTypeStr in childForms.Keys)
+                if (childForms[childFormTypeStr] != null)
+                    ((Form)childForms[childFormTypeStr]).Close();*/
 
             notifyIcon.Visible = false; // should remove lingering tray icon
             base.ExitThreadCore();
@@ -343,4 +305,10 @@ namespace JeromeControl
 
 
     }
+
+    public interface IJCChildForm
+    {
+        void esMessage(int mhz, bool trx);
+    }
+
 }
