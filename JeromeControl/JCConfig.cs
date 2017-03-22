@@ -50,6 +50,12 @@ namespace JeromeControl
             }
             if (result == null)
                 result = new JCConfig();
+            if (result.antennaeRotatorConfig == null)
+                result.antennaeRotatorConfig = new AntennaeRotatorConfig();
+            if (result.netCommConfig == null)
+                result.netCommConfig = new NetCommConfig();
+            if (result.WX0BConfig == null)
+                result.WX0BConfig = new WX0BConfig();
             return result;
         }
     }

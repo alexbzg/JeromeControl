@@ -16,11 +16,13 @@ namespace WX0B
 {
     public partial class FWX0B : Form, IJCChildForm
     {
-        JCAppContext appContext;
-        WX0BConfig config;
-        Color defForeColor;
+        internal JCAppContext appContext;
+        internal WX0BConfig config;
+        internal Color defForeColor;
 
-        JeromeController terminalJController;
+        JeromeController terminalJConnection;
+        internal List<WX0BController> controllers = new List<WX0BController>();
+        internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
         public FWX0B(JCAppContext _appContext)
         {
@@ -29,6 +31,8 @@ namespace WX0B
             InitializeComponent();
             defForeColor = cbConnectTerminal.ForeColor;
             updateTerminalConnectionParamsCaption();
+            foreach (WX0BControllerConfigEntry cConfig in config.controllers)
+                createController(cConfig);
             if (config.terminalConnectionParams != null)
             {
                 cbConnectTerminal.Enabled = true;
@@ -39,6 +43,7 @@ namespace WX0B
             {
                 cbConnectTerminal.Enabled = false;
             }
+
         }
 
         public void connectTerminal()
@@ -46,15 +51,15 @@ namespace WX0B
             UseWaitCursor = true;
             try
             {
-                terminalJController = JeromeController.create(config.terminalConnectionParams);
-                if (terminalJController.connect())
+                terminalJConnection = JeromeController.create(config.terminalConnectionParams);
+                if (terminalJConnection.connect())
                 {
-                    terminalJController.onConnected += TerminalJControllerConnected;
-                    terminalJController.onDisconnected += TerminalJControllerDisconnected;
+                    terminalJConnection.onConnected += TerminalJControllerConnected;
+                    terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
                     cbConnectTerminal.Checked = true;
                 }
                 else
-                    appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJController.connectionParams.host + " не удалось!", ToolTipIcon.Error);
+                    appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
             }
             finally
             {
@@ -80,7 +85,7 @@ namespace WX0B
                 }
                 else
                 {
-                    appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJController.connectionParams.host + "потеряно!", ToolTipIcon.Error);
+                    appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + "потеряно!", ToolTipIcon.Error);
                     cbConnectTerminal.ForeColor = Color.Red;
                 }
             });
@@ -115,7 +120,7 @@ namespace WX0B
             updateTerminalConnectionParamsCaption();
         }
 
-        private void writeConfig()
+        internal void writeConfig()
         {
             appContext.config.WX0BConfig = config;
             appContext.writeConfig();
@@ -132,33 +137,56 @@ namespace WX0B
                 connectTerminal();
             else
             {
-                if (terminalJController != null)
-                    terminalJController.disconnect();
+                if (terminalJConnection != null)
+                    terminalJConnection.disconnect();
                 cbConnectTerminal.ForeColor = defForeColor;
             }
         }
 
         private void bAddController_Click(object sender, EventArgs e)
         {
-            WX0BControllerPanel cp = new WX0BControllerPanel(this, new WX0BController());
-            cp.Dock = DockStyle.Top;
+            WX0BControllerConfigEntry cConfig = new WX0BControllerConfigEntry();
+            config.controllers.Add(cConfig);
+            writeConfig();
+            createController(cConfig);
+
+        }
+
+        private void createController( WX0BControllerConfigEntry cConfig)
+        {
+            WX0BControllerPanel cp = new WX0BControllerPanel(this, new WX0BController(cConfig));
+            cp.Dock = DockStyle.Bottom;
             gbControllers.Controls.Add(cp);
+        }
+
+        public void deleteController( WX0BControllerPanel cp )
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить контроллер?", "WX0B", MessageBoxButtons.OKCancel) == DialogResult.OK)
+            {
+                gbControllers.Controls.Remove(cp);
+                controllers.Remove(cp.controller);
+                controllerPanels.Remove(cp);
+                foreach (WX0BControllerPanel _cp in controllerPanels)
+                    _cp.updateIndex();
+                config.controllers.Remove(cp.controller.config);
+                cp.Dispose();
+                writeConfig();
+            }
         }
     }
 
     public class WX0BController
     {
+        public WX0BControllerConfigEntry config;
+        internal JeromeController jConnection;
 
-    }
+        public WX0BController( WX0BControllerConfigEntry _config)
+        {
+            config = _config;
+        }
 
-    public class WX0BTerminal
-    {
 
-    }
 
-    public class WX0BCluster
-    {
-        string title;
 
     }
 
@@ -171,8 +199,8 @@ namespace WX0B
     public class WX0BConfig
     {
         public JeromeConnectionParams terminalConnectionParams;
-        public List<WX0BControllerConfigEntry> controllers;
-        public int activeController;
+        public List<WX0BControllerConfigEntry> controllers = new List<WX0BControllerConfigEntry>();
+        public int activeController = -1;
         public bool terminalActive;
     }
 
