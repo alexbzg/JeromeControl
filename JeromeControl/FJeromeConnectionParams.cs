@@ -29,13 +29,14 @@ namespace Jerome
             tbPort.Text = c.port.ToString();
             tbPassword.Text = c.password;
             tbHTTPPort.Text = c.httpPort.ToString();
+            tbUSARTport.Text = c.usartPort.ToString();
 
             _data.name = c.name;
             _data.host = c.host;
             _data.port = c.port;
             _data.password = c.password;
             _data.httpPort = c.httpPort;
-
+            _data.usartPort = c.usartPort;
         }
 
 
@@ -82,6 +83,14 @@ namespace Jerome
 
         }
 
+        private void tbUSARTport_Validated(object sender, EventArgs e)
+        {
+            if (tbUSARTport.Text.Trim().Length > 0)
+            {
+                _data.usartPort = Convert.ToInt16(tbUSARTport.Text.Trim());
+            }
+
+        }
     }
 
     public class ConnectionParamsData
@@ -89,6 +98,7 @@ namespace Jerome
         private string _host = "192.168.0.101";
         private string _name = "";
         private int _port = 2424;
+        private int _usartPort = 2525;
         private string _password = "Jerome";
         private int _httpPort = 80;
 
@@ -104,6 +114,20 @@ namespace Jerome
                 _httpPort = value;
             }
         }
+
+        public int usartPort
+        {
+            get
+            {
+                return _usartPort;
+            }
+
+            set
+            {
+                _usartPort = value;
+            }
+        }
+
 
         public string name
         {

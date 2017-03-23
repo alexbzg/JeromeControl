@@ -26,10 +26,10 @@ namespace WX0B
             InitializeComponent();
             updateIndex();
             updateConnectionParamsCaption();
+            controller.jConnection.onConnected += сontrollerConnected;
+            controller.jConnection.onDisconnected += controllerDisconnected;
             if (controller.config.esMHz != 0)
                 tbESMHz.Text = controller.config.esMHz.ToString();
-            if (fWX0B.config.activeController == index)
-                connect();
         }
 
         public void updateIndex()
@@ -74,22 +74,9 @@ namespace WX0B
         public void connect()
         {
             fWX0B.UseWaitCursor = true;
-            try
-            {
-                controller.jConnection = JeromeController.create(controller.config.connectionParams);
-                if (controller.jConnection.connect())
-                {
-                    controller.jConnection.onConnected += сontrollerConnected;
-                    controller.jConnection.onDisconnected += controllerDisconnected;
-                    cbConnect.Checked = true;
-                }
-                else
-                    fWX0B.appContext.showNotification("WX0B", "Cоединение с контроллером " + controller.jConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
-            }
-            finally
-            {
-                UseWaitCursor = false;
-            }
+            if ( !controller.jConnection.connect() )
+                fWX0B.appContext.showNotification("WX0B", "Cоединение с контроллером " + controller.jConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
+            UseWaitCursor = false;
         }
 
         private void сontrollerConnected(object sender, EventArgs e)

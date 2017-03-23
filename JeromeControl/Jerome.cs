@@ -264,6 +264,14 @@ namespace Jerome
             disconnect(true);
         }
 
+        public void usartSendBytes( byte[] data)
+        {
+            if ( usartConnected )
+            {
+                usartConnection.sendBytes(data);
+            }
+        }
+
 
 
     }

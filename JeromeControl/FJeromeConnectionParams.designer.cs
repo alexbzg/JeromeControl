@@ -41,6 +41,8 @@
             this.tbName = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.tbHTTPPort = new System.Windows.Forms.TextBox();
+            this.tbUSARTport = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // bOK
@@ -48,7 +50,7 @@
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.bOK.Location = new System.Drawing.Point(124, 183);
+            this.bOK.Location = new System.Drawing.Point(124, 217);
             this.bOK.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size(112, 37);
@@ -61,7 +63,7 @@
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.bCancel.Location = new System.Drawing.Point(246, 183);
+            this.bCancel.Location = new System.Drawing.Point(246, 217);
             this.bCancel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size(112, 37);
@@ -104,25 +106,25 @@
             // 
             // tbPort
             // 
-            this.tbPort.Location = new System.Drawing.Point(92, 113);
+            this.tbPort.Location = new System.Drawing.Point(109, 113);
             this.tbPort.Name = "tbPort";
-            this.tbPort.Size = new System.Drawing.Size(266, 26);
+            this.tbPort.Size = new System.Drawing.Size(249, 26);
             this.tbPort.TabIndex = 3;
             this.tbPort.Validated += new System.EventHandler(this.tbPort_Validated);
             // 
             // tbPassword
             // 
-            this.tbPassword.Location = new System.Drawing.Point(92, 76);
+            this.tbPassword.Location = new System.Drawing.Point(109, 76);
             this.tbPassword.Name = "tbPassword";
-            this.tbPassword.Size = new System.Drawing.Size(266, 26);
+            this.tbPassword.Size = new System.Drawing.Size(249, 26);
             this.tbPassword.TabIndex = 2;
             this.tbPassword.Validated += new System.EventHandler(this.tbPassword_Validated);
             // 
             // tbHost
             // 
-            this.tbHost.Location = new System.Drawing.Point(92, 39);
+            this.tbHost.Location = new System.Drawing.Point(109, 39);
             this.tbHost.Name = "tbHost";
-            this.tbHost.Size = new System.Drawing.Size(266, 26);
+            this.tbHost.Size = new System.Drawing.Size(249, 26);
             this.tbHost.TabIndex = 1;
             this.tbHost.Validated += new System.EventHandler(this.tbHost_Validated);
             // 
@@ -137,16 +139,16 @@
             // 
             // tbName
             // 
-            this.tbName.Location = new System.Drawing.Point(93, 7);
+            this.tbName.Location = new System.Drawing.Point(110, 7);
             this.tbName.Name = "tbName";
-            this.tbName.Size = new System.Drawing.Size(265, 26);
+            this.tbName.Size = new System.Drawing.Size(248, 26);
             this.tbName.TabIndex = 0;
             this.tbName.Validated += new System.EventHandler(this.tbName_Validated);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(4, 154);
+            this.label5.Location = new System.Drawing.Point(4, 185);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(89, 20);
             this.label5.TabIndex = 9;
@@ -154,17 +156,36 @@
             // 
             // tbHTTPPort
             // 
-            this.tbHTTPPort.Location = new System.Drawing.Point(93, 151);
+            this.tbHTTPPort.Location = new System.Drawing.Point(110, 182);
             this.tbHTTPPort.Name = "tbHTTPPort";
-            this.tbHTTPPort.Size = new System.Drawing.Size(265, 26);
+            this.tbHTTPPort.Size = new System.Drawing.Size(248, 26);
             this.tbHTTPPort.TabIndex = 10;
             this.tbHTTPPort.Validated += new System.EventHandler(this.tbHTTPPort_Validated);
+            // 
+            // tbUSARTport
+            // 
+            this.tbUSARTport.Location = new System.Drawing.Point(109, 148);
+            this.tbUSARTport.Name = "tbUSARTport";
+            this.tbUSARTport.Size = new System.Drawing.Size(248, 26);
+            this.tbUSARTport.TabIndex = 12;
+            this.tbUSARTport.Validated += new System.EventHandler(this.tbUSARTport_Validated);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(3, 151);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(104, 20);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "USART порт";
             // 
             // FConnectionParams
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(364, 234);
+            this.ClientSize = new System.Drawing.Size(364, 268);
+            this.Controls.Add(this.tbUSARTport);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.tbHTTPPort);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.tbName);
@@ -201,5 +222,7 @@
         private System.Windows.Forms.TextBox tbName;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox tbHTTPPort;
+        private System.Windows.Forms.TextBox tbUSARTport;
+        private System.Windows.Forms.Label label6;
     }
 }

@@ -11,16 +11,72 @@ using JeromeControl;
 using Jerome;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace WX0B
 {
     public partial class FWX0B : Form, IJCChildForm
     {
+        internal static WX0BTerminalTemplate TerminalTemplate = new WX0BTerminalTemplate() {
+            switches = new WX0BTerminalSwitchTemplate[] {
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 1 },
+                  button = 5,
+                  led = 1
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 2 },
+                  button = 6,
+                  led = 3
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 3 },
+                  button = 7,
+                  led = 22
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 1,2 },
+                  button = 8,
+                  led = 21
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 1,3 },
+                  button = 9,
+                  led = 20
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 2,3 },
+                  button = 10,
+                  led = 18
+                },
+                new WX0BTerminalSwitchTemplate() {
+                  combo = new int[] { 1,2,3 },
+                  button = 11,
+                  led = 16,
+                  isDefault = true
+                }
+            },
+            lockButton = 12,
+            lockLED = 15,
+            pttButton = 14,
+            pttLED = 13
+        };
+        internal static int[] ControllerTemplate = new int[] { 1, 5, 10, 12 };
+
+        internal Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch> switches = new Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch>();
+        internal WX0BTerminalSwitch defaultSwitch;
+        internal WX0BTerminalSwitch activeSwitch = null;
+        internal WX0BTerminalSwitch lockSwitch = null;
+        internal int pttState = 1;
+        internal int lockButtonState = 1;
+        internal bool tx = false;
+
         internal JCAppContext appContext;
         internal WX0BConfig config;
         internal Color defForeColor;
 
         JeromeController terminalJConnection;
+
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
@@ -29,10 +85,23 @@ namespace WX0B
             appContext = _appContext;
             config = _appContext.config.WX0BConfig;
             InitializeComponent();
+            foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
+            {
+                switches[st] = new WX0BTerminalSwitch(st);
+                if (st.isDefault)
+                {
+                    defaultSwitch = switches[st];
+                    activeSwitch = switches[st];
+                }
+            }
             defForeColor = cbConnectTerminal.ForeColor;
             updateTerminalConnectionParamsCaption();
             foreach (WX0BControllerConfigEntry cConfig in config.controllers)
                 createController(cConfig);
+            if (config.activeController < controllers.Count)
+                controllers[config.activeController].jConnection.connect();
+            else
+                setActiveController(-1);
             if (config.terminalConnectionParams != null)
             {
                 cbConnectTerminal.Enabled = true;
@@ -56,6 +125,7 @@ namespace WX0B
                 {
                     terminalJConnection.onConnected += TerminalJControllerConnected;
                     terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
+                    terminalJConnection.lineStateChanged += TerminalJConnectionLineStateChanged;
                     cbConnectTerminal.Checked = true;
                 }
                 else
@@ -67,10 +137,98 @@ namespace WX0B
             }
         }
 
+        private void TerminalJConnectionLineStateChanged(object sender, LineStateChangedEventArgs e)
+        {
+            if (e.line == TerminalTemplate.pttButton)
+            {
+                if (e.state != pttState)
+                {
+                    tx = e.state == 0;
+                    pttState = e.state;
+                    //controller stuff
+                    displayPTT();
+                    updateSwitchLeds();
+                }
+            }
+            else if (!tx && e.line == TerminalTemplate.lockButton)
+            {
+                if (e.state != lockButtonState)
+                {
+                    lockButtonState = e.state;
+                    if (e.state == 0)
+                    {
+                        lockSwitch = activeSwitch;
+                        displayLockSwitch();
+                    }
+
+                }
+            }
+            else if (!tx)
+            {
+                KeyValuePair<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch> kv = switches.Where(x => x.Key.button == e.line).FirstOrDefault();
+                if ( kv.Key != null && kv.Value.lineState != e.state)
+                {
+                    kv.Value.lineState = e.state;
+                    if ( e.state == 0)
+                    {
+                        activeSwitch = kv.Value;
+                        displayActiveSwitch();
+                        updateSwitchLeds();
+                        //controller stuff
+                    }
+                }
+            }
+        }
+
         private void TerminalJControllerConnected(object sender, EventArgs e)
         {
             cbConnectTerminal.ForeColor = Color.Green;
+            foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
+            {
+                terminalJConnection.setLineMode(st.button, 1);
+                terminalJConnection.setLineMode(st.led, 0);
+            }
+            terminalJConnection.setLineMode(TerminalTemplate.pttLED, 0);
+            terminalJConnection.setLineMode(TerminalTemplate.lockLED, 0);
+            terminalJConnection.setLineMode(TerminalTemplate.pttButton, 1);
+            terminalJConnection.setLineMode(TerminalTemplate.lockButton, 1);
+            displayActiveSwitch();
+            displayLockSwitch();
+            displayPTT();
+            updateSwitchLeds();
         }
+
+        private void displayActiveSwitch()
+        {
+            if (terminalJConnection.connected)
+                terminalJConnection.usartSendBytes(new byte[] { (byte)activeSwitch.usartSignal });
+        }
+
+        private void displayLockSwitch()
+        {
+            if (terminalJConnection.connected)
+            {
+                terminalJConnection.switchLine(TerminalTemplate.lockLED, lockSwitch == null ? 0 : 1);
+                terminalJConnection.usartSendBytes(new byte[] { (byte)( (lockSwitch == null ? 0 : lockSwitch.usartSignal)  | 8) });
+            }
+        }
+
+        private void displayPTT()
+        {
+            if (terminalJConnection.connected) {
+                terminalJConnection.usartSendBytes(new byte[] { (byte)(tx ? 32 : 16) });
+                terminalJConnection.switchLine(TerminalTemplate.pttLED, tx ? 1 : 0);
+            }
+        }
+
+        private void updateSwitchLeds()
+        {
+            WX0BTerminalSwitch s = tx ? lockSwitch : activeSwitch;
+            if ( terminalJConnection.connected)
+                foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches) 
+                    terminalJConnection.setLineMode( st.led, switches[st] == s ? 1 : 0);
+        }
+
 
         private void TerminalJControllerDisconnected(object sender, DisconnectEventArgs e)
         {
@@ -163,6 +321,9 @@ namespace WX0B
         {
             if (MessageBox.Show("Вы действительно хотите удалить контроллер?", "WX0B", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
+                if (cp.index == config.activeController)
+                    setActiveController(-1);
+
                 gbControllers.Controls.Remove(cp);
                 controllers.Remove(cp.controller);
                 controllerPanels.Remove(cp);
@@ -173,19 +334,75 @@ namespace WX0B
                 writeConfig();
             }
         }
+
+        internal void setActiveController( int idx)
+        {
+            if ( idx != config.activeController && idx < controllers.Count)
+            {
+                if (config.activeController != -1 && config.activeController < controllers.Count)
+                    controllers[config.activeController].jConnection.disconnect();
+                if (idx != -1)
+                    controllers[idx].jConnection.connect();
+                config.activeController = idx;
+                writeConfig();
+            }
+        }
     }
+
+    internal class WX0BTerminalSwitchTemplate
+    {
+        internal int[] combo;
+        internal int button;
+        internal int led;
+        internal bool isDefault;
+    }
+
+    internal class WX0BTerminalTemplate
+    {
+        internal WX0BTerminalSwitchTemplate[] switches;
+        internal int lockButton;
+        internal int lockLED;
+        internal int pttButton;
+        internal int pttLED;
+    }
+
+    internal class WX0BTerminalSwitch
+    {
+        internal int[] controllerLinesState;
+        internal int usartSignal;
+        internal int lineState = 1;
+
+        internal WX0BTerminalSwitch(WX0BTerminalSwitchTemplate template)
+        {
+            controllerLinesState = new int[] { 0, 0, 0, 0 };
+            usartSignal = 0;
+            foreach (int i in template.combo)
+                usartSignal |= 1 << (i - 1);
+            if (template.combo.Length == 1)
+            {
+                controllerLinesState[template.combo[0] - 1] = 1;
+                controllerLinesState[3] = 1;
+            }
+            else if (template.combo.Length == 2)
+                for (int i = 0; i < 4; i++)
+                    if (Array.Exists(template.combo, x => x == i + 1))
+                        controllerLinesState[i] = 1;
+        }
+
+    }
+
 
     public class WX0BController
     {
         public WX0BControllerConfigEntry config;
         internal JeromeController jConnection;
 
+
         public WX0BController( WX0BControllerConfigEntry _config)
         {
             config = _config;
+            jConnection = JeromeController.create(config.connectionParams);
         }
-
-
 
 
     }

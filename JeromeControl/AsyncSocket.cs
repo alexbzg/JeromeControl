@@ -274,19 +274,30 @@ namespace AsyncConnectionNS
         }
 
 
+        private void send(byte[] byteData)
+        {
+            if (socket != null && socket.Connected)
+            {
+                // Begin sending the data to the remote device.
+                socket.BeginSend(byteData, 0, byteData.Length, 0,
+                    new AsyncCallback(sendCallback), null);
+            }
+        }
 
-        private void send(string data)
+        public void send(string data)
         {
             if (socket != null && socket.Connected)
             {
                 //Debug.WriteLine("sending: " + data);
                 // Convert the string data to byte data using ASCII encoding.
                 byte[] byteData = Encoding.ASCII.GetBytes(data);
-
-                // Begin sending the data to the remote device.
-                socket.BeginSend(byteData, 0, byteData.Length, 0,
-                    new AsyncCallback(sendCallback), null);
+                send(byteData);
             }
+        }
+
+        public void sendBytes( byte[] data)
+        {
+            send(data);
         }
 
 
