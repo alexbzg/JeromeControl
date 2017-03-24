@@ -65,15 +65,15 @@ namespace WX0B
 
         internal Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch> switches = new Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch>();
         internal WX0BTerminalSwitch defaultSwitch;
-        internal WX0BTerminalSwitch activeSwitch = null;
-        internal WX0BTerminalSwitch lockSwitch = null;
-        internal int pttState = 1;
-        internal int lockButtonState = 1;
-        internal bool tx = false;
+        internal volatile WX0BTerminalSwitch activeSwitch = null;
+        internal volatile WX0BTerminalSwitch lockSwitch = null;
+        internal volatile int pttState = 1;
+        internal volatile int lockButtonState = 1;
+        internal volatile bool tx = false;
 
         internal JCAppContext appContext;
         internal WX0BConfig config;
-        internal Color defForeColor;
+        internal Color defForeColor; 
 
         JeromeController terminalJConnection;
 
@@ -98,7 +98,7 @@ namespace WX0B
             updateTerminalConnectionParamsCaption();
             foreach (WX0BControllerConfigEntry cConfig in config.controllers)
                 createController(cConfig);
-            if (config.activeController < controllers.Count)
+            if (config.activeController != -1 && config.activeController < controllers.Count)
                 controllers[config.activeController].jConnection.connect();
             else
                 setActiveController(-1);
@@ -121,13 +121,11 @@ namespace WX0B
             try
             {
                 terminalJConnection = JeromeController.create(config.terminalConnectionParams);
+                terminalJConnection.onConnected += TerminalJControllerConnected;
+                terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
+                terminalJConnection.lineStateChanged += TerminalJConnectionLineStateChanged;
                 if (terminalJConnection.connect())
-                {
-                    terminalJConnection.onConnected += TerminalJControllerConnected;
-                    terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
-                    terminalJConnection.lineStateChanged += TerminalJConnectionLineStateChanged;
                     cbConnectTerminal.Checked = true;
-                }
                 else
                     appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
             }
@@ -226,7 +224,7 @@ namespace WX0B
             WX0BTerminalSwitch s = tx ? lockSwitch : activeSwitch;
             if ( terminalJConnection.connected)
                 foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches) 
-                    terminalJConnection.setLineMode( st.led, switches[st] == s ? 1 : 0);
+                    terminalJConnection.switchLine( st.led, switches[st] == s ? 1 : 0);
         }
 
 

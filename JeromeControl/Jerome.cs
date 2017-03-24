@@ -12,6 +12,7 @@ using System.Xml.XPath;
 using AsyncConnectionNS;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
 
 namespace Jerome
 {
@@ -37,10 +38,8 @@ namespace Jerome
             }
         }
 
-        private volatile CmdEntry currentCmd = null;
-        private Object cmdQueeLock = new Object();
-        private List<CmdEntry> cmdQuee = new List<CmdEntry>();
-
+        private volatile CmdEntry currentCmd;
+        private ConcurrentQueue<CmdEntry> cmdQueue = new ConcurrentQueue<CmdEntry>();
 
 
         private static int timeout = 10000;
@@ -51,18 +50,14 @@ namespace Jerome
 
         private IPEndPoint remoteEP;
         private string password;
-        private AsyncConnection connection;
+        private AsyncConnection connection = new AsyncConnection();
         private AsyncConnection usartConnection;
 
         public event EventHandler<DisconnectEventArgs> onDisconnected {
             add { connection.onDisconnected += value; }
             remove { connection.onDisconnected -= value; }
         }
-        public event EventHandler<EventArgs> onConnected
-        {
-            add { connection.onConnected += value; }
-            remove { connection.onConnected -= value; }
-        }
+        public event EventHandler<EventArgs> onConnected;
         public event EventHandler<LineStateChangedEventArgs> lineStateChanged;
         public event EventHandler<LineReceivedEventArgs> usartLineReceived
         {
@@ -108,6 +103,9 @@ namespace Jerome
                 jc.remoteEP = new IPEndPoint(hostIP, p.port);
                 jc.password = p.password;
                 jc.connectionParams = p;
+                jc.connection.onConnected += jc._onConnected;
+                if (p.usartPort != 0)
+                    jc.usartConnection = new AsyncConnection();
                 return jc;
             }
             else
@@ -119,25 +117,26 @@ namespace Jerome
         private void newCmd(string cmd, Action<string> cb)
         {
             CmdEntry ce = new CmdEntry(cmd, cb);
-            lock (cmdQueeLock)
-            {
-                cmdQuee.Add(ce);
-            }
+            cmdQueue.Enqueue(ce);
             if (currentCmd == null)
-                processQuee();
+                processQueue();
         }
 
-        private void processQuee()
+        private void _onConnected(object sender, EventArgs e)
         {
-            if (cmdQuee.Count > 0 && currentCmd == null)
-            {
-                lock (cmdQueeLock)
-                {
-                    currentCmd = cmdQuee[0];
-                    cmdQuee.RemoveAt(0);
-                }
-                connection.sendCommand("$KE," + currentCmd.cmd);
-                replyTimer = new System.Threading.Timer( obj => replyTimeout(), null, timeout, Timeout.Infinite);
+            sendCommand("PSW,SET," + connectionParams.password);
+            sendCommand("EVT,ON");
+            onConnected?.Invoke(sender, e);
+        }
+
+        private void processQueue()
+        {
+            CmdEntry bufCmd;
+            if (currentCmd == null && cmdQueue.TryDequeue(out bufCmd)  ){
+                currentCmd = bufCmd;
+                System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
+                connection.sendCommand("$KE," + bufCmd.cmd);
+                replyTimer = new System.Threading.Timer(obj => replyTimeout(), null, timeout, Timeout.Infinite);
             }
         }
 
@@ -158,7 +157,6 @@ namespace Jerome
 
         public bool connect()
         {
-            connection = new AsyncConnection();
             connection.connect(connectionParams.host, connectionParams.port);
             if (connection.connected)
             {
@@ -166,9 +164,6 @@ namespace Jerome
                 connection.reconnect = true;
                 if (connectionParams.usartPort != -1)
                 {
-                    sendCommand("PSW,SET," + connectionParams.password);
-                    sendCommand("EVT,ON");
-                    usartConnection = new AsyncConnection();
                     usartConnection.reconnect = true;
                     usartConnection.connect(connectionParams.host, connectionParams.usartPort);                    
                 }
@@ -190,7 +185,8 @@ namespace Jerome
         public void disconnect( bool reconnect )
         {
             currentCmd = null;
-            cmdQuee.Clear();
+            CmdEntry ignored;
+            while (cmdQueue.TryDequeue(out ignored)) ;
             System.Diagnostics.Debug.WriteLine("disconnect");
             if (connected)
                 connection.disconnect();
@@ -225,11 +221,8 @@ namespace Jerome
                     Action<string> cb = currentCmd.cb;
                     Task.Factory.StartNew( () => cb.Invoke(reply) );
                 }
-                lock (cmdQuee)
-                {
-                    currentCmd = null;
-                }
-                processQuee();
+                currentCmd = null;
+                processQueue();
 
             }
         }

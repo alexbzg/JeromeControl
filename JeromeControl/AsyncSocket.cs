@@ -170,7 +170,7 @@ namespace AsyncConnectionNS
             if (socket != null && socket.Connected)
                 socket.Close();
             onDisconnected?.Invoke(this, new DisconnectEventArgs { requested = requested });
-            if (reconnect)
+            if (reconnect && !requested)
                 asyncConnect();
         }
 
