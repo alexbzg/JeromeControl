@@ -150,7 +150,7 @@ namespace AsyncConnectionNS
             if (socket != null && !socket.Connected)
             {
                 Debug.WriteLine("Async connect timeout");
-                socket.Close();
+                //socket.Close();
                 if (reconnect)
                     asyncConnect();
             }

@@ -45,6 +45,7 @@ namespace Jerome
         private static int timeout = 10000;
         private static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
         private System.Threading.Timer replyTimer;
+        private System.Threading.Timer pingTimer;
 
         // ManualResetEvent instances signal completion.
 
@@ -122,10 +123,16 @@ namespace Jerome
                 processQueue();
         }
 
+        private void newCmd(string cmd)
+        {
+            newCmd(cmd, null);
+        }
+
         private void _onConnected(object sender, EventArgs e)
         {
-            sendCommand("PSW,SET," + connectionParams.password);
-            sendCommand("EVT,ON");
+            newCmd("PSW,SET," + connectionParams.password);
+            newCmd("EVT,ON");
+            pingTimer = new System.Threading.Timer(obj =>  newCmd(""), null, timeout, timeout);
             onConnected?.Invoke(sender, e);
         }
 
@@ -135,7 +142,7 @@ namespace Jerome
             if (currentCmd == null && cmdQueue.TryDequeue(out bufCmd)  ){
                 currentCmd = bufCmd;
                 System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
-                connection.sendCommand("$KE," + bufCmd.cmd);
+                connection.sendCommand("$KE" + ( bufCmd.cmd.Equals(String.Empty) ? "" : "," + bufCmd.cmd ));
                 replyTimer = new System.Threading.Timer(obj => replyTimeout(), null, timeout, Timeout.Infinite);
             }
         }
@@ -152,6 +159,7 @@ namespace Jerome
             reDone.WaitOne(timeout);
             return result;
         }
+
 
 
 
@@ -184,6 +192,8 @@ namespace Jerome
 
         public void disconnect( bool reconnect )
         {
+            pingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            replyTimer.Change(Timeout.Infinite, Timeout.Infinite);
             currentCmd = null;
             CmdEntry ignored;
             while (cmdQueue.TryDequeue(out ignored)) ;
@@ -205,6 +215,7 @@ namespace Jerome
         {
             string reply = e.line;
             System.Diagnostics.Debug.WriteLine(reply);
+            pingTimer.Change(timeout, timeout);
             Match match = rEVT.Match(reply);
             if (match.Success)
             {
@@ -229,12 +240,12 @@ namespace Jerome
 
         public void setLineMode(int line, int mode)
         {
-            sendCommand("IO,SET," + line.ToString() + "," + mode.ToString());
+            newCmd("IO,SET," + line.ToString() + "," + mode.ToString());
         }
 
         public void switchLine(int line, int state)
         {
-            sendCommand("WR," + line.ToString() + "," + state.ToString());
+            newCmd("WR," + line.ToString() + "," + state.ToString());
         }
 
         public string readlines()

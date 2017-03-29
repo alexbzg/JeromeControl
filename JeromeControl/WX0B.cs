@@ -145,7 +145,10 @@ namespace WX0B
                     pttState = e.state;
                     //controller stuff
                     displayPTT();
-                    updateSwitchLeds();
+                    if (tx)
+                        switchLeds(activeSwitch, lockSwitch);
+                    else
+                        switchLeds(lockSwitch, activeSwitch);
                 }
             }
             else if (!tx && e.line == TerminalTemplate.lockButton)
@@ -169,9 +172,9 @@ namespace WX0B
                     kv.Value.lineState = e.state;
                     if ( e.state == 0)
                     {
+                        switchLeds(activeSwitch, kv.Value);
                         activeSwitch = kv.Value;
                         displayActiveSwitch();
-                        updateSwitchLeds();
                         //controller stuff
                     }
                 }
@@ -193,7 +196,10 @@ namespace WX0B
             displayActiveSwitch();
             displayLockSwitch();
             displayPTT();
-            updateSwitchLeds();
+            WX0BTerminalSwitch s = tx ? lockSwitch : activeSwitch;
+            if (terminalJConnection.connected)
+                foreach (WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
+                    terminalJConnection.switchLine(st.led, switches[st] == s ? 1 : 0);
         }
 
         private void displayActiveSwitch()
@@ -219,12 +225,15 @@ namespace WX0B
             }
         }
 
-        private void updateSwitchLeds()
+        private void switchLeds( WX0BTerminalSwitch oldSwitch, WX0BTerminalSwitch newSwitch )
         {
-            WX0BTerminalSwitch s = tx ? lockSwitch : activeSwitch;
             if ( terminalJConnection.connected)
-                foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches) 
-                    terminalJConnection.switchLine( st.led, switches[st] == s ? 1 : 0);
+            {
+                if (oldSwitch != null)
+                    terminalJConnection.switchLine(oldSwitch.template.led, 0);
+                if ( newSwitch != null)
+                    terminalJConnection.switchLine(newSwitch.template.led, 1);
+            }
         }
 
 
@@ -251,7 +260,7 @@ namespace WX0B
         private void updateTerminalConnectionParamsCaption()
         {
             if (config.terminalConnectionParams == null)
-                bTerminalConnectionParams.Text = "Настроить соединиение";
+                bTerminalConnectionParams.Text = "Настроить соединение";
             else
                 bTerminalConnectionParams.Text = config.terminalConnectionParams.host;
         }
@@ -369,9 +378,11 @@ namespace WX0B
         internal int[] controllerLinesState;
         internal int usartSignal;
         internal int lineState = 1;
+        internal WX0BTerminalSwitchTemplate template;
 
-        internal WX0BTerminalSwitch(WX0BTerminalSwitchTemplate template)
+        internal WX0BTerminalSwitch(WX0BTerminalSwitchTemplate _template)
         {
+            template = _template;
             controllerLinesState = new int[] { 0, 0, 0, 0 };
             usartSignal = 0;
             foreach (int i in template.combo)
