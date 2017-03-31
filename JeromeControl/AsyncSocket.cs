@@ -147,13 +147,16 @@ namespace AsyncConnectionNS
 
         private void asyncConnectTimeout(object state, bool timedOut)
         {
-            if (socket != null && !socket.Connected)
+            if (socket == null || !socket.Connected)
             {
                 Debug.WriteLine("Async connect timeout");
-                //socket.Close();
+                if (socket != null)
+                    socket.Close();
                 if (reconnect)
                     asyncConnect();
             }
+            if (socket != null && socket.Connected)
+                receive();
         }
 
         public void disconnect()
@@ -187,7 +190,7 @@ namespace AsyncConnectionNS
 
                     // Signal that the connection has been made.
                     connectDone.Set();
-                    onConnected?.Invoke(this, new EventArgs { } );
+                    onConnected?.BeginInvoke(this, new EventArgs { }, null, null );
                 }
             }
             catch (Exception e)

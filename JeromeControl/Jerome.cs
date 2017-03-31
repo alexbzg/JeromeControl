@@ -133,6 +133,8 @@ namespace Jerome
             newCmd("PSW,SET," + connectionParams.password);
             newCmd("EVT,ON");
             pingTimer = new System.Threading.Timer(obj =>  newCmd(""), null, timeout, timeout);
+            if (usartConnection != null)
+                usartConnection.connect(connectionParams.host,connectionParams.usartPort);
             onConnected?.Invoke(sender, e);
         }
 
@@ -170,11 +172,6 @@ namespace Jerome
             {
                 connection.lineReceived += processReply;
                 connection.reconnect = true;
-                if (connectionParams.usartPort != -1)
-                {
-                    usartConnection.reconnect = true;
-                    usartConnection.connect(connectionParams.host, connectionParams.usartPort);                    
-                }
                 return true;
             } else
                 return false;
@@ -204,9 +201,8 @@ namespace Jerome
                 usartConnection.disconnect();
             if ( reconnect )
             {
+                connection.reconnect = true;
                 connection.asyncConnect();
-                if (usartConnection != null)
-                    usartConnection.asyncConnect();
             }
         }
 
@@ -215,7 +211,8 @@ namespace Jerome
         {
             string reply = e.line;
             System.Diagnostics.Debug.WriteLine(reply);
-            pingTimer.Change(timeout, timeout);
+            if ( pingTimer != null)
+                pingTimer.Change(timeout, timeout);
             Match match = rEVT.Match(reply);
             if (match.Success)
             {

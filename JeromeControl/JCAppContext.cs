@@ -101,7 +101,7 @@ namespace JeromeControl
             if (config.esHost != null && config.esPort != 0)
             {
                 miExpertSync.Text += " " + config.esHost + ":" + config.esPort.ToString();
-          //      miExpertSync.Image = esConnector.connected ? Properties.Resources.signal_green : Properties.Resources.signal_red;
+                miExpertSync.Image = esConnector.connected ? Properties.Resources.signal_green : Properties.Resources.signal_red;
             }
         }
 
@@ -116,23 +116,6 @@ namespace JeromeControl
 
         # region the child forms
 
-        private void ShowIntroForm()
-        {
-        }
-
-        private void ShowDetailsForm()
-        {
-            /*
-            if (detailsForm == null)
-            {
-                detailsForm = new DetailsForm { HostManager = hostManager };
-                detailsForm.Closed += detailsForm_Closed; // avoid reshowing a disposed form
-                detailsForm.Show();
-            }
-            else { detailsForm.Activate(); }*/
-        }
-
-        private void notifyIcon_DoubleClick(object sender, EventArgs e) { ShowIntroForm(); }
 
         // From http://stackoverflow.com/questions/2208690/invoke-notifyicons-context-menu
         private void notifyIcon_MouseUp(object sender, MouseEventArgs e)
@@ -146,8 +129,6 @@ namespace JeromeControl
 
 
         // attach to context menu items
-        private void showHelpItem_Click(object sender, EventArgs e) { ShowIntroForm(); }
-        private void showDetailsItem_Click(object sender, EventArgs e) { ShowDetailsForm(); }
 
         // null out the forms so we know to create a new one.
 //        private void detailsForm_Closed(object sender, EventArgs e) { detailsForm = null; }
@@ -171,7 +152,6 @@ namespace JeromeControl
                 Visible = true
             };
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-            notifyIcon.DoubleClick += notifyIcon_DoubleClick;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
             config = JCConfig.read();
             esConnect();
@@ -209,7 +189,7 @@ namespace JeromeControl
 
         private void esConnect()
         {
-          /*  if (esConnector != null && esConnector.connected)
+            if (esConnector != null && esConnector.connected)
                 esConnector.disconnect();
             if (config.esHost != null && config.esPort != 0)
             {
@@ -218,7 +198,7 @@ namespace JeromeControl
                 esConnector.reconnect = true;
                 esConnector.connect();
                 esConnector.onMessage += esMessage;
-            }*/
+            }
         }
 
         /// <summary>

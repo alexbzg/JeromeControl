@@ -70,6 +70,8 @@ namespace WX0B
         internal volatile int pttState = 1;
         internal volatile int lockButtonState = 1;
         internal volatile bool tx = false;
+        internal volatile bool pttTX = false;
+        internal volatile bool esTX = false;
 
         internal JCAppContext appContext;
         internal WX0BConfig config;
@@ -135,20 +137,35 @@ namespace WX0B
             }
         }
 
+        private void setTX(bool val)
+        {
+            if (val != tx)
+            {
+                tx = val;
+                displayPTT();
+                if (tx)
+                {
+                    switchLeds(activeSwitch, lockSwitch);
+                    updateController(lockSwitch);
+                }
+                else
+                {
+                    switchLeds(lockSwitch, activeSwitch);
+                    updateController(activeSwitch);
+                }
+            }
+
+        }
+
         private void TerminalJConnectionLineStateChanged(object sender, LineStateChangedEventArgs e)
         {
             if (e.line == TerminalTemplate.pttButton)
             {
                 if (e.state != pttState)
                 {
-                    tx = e.state == 0;
+                    if (!esTX)
+                        setTX(e.state == 0);
                     pttState = e.state;
-                    //controller stuff
-                    displayPTT();
-                    if (tx)
-                        switchLeds(activeSwitch, lockSwitch);
-                    else
-                        switchLeds(lockSwitch, activeSwitch);
                 }
             }
             else if (!tx && e.line == TerminalTemplate.lockButton)
@@ -175,10 +192,16 @@ namespace WX0B
                         switchLeds(activeSwitch, kv.Value);
                         activeSwitch = kv.Value;
                         displayActiveSwitch();
-                        //controller stuff
+                        updateController(activeSwitch);
                     }
                 }
             }
+        }
+
+        private void updateController( WX0BTerminalSwitch sw)
+        {
+            if ( sw != null && config.activeController != -1 && config.activeController < controllers.Count)
+                controllers[config.activeController].setLines(sw.controllerLinesState);
         }
 
         private void TerminalJControllerConnected(object sender, EventArgs e)
@@ -322,6 +345,12 @@ namespace WX0B
             WX0BControllerPanel cp = new WX0BControllerPanel(this, new WX0BController(cConfig));
             cp.Dock = DockStyle.Bottom;
             gbControllers.Controls.Add(cp);
+            cp.controller.jConnection.onConnected += controllerConnected;
+        }
+
+        private void controllerConnected( object sender, EventArgs e)
+        {
+            updateController(tx ? lockSwitch : activeSwitch);
         }
 
         public void deleteController( WX0BControllerPanel cp )
@@ -411,6 +440,13 @@ namespace WX0B
         {
             config = _config;
             jConnection = JeromeController.create(config.connectionParams);
+        }
+
+        public void setLines( int[] linesStates )
+        {
+            if (jConnection.connected)
+                for (int c = 0; c < linesStates.Count(); c++)
+                    jConnection.switchLine(FWX0B.ControllerTemplate[c], linesStates[c]);
         }
 
 
