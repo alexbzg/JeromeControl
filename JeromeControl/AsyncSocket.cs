@@ -190,7 +190,7 @@ namespace AsyncConnectionNS
 
                     // Signal that the connection has been made.
                     connectDone.Set();
-                    onConnected?.BeginInvoke(this, new EventArgs { }, null, null );
+                    onConnected?.Invoke(this, new EventArgs { });
                 }
             }
             catch (Exception e)

@@ -108,19 +108,9 @@ namespace WX0B
         private void cbConnect_CheckedChanged(object sender, EventArgs e)
         {
             if (cbConnect.Checked)
-            {
-                connect();
-                fWX0B.config.activeController = index;
-                fWX0B.writeConfig();
-            }
+                fWX0B.setActiveController(index);
             else
-            {
-                if (controller.jConnection != null)
-                    controller.jConnection.disconnect();
-                cbConnect.ForeColor = fWX0B.defForeColor;
-                if (fWX0B.config.activeController == index)
-                    fWX0B.config.activeController = -1;
-            }
+                fWX0B.setActiveController(-1);
 
         }
 

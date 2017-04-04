@@ -49,7 +49,6 @@ namespace Jerome
 
         // ManualResetEvent instances signal completion.
 
-        private IPEndPoint remoteEP;
         private string password;
         private AsyncConnection connection = new AsyncConnection();
         private AsyncConnection usartConnection;
@@ -180,8 +179,10 @@ namespace Jerome
 
         public void disconnect( bool reconnect )
         {
-            pingTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            replyTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (pingTimer != null)
+                pingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (replyTimer != null)
+                replyTimer.Change(Timeout.Infinite, Timeout.Infinite);
             currentCmd = null;
             CmdEntry ignored;
             while (cmdQueue.TryDequeue(out ignored)) ;

@@ -98,43 +98,41 @@ namespace WX0B
             }
             defForeColor = cbConnectTerminal.ForeColor;
             updateTerminalConnectionParamsCaption();
+            terminalJConnection = JeromeController.create(config.terminalConnectionParams);
+            terminalJConnection.onConnected += TerminalJControllerConnected;
+            terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
+            terminalJConnection.lineStateChanged += TerminalJConnectionLineStateChanged;
             foreach (WX0BControllerConfigEntry cConfig in config.controllers)
                 createController(cConfig);
-            if (config.activeController != -1 && config.activeController < controllers.Count)
-                controllers[config.activeController].jConnection.connect();
-            else
-                setActiveController(-1);
             if (config.terminalConnectionParams != null)
             {
                 cbConnectTerminal.Enabled = true;
                 if (config.terminalActive)
+                    //new System.Threading.Timer(new TimerCallback(x => connectTerminal()), null, 5000, Timeout.Infinite);*/
                     connectTerminal();
             }
             else
             {
                 cbConnectTerminal.Enabled = false;
             }
+            if (config.activeController != -1 && config.activeController < controllers.Count)
+                controllers[config.activeController].jConnection.connect();
+            else
+                setActiveController(-1);
 
+        }
+
+        private void delayedConnectTerminal()
+        {
+            new System.Threading.Timer(new TimerCallback(x => connectTerminal()), null, 3000, Timeout.Infinite);
         }
 
         public void connectTerminal()
         {
-            UseWaitCursor = true;
-            try
-            {
-                terminalJConnection = JeromeController.create(config.terminalConnectionParams);
-                terminalJConnection.onConnected += TerminalJControllerConnected;
-                terminalJConnection.onDisconnected += TerminalJControllerDisconnected;
-                terminalJConnection.lineStateChanged += TerminalJConnectionLineStateChanged;
-                if (terminalJConnection.connect())
-                    cbConnectTerminal.Checked = true;
-                else
-                    appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
-            }
-            finally
-            {
-                UseWaitCursor = false;
-            }
+            config.terminalActive = true;
+            writeConfig();
+            if ( !terminalJConnection.connect() )
+                appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
         }
 
         private void updateTX()
@@ -207,6 +205,7 @@ namespace WX0B
         private void TerminalJControllerConnected(object sender, EventArgs e)
         {
             cbConnectTerminal.ForeColor = Color.Green;
+            cbConnectTerminal.Checked = true;
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
                 terminalJConnection.setLineMode(st.button, 1);
@@ -316,6 +315,7 @@ namespace WX0B
 
         public void esMessage(int mhz, bool trx)
         {
+            System.Diagnostics.Debug.WriteLine("MHz " + mhz.ToString());
             if ( trx != esTX)
             {
                 esTX = trx;
@@ -391,6 +391,11 @@ namespace WX0B
                 config.activeController = idx;
                 writeConfig();
             }
+        }
+
+        private void FWX0B_Load(object sender, EventArgs e)
+        {
+
         }
     }
 

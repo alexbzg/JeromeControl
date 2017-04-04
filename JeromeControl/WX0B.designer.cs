@@ -110,6 +110,7 @@
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "FWX0B";
             this.Text = "WX0B";
+            this.Load += new System.EventHandler(this.FWX0B_Load);
             this.gbTerminal.ResumeLayout(false);
             this.gbTerminal.PerformLayout();
             this.gbControllers.ResumeLayout(false);
