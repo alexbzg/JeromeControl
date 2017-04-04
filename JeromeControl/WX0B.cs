@@ -137,8 +137,9 @@ namespace WX0B
             }
         }
 
-        private void setTX(bool val)
+        private void updateTX()
         {
+            bool val = pttState == 0 || esTX;
             if (val != tx)
             {
                 tx = val;
@@ -163,9 +164,8 @@ namespace WX0B
             {
                 if (e.state != pttState)
                 {
-                    if (!esTX)
-                        setTX(e.state == 0);
                     pttState = e.state;
+                    updateTX();
                 }
             }
             else if (!tx && e.line == TerminalTemplate.lockButton)
@@ -316,7 +316,16 @@ namespace WX0B
 
         public void esMessage(int mhz, bool trx)
         {
-            throw new NotImplementedException();
+            if ( trx != esTX)
+            {
+                esTX = trx;
+                updateTX();
+            }
+            WX0BController c = controllers.FirstOrDefault(x => x.config.esMHz == mhz);
+            if ( c != null)
+            {
+                setActiveController(controllers.IndexOf(c));
+            }
         }
 
         private void cbConnectTerminal_CheckedChanged(object sender, EventArgs e)
@@ -454,7 +463,7 @@ namespace WX0B
 
     public class WX0BControllerConfigEntry
     {
-        public JeromeConnectionParams connectionParams;
+        public JeromeConnectionParams connectionParams = new JeromeConnectionParams();
         public int esMHz;
     }
 

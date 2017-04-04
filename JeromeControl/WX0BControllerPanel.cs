@@ -34,8 +34,8 @@ namespace WX0B
 
         public void updateIndex()
         {
-            index = fWX0B.controllers.IndexOf(controller) + 1;
-            gbController.Text = index.ToString();
+            index = fWX0B.controllers.IndexOf(controller);
+            gbController.Text = ( index + 1).ToString();
         }
 
         private void bDelete_Click(object sender, EventArgs e)
@@ -45,7 +45,7 @@ namespace WX0B
 
         public void updateConnectionParamsCaption()
         {
-            if ( controller.config.connectionParams == null)
+            if ( controller.config.connectionParams == null || controller.config.connectionParams.host == null)
                 bConnectionParams.Text = "Настроить соединиение";
             else
                 bConnectionParams.Text = controller.config.connectionParams.host;

@@ -97,22 +97,13 @@ namespace Jerome
         
         public static JeromeController create( JeromeConnectionParams p )
         {
-            IPAddress hostIP;
-            if (IPAddress.TryParse(p.host, out hostIP))
-            {
-                JeromeController jc = new JeromeController();
-                jc.remoteEP = new IPEndPoint(hostIP, p.port);
-                jc.password = p.password;
-                jc.connectionParams = p;
-                jc.connection.onConnected += jc._onConnected;
-                if (p.usartPort != 0)
-                    jc.usartConnection = new AsyncConnection();
-                return jc;
-            }
-            else
-            {
-                return null;
-            }
+            JeromeController jc = new JeromeController();
+            jc.password = p.password;
+            jc.connectionParams = p;
+            jc.connection.onConnected += jc._onConnected;
+            if (p.usartPort != 0)
+                jc.usartConnection = new AsyncConnection();
+            return jc;
         }
 
         private void newCmd(string cmd, Action<string> cb)
