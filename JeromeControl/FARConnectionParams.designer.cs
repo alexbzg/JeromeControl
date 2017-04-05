@@ -181,7 +181,8 @@
             // 
             this.cbDeviceType.FormattingEnabled = true;
             this.cbDeviceType.Items.AddRange(new object[] {
-            "Net Rotator 5.0"});
+            "Net Rotator 5.0",
+            "Yaesu Rotator 6.4"});
             this.cbDeviceType.Location = new System.Drawing.Point(179, 54);
             this.cbDeviceType.Name = "cbDeviceType";
             this.cbDeviceType.Size = new System.Drawing.Size(173, 28);

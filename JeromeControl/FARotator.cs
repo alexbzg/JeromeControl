@@ -30,7 +30,7 @@ namespace AntennaeRotator
     {
         static DeviceTemplate[] templates = {
                     new DeviceTemplate { engineLines = new Dictionary<int, int[]>{ { 1, new int[] { 16, 20 } }, {-1, new int[] { 15, 19} } },
-                                            ledLine = 22, uartTRLine = 12,
+                                            ledLine = 22, uartTRLine = 12, uartEncoder = true,
                                             limitsLines = new Dictionary<int, int> {  { 1, 14 }, { -1, 13 } }
                                         }, //0 NetRotator5
                     new DeviceTemplate { engineLines = new Dictionary<int,int[]>{ {1, new int[] { 12 } }, {-1, new int[] { 11 } } },
@@ -532,15 +532,23 @@ namespace AntennaeRotator
         {
             miConnections.Enabled = false;
             if (controller == null)
+            {
                 controller = JeromeController.create(currentConnection.jeromeParams);
-            UseWaitCursor = true;
+                if (currentTemplate.uartEncoder)
+                    controller.usartBytesReceived += usartBytesReceived;
+                controller.onDisconnected += onDisconnect;
+                controller.onConnected += onConnect;
+                controller.usartBinaryMode = true;
+                if (currentConnection.hwLimits)
+                    controller.lineStateChanged += lineStateChanged;
+
+            }
             if (!controller.connect())
             {
                 controller.disconnect();
                 showMessage("Подключение не удалось", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             miConnections.Enabled = true;
-            UseWaitCursor = false;
         }
 
         private void readADC()
@@ -571,14 +579,17 @@ namespace AntennaeRotator
                 showAngleLabel(newADCVal, -1);
                 if (calibration)
                 {
-                    if (newADCVal == 1023 || newADCVal == 0)
+                    if (newADCVal == 1023 )
                     {
                         calibration = false;
                         calibrationStop(false);
                         currentConnection.calibrated = false;
                         writeConfig();
-                        showMessage("Достигнут предел значений АЦП. Калибровка невозможна. Дождитесь остановки антенны, отрегулируйте АЦП и повторите калибровку.",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Invoke((MethodInvoker)delegate ()
+                      {
+                          showMessage("Достигнут предел значений АЦП. Калибровка невозможна. Дождитесь остановки антенны, отрегулируйте АЦП и повторите калибровку.",
+                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                      });
                     }
                     else if (curADCVal < newADCVal - 5 || curADCVal > newADCVal + 5)
                     {
@@ -597,8 +608,11 @@ namespace AntennaeRotator
                                 currentConnection.limits[1] = newADCVal;
                                 currentConnection.calibrated = true;
                                 writeConfig();
-                                miSetNorth.Enabled = true;
-                                showMessage("Калибровка завершена.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                Invoke((MethodInvoker)delegate ()
+                               {
+                                   miSetNorth.Enabled = true;
+                                   showMessage("Калибровка завершена.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                               });
                             }
                             else
                             {
@@ -621,9 +635,12 @@ namespace AntennaeRotator
             writeConfig();
             calibration = true;
             miSetNorth.Enabled = false;
-            miCalibrate.Text = "Остановить калибровку";
-            slCalibration.Text = "Калибровка";
-            slCalibration.Visible = true;
+            Invoke((MethodInvoker)delegate ()
+          {
+              miCalibrate.Text = "Остановить калибровку";
+              slCalibration.Text = "Калибровка";
+              slCalibration.Visible = true;
+          });
             engine(dir);
             setGear(1);
         }
@@ -634,47 +651,54 @@ namespace AntennaeRotator
             if (stopEngine)
                 engine(0);
             setGear(0);
-            miCalibrate.Text = "Калибровать";
-            slCalibration.Visible = false;
+            Invoke((MethodInvoker)delegate ()
+          {
+              miCalibrate.Text = "Калибровать";
+              slCalibration.Visible = false;
+          });
         }
 
 
         private void onConnect( object sender, EventArgs e)
         {
             controllerTimeout = false;
-            miConnections.Text = "Отключиться";
-            controller.usartBinaryMode = true;
-            if (currentConnection.hwLimits)
-                controller.lineStateChanged += lineStateChanged;
+            
             if (currentTemplate.adc != 0)
                 adcTimer = new System.Threading.Timer(obj => readADC(), null, 100, 100);
-            controller.usartBytesReceived += usartBytesReceived;
-            controller.onDisconnected += onDisconnect;
-            controller.onConnected += onConnect;
-            connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
-            miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
-            miConnections.DropDownItems.Clear();
-
-            setLine(currentTemplate.ledLine, 0);
+            
+            if (currentTemplate.ledLine != 0)
+                setLine(currentTemplate.ledLine, 0);
             foreach (int[] dir in currentTemplate.engineLines.Values)
                 foreach (int line in dir)
                 {
                     setLine(line, 0);
                     toggleLine(line, 0);
                 }
-            setLine(currentTemplate.uartTRLine, 0);
-            foreach (int line in currentTemplate.limitsLines.Values)
-                setLine(line, 1);
+            if (currentTemplate.uartTRLine != 0)
+                setLine(currentTemplate.uartTRLine, 0);
+            if (currentTemplate.limitsLines != null)
+                foreach (int line in currentTemplate.limitsLines.Values)
+                    setLine(line, 1);
 
             timer.Enabled = true;
 
-            miSetNorth.Visible = true;
-            miSetNorth.Enabled = true;
-            pMap.Enabled = true;
+            this.Invoke((MethodInvoker)delegate ()
+          {
+              miSetNorth.Visible = true;
+              miSetNorth.Enabled = true;
+              pMap.Enabled = true;
+              connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
+              miConnections.Text = "Отключиться";
+              miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
+              miConnections.DropDownItems.Clear();
+              if (currentTemplate.adc != 0)
+                  miCalibrate.Visible = true;
 
-            Text = currentConnection.name;
-            lCaption.Text = currentConnection.name;
-            Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+              Text = currentConnection.name;
+              lCaption.Text = currentConnection.name;
+              Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+          });
+
             if (currentConnection.hwLimits)
             {
                 string lines = controller.readlines();
@@ -684,7 +708,8 @@ namespace AntennaeRotator
             }
             else if (currentConnection.northAngle != -1)
                 currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
-            scheduleTimeoutTimer();
+            if (currentTemplate.uartEncoder)
+                scheduleTimeoutTimer();
 
         }
 
@@ -983,12 +1008,14 @@ namespace AntennaeRotator
             bool result = fParams.DialogResult == DialogResult.OK;
             if (result)
             {
+                conn.deviceType = fParams.cbDeviceType.SelectedIndex;
                 conn.jeromeParams.host = fParams.tbHost.Text.Trim();
                 conn.jeromeParams.port = Convert.ToInt16(fParams.tbPort.Text.Trim());
                 conn.name = fParams.tbName.Text.Trim();
                 conn.jeromeParams.usartPort = Convert.ToInt16(fParams.tbUSARTPort.Text.Trim());
                 conn.icon = fParams.icon;
-                conn.hwLimits = fParams.chbHwLimits.Checked;
+                if (conn.deviceType == 0)
+                    conn.hwLimits = fParams.chbHwLimits.Checked;
                 conn.switchIntervals[0] = Convert.ToInt32(fParams.nudIntervalOn.Value);
                 conn.switchIntervals[1] = Convert.ToInt32(fParams.nudIntervalOff.Value);
                 conn.esMhz = Convert.ToInt32(fParams.tbESMHz.Text.Trim());

@@ -246,7 +246,7 @@ namespace Jerome
 
         public int readADC( int adc)
         {
-            string reply = sendCommand("RID," + adc.ToString());
+            string reply = sendCommand("ADC," + adc.ToString());
             return Convert.ToInt16(reply.Substring(7, 4));
         }
 
