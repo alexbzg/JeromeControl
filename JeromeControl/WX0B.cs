@@ -144,8 +144,11 @@ namespace WX0B
                 displayPTT();
                 if (tx)
                 {
-                    switchLeds(activeSwitch, lockSwitch);
-                    updateController(lockSwitch);
+                    if (lockSwitch != null)
+                    {
+                        switchLeds(activeSwitch, lockSwitch);
+                        updateController(lockSwitch);
+                    }
                 }
                 else
                 {
