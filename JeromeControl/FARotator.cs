@@ -632,6 +632,7 @@ namespace AntennaeRotator
         private void calibrationStart(int dir)
         {
             currentConnection.calibrated = false;
+            currentConnection.northAngle = -1;
             writeConfig();
             calibration = true;
             miSetNorth.Enabled = false;
@@ -680,10 +681,11 @@ namespace AntennaeRotator
                 foreach (int line in currentTemplate.limitsLines.Values)
                     setLine(line, 1);
 
-            timer.Enabled = true;
+            
 
             this.Invoke((MethodInvoker)delegate ()
           {
+              timer.Enabled = true;
               miSetNorth.Visible = true;
               miSetNorth.Enabled = true;
               pMap.Enabled = true;
@@ -698,19 +700,19 @@ namespace AntennaeRotator
               lCaption.Text = currentConnection.name;
               Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
           });
-
-            if (currentConnection.hwLimits)
-            {
-                string lines = controller.readlines();
-                foreach (KeyValuePair<int, int> kv in currentTemplate.limitsLines)
-                    if (lines[kv.Value - 1] == '0')
-                        onLimit(kv.Key);
-            }
-            else if (currentConnection.northAngle != -1)
-                currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
             if (currentTemplate.uartEncoder)
+            {
+                if (currentConnection.hwLimits)
+                {
+                    string lines = controller.readlines();
+                    foreach (KeyValuePair<int, int> kv in currentTemplate.limitsLines)
+                        if (lines[kv.Value - 1] == '0')
+                            onLimit(kv.Key);
+                }
+                else if (currentConnection.northAngle != -1)
+                    currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
                 scheduleTimeoutTimer();
-
+            }
         }
 
 
@@ -761,7 +763,9 @@ namespace AntennaeRotator
             int nLimit = dir;
             if (currentConnection.limits[nLimit] == -1)
                 nLimit = -nLimit;
-            return currentConnection.limits[nLimit];
+            if (currentTemplate.adc == 0)
+                return currentConnection.limits[nLimit];
+            else return nLimit == -1 ? 0 : 450;
         }
 
 
@@ -769,7 +773,7 @@ namespace AntennaeRotator
         {
             if (currentConnection == null)
                 return;
-            int newAngle = (int)(((double)num) * 0.3515625);
+            int newAngle = currentTemplate.uartEncoder ? (int)(((double)num) * 0.3515625) : num;
             if (newAngle != currentAngle)
             {
                 currentAngle = newAngle;
@@ -794,7 +798,7 @@ namespace AntennaeRotator
                     }
 
                 }
-                if (engineStatus != 0 && !currentConnection.hwLimits)
+                if (currentTemplate.adc == 0 && engineStatus != 0 && !currentConnection.hwLimits)
                 {
                     int limit = currentConnection.limits[engineStatus];
                     if (limit != -1)
@@ -856,11 +860,18 @@ namespace AntennaeRotator
                 };
                 drawAngle(currentAngle, Color.Red);
                 drawAngle(targetAngle, Color.Green);
-                currentConnection.limits.Values.ToList().ForEach(item => drawAngle(item, Color.Gray));
+                if (currentTemplate.uartEncoder)
+                    currentConnection.limits.Values.ToList().ForEach(item => drawAngle(item, Color.Gray));
+                else
+                {
+                    drawAngle(0, Color.Gray);
+                    drawAngle(450, Color.Gray);
+                }
                 //e.Graphics.DrawImage(bmpMap, new Rectangle( 0, 0, pMap.Width, pMap.Height) );
                 mapAngle = currentAngle;
             }
         }
+
 
         private int mouse2Angle(int mx, int my)
         {
@@ -918,7 +929,7 @@ namespace AntennaeRotator
             if (fSNorth.ShowDialog(this) == DialogResult.OK)
             {
                 currentConnection.northAngle = fSNorth.northAngle;
-                if (!currentConnection.hwLimits)
+                if (currentTemplate.uartEncoder && !currentConnection.hwLimits)
                     currentConnection.limits = new Dictionary<int, int> { { 1, currentConnection.northAngle + 180 }, { -1, currentConnection.northAngle + 180 } };
                 writeConfig();
                 pMap.Invalidate();
