@@ -54,6 +54,7 @@
             this.miIngnoreEngineOffMovement = new System.Windows.Forms.ToolStripMenuItem();
             this.slCalibration = new System.Windows.Forms.ToolStripLabel();
             this.lCaption = new System.Windows.Forms.Label();
+            this.lOverlap = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pMap)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -269,11 +270,24 @@
             this.lCaption.TabIndex = 18;
             this.lCaption.Text = "Нет соединения";
             // 
+            // lOverlap
+            // 
+            this.lOverlap.AutoSize = true;
+            this.lOverlap.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lOverlap.ForeColor = System.Drawing.Color.Red;
+            this.lOverlap.Location = new System.Drawing.Point(8, 66);
+            this.lOverlap.Name = "lOverlap";
+            this.lOverlap.Size = new System.Drawing.Size(78, 16);
+            this.lOverlap.TabIndex = 19;
+            this.lOverlap.Text = "OVERLAP";
+            this.lOverlap.Visible = false;
+            // 
             // FRotator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(526, 453);
+            this.Controls.Add(this.lOverlap);
             this.Controls.Add(this.lCaption);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.pMap);
@@ -317,6 +331,7 @@
         private System.Windows.Forms.ToolStripLabel slCalibration;
         private System.Windows.Forms.ToolStripMenuItem miIngnoreEngineOffMovement;
         private System.Windows.Forms.Label lCaption;
+        private System.Windows.Forms.Label lOverlap;
     }
 }
 

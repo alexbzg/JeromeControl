@@ -36,7 +36,7 @@ namespace AntennaeRotator
                     new DeviceTemplate { engineLines = new Dictionary<int,int[]>{ {1, new int[] { 12 } }, {-1, new int[] { 11 } } },
                                             gearLines = new int[] { 10, 7, 6, 3 },
                                             rotateButtonsLines = new Dictionary<int,int>{ {2, -1}, { 4, 1 } },
-                                            adc = 1 } //5 Yaesu v6.4
+                                            adc = 1 } //1 Yaesu v6.4
 
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
@@ -391,6 +391,7 @@ namespace AntennaeRotator
         private void onDisconnect(object obj, DisconnectEventArgs e)
         {
             timer.Enabled = false;
+            adcTimer.Change(Timeout.Infinite, Timeout.Infinite);
             targetAngle = -1;
             pMap.Invalidate();
             offLimit();
@@ -812,6 +813,12 @@ namespace AntennaeRotator
                 int displayAngle = currentAngle;
                 if (currentConnection.northAngle != -1)
                     displayAngle += (displayAngle < currentConnection.northAngle ? 360 : 0) - currentConnection.northAngle;
+                if (currentTemplate.adc != 0)
+                    Invoke((MethodInvoker)delegate ()
+                   {
+                       lOverlap.Visible = currentAngle > 360;
+                   });
+
 
                 showAngleLabel(displayAngle, -1);
             }
@@ -963,6 +970,18 @@ namespace AntennaeRotator
             {
                 slMvt.DisplayStyle = ToolStripItemDisplayStyle.Text;
             }
+            if (engineStatus != 0 && targetAngle != -1 && ( (currentConnection.deviceType == 1 && currentGear < currentTemplate.gearLines.Count() - 1)
+                && (currentGear != 0 || ++secOnGear0 > 3)))
+            {
+                int tD = aD(targetAngle, currentAngle);
+                if (Math.Sign(tD) == engineStatus && Math.Abs(tD) > (currentGear + 2) * currentConnection.switchIntervals[0])
+                {
+                    System.Diagnostics.Debug.WriteLine("gear+ current: " + currentAngle.ToString() + " target: " + targetAngle.ToString());
+                    setGear(currentGear + 1);
+                }
+
+            }
+
         }
 
         private void miMapAdd_Click(object sender, EventArgs e)
@@ -1101,7 +1120,8 @@ namespace AntennaeRotator
         private void fMain_Load(object sender, EventArgs e)
         {
             if (config.currentConnection != -1 && config.connections.Count > config.currentConnection)
-                formSPfromConnection(config.currentConnection);
+                loadConnection(config.currentConnection);
+                //formSPfromConnection(config.currentConnection);
             loaded = true;
         }
 

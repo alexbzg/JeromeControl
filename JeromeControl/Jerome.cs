@@ -133,7 +133,7 @@ namespace Jerome
             CmdEntry bufCmd;
             if (currentCmd == null && cmdQueue.TryDequeue(out bufCmd)  ){
                 currentCmd = bufCmd;
-                System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
+                //System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
                 connection.sendCommand("$KE" + ( bufCmd.cmd.Equals(String.Empty) ? "" : "," + bufCmd.cmd ));
                 replyTimer = new System.Threading.Timer(obj => replyTimeout(), null, timeout, Timeout.Infinite);
             }
@@ -202,7 +202,7 @@ namespace Jerome
         private void processReply(object sender, LineReceivedEventArgs e )
         {
             string reply = e.line;
-            System.Diagnostics.Debug.WriteLine(reply);
+            //System.Diagnostics.Debug.WriteLine(reply);
             if ( pingTimer != null)
                 pingTimer.Change(timeout, timeout);
             Match match = rEVT.Match(reply);
