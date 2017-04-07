@@ -555,6 +555,8 @@ namespace AntennaeRotator
         private void readADC()
         {
             int adcVal = controller.readADC(currentTemplate.adc);
+            if (adcVal == -1)
+                return;
             if (adcDataCount < adcDataLength - 1)
             {
                 adcData[adcDataCount++] = adcVal;
