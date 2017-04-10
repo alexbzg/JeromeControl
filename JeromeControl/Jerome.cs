@@ -46,6 +46,7 @@ namespace Jerome
         private static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
         private System.Threading.Timer replyTimer;
         private System.Threading.Timer pingTimer;
+        private volatile bool disconnecting;
 
         // ManualResetEvent instances signal completion.
 
@@ -53,10 +54,7 @@ namespace Jerome
         private AsyncConnection connection = new AsyncConnection();
         private AsyncConnection usartConnection;
 
-        public event EventHandler<DisconnectEventArgs> onDisconnected {
-            add { connection.onDisconnected += value; }
-            remove { connection.onDisconnected -= value; }
-        }
+        public event EventHandler<DisconnectEventArgs> onDisconnected;
         public event EventHandler<EventArgs> onConnected;
         public event EventHandler<LineStateChangedEventArgs> lineStateChanged;
         public event EventHandler<LineReceivedEventArgs> usartLineReceived
@@ -100,6 +98,7 @@ namespace Jerome
             jc.password = p.password;
             jc.connectionParams = p;
             jc.connection.onConnected += jc._onConnected;
+            jc.connection.onDisconnected += jc._onDisconnected;
             if (p.usartPort != 0)
                 jc.usartConnection = new AsyncConnection();
             return jc;
@@ -118,6 +117,28 @@ namespace Jerome
             newCmd(cmd, null);
         }
 
+        private void _onDisconnected(object sender, DisconnectEventArgs e)
+        {
+            if (disconnecting)
+                disconnecting = false;
+            else
+            {
+                onDisconnected?.Invoke(this, e);
+                clearQueue();
+            }
+        }
+
+        private void clearQueue()
+        {
+            currentCmd = null;
+            CmdEntry ignored;
+            while (cmdQueue.TryDequeue(out ignored)) ;
+            if (pingTimer != null)
+                pingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (replyTimer != null)
+                replyTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
         private void _onConnected(object sender, EventArgs e)
         {
             newCmd("PSW,SET," + connectionParams.password);
@@ -130,6 +151,8 @@ namespace Jerome
 
         private void processQueue()
         {
+            if (!connected || disconnecting)
+                return;
             CmdEntry bufCmd;
             if (currentCmd == null && cmdQueue.TryDequeue(out bufCmd)  ){
                 currentCmd = bufCmd;
@@ -141,6 +164,8 @@ namespace Jerome
 
         public string sendCommand(string cmd)
         {
+            if (!connected || disconnecting)
+                return "";
             string result = "";
             ManualResetEvent reDone = new ManualResetEvent(false);
             newCmd(cmd, delegate (string r)
@@ -179,14 +204,8 @@ namespace Jerome
 
         public void disconnect( bool reconnect )
         {
-            if (pingTimer != null)
-                pingTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            if (replyTimer != null)
-                replyTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            currentCmd = null;
-            CmdEntry ignored;
-            while (cmdQueue.TryDequeue(out ignored)) ;
             System.Diagnostics.Debug.WriteLine("disconnect");
+            clearQueue();
             if (connected)
                 connection.disconnect();
             if (usartConnected)
@@ -197,6 +216,8 @@ namespace Jerome
                 connection.asyncConnect();
             }
         }
+
+        
 
 
         private void processReply(object sender, LineReceivedEventArgs e )
@@ -254,7 +275,9 @@ namespace Jerome
         private void replyTimeout()
         {
             System.Diagnostics.Debug.WriteLine("Reply timeout");
+            disconnecting = true;
             disconnect(true);
+            onDisconnected?.Invoke(this, new DisconnectEventArgs() { requested = false });
         }
 
         public void usartSendBytes( byte[] data)

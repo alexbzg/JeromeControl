@@ -66,7 +66,7 @@ namespace JeromeControl
         private static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
 
         public JCConfig config;
-
+        static bool disableES = true;
 
         private ExpertSyncConnector esConnector;
         ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
@@ -98,7 +98,7 @@ namespace JeromeControl
             e.Cancel = false;
             miExpertSync.Text = "ExpertSync";
             miExpertSync.Image = null;
-            if (config.esHost != null && config.esPort != 0)
+            if (config.esHost != null && config.esPort != 0 && !disableES)
             {
                 miExpertSync.Text += " " + config.esHost + ":" + config.esPort.ToString();
                 miExpertSync.Image = esConnector.connected ? Properties.Resources.signal_green : Properties.Resources.signal_red;
@@ -189,6 +189,8 @@ namespace JeromeControl
 
         private void esConnect()
         {
+            if (disableES)
+                return;
             if (esConnector != null && esConnector.connected)
                 esConnector.disconnect();
             if (config.esHost != null && config.esPort != 0)

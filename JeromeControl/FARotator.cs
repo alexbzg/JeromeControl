@@ -28,6 +28,7 @@ namespace AntennaeRotator
 
     public partial class FRotator : Form, IJCChildForm
     {
+        
         static DeviceTemplate[] templates = {
                     new DeviceTemplate { engineLines = new Dictionary<int, int[]>{ { 1, new int[] { 16, 20 } }, {-1, new int[] { 15, 19} } },
                                             ledLine = 22, uartTRLine = 12, uartEncoder = true,

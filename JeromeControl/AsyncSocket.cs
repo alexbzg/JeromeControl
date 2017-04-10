@@ -129,7 +129,7 @@ namespace AsyncConnectionNS
 
         public IAsyncResult _connect()
         {
-            System.Diagnostics.Debug.WriteLine("Connecting...");
+            System.Diagnostics.Debug.WriteLine("Connecting to " + _host + ":" + _port.ToString());
             // Create a TCP/IP socket.
             socket = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
