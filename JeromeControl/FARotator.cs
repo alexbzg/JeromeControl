@@ -135,13 +135,11 @@ namespace AntennaeRotator
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
-                        if (currentConnection != null)
-                            showMessage("Потеряна связь с устройством!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         if (controller != null && controller.connected)
                             controller.disconnect( true );
                     });
                 },
-                null, 1000, Timeout.Infinite);
+                null, 5000, Timeout.Infinite);
         }
 
         private void setCurrentMap(int val)
@@ -376,7 +374,7 @@ namespace AntennaeRotator
                 {
                     engine(0);
                 }
-                else
+                if (engineTaskActive)
                     clearEngineTask();
                 if (engineTask != null)
                 {
@@ -384,7 +382,8 @@ namespace AntennaeRotator
                     engineTask.Dispose();
                     engineTask = null;
                 }
-                toggleLine(currentTemplate.ledLine, 0);
+                if (currentTemplate.ledLine != 0)
+                    toggleLine(currentTemplate.ledLine, 0);
                 controller.disconnect();
             }
         }
@@ -392,7 +391,8 @@ namespace AntennaeRotator
         private void onDisconnect(object obj, DisconnectEventArgs e)
         {
             timer.Enabled = false;
-            adcTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (adcTimer != null)
+                adcTimer.Change(Timeout.Infinite, Timeout.Infinite);
             targetAngle = -1;
             pMap.Invalidate();
             offLimit();
@@ -548,6 +548,7 @@ namespace AntennaeRotator
             if (!controller.connect())
             {
                 controller.disconnect();
+                controller = null;
                 showMessage("Подключение не удалось", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             miConnections.Enabled = true;

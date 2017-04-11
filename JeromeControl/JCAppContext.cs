@@ -66,7 +66,7 @@ namespace JeromeControl
         private static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
 
         public JCConfig config;
-        static bool disableES = true;
+        static bool disableES = false;
 
         private ExpertSyncConnector esConnector;
         ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
