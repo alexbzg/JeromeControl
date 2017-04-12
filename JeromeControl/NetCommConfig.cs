@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace NetComm
 {
@@ -11,6 +12,7 @@ namespace NetComm
         public bool watch = false;
         public bool active = false;
         public bool[] linesStates;
+        [XmlIgnoreAttribute]
         public JeromeController controller = null;
         public int[] lines;
 

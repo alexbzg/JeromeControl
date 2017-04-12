@@ -102,6 +102,11 @@ namespace ExpertSync
             return ac.connect(_host, _port);
         }
 
+        public void asyncConnect()
+        {
+            ac.connect(_host, _port, true);
+        }
+
         public void disconnect()
         {
             ac.disconnect();

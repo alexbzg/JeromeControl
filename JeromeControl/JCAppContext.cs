@@ -98,7 +98,11 @@ namespace JeromeControl
             e.Cancel = false;
             miExpertSync.Text = "ExpertSync";
             miExpertSync.Image = null;
-            if (config.esHost != null && config.esPort != 0 && !disableES)
+            #if DEBUG
+                if (disableES)
+                    return;
+            #endif
+            if (config.esHost != null && config.esPort != 0 )
             {
                 miExpertSync.Text += " " + config.esHost + ":" + config.esPort.ToString();
                 miExpertSync.Image = esConnector.connected ? Properties.Resources.signal_green : Properties.Resources.signal_red;
@@ -189,8 +193,10 @@ namespace JeromeControl
 
         private void esConnect()
         {
-            if (disableES)
-                return;
+            #if DEBUG
+                if (disableES)
+                    return;
+            #endif
             if (esConnector != null && esConnector.connected)
                 esConnector.disconnect();
             if (config.esHost != null && config.esPort != 0)
@@ -198,8 +204,8 @@ namespace JeromeControl
                 writeConfig();
                 esConnector = new ExpertSyncConnector(config.esHost, config.esPort);
                 esConnector.reconnect = true;
-                esConnector.connect();
                 esConnector.onMessage += esMessage;
+                esConnector.asyncConnect();
             }
         }
 

@@ -127,6 +127,18 @@ namespace AsyncConnectionNS
             }
         }
 
+        public void connect(string host, int port, bool _async)
+        {
+            if (host == null || host.Equals(string.Empty) || port == 0)
+                return;
+            _host = host;
+            _port = port;
+            if (_async)
+                asyncConnect();
+            else
+                connect(host, port);
+        }
+
         public IAsyncResult _connect()
         {
             System.Diagnostics.Debug.WriteLine("Connecting to " + _host + ":" + _port.ToString());

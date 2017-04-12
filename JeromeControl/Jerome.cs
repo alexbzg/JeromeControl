@@ -99,6 +99,8 @@ namespace Jerome
             jc.connectionParams = p;
             jc.connection.onConnected += jc._onConnected;
             jc.connection.onDisconnected += jc._onDisconnected;
+            jc.connection.lineReceived += jc.processReply;
+            jc.connection.reconnect = true;
             if (p.usartPort != 0)
                 jc.usartConnection = new AsyncConnection();
             return jc;
@@ -146,7 +148,7 @@ namespace Jerome
             pingTimer = new System.Threading.Timer(obj =>  newCmd(""), null, timeout, timeout);
             if (usartConnection != null)
                 usartConnection.connect(connectionParams.host,connectionParams.usartPort);
-            onConnected?.Invoke(sender, e);
+            onConnected?.Invoke(this, e);
         }
 
         private void processQueue()
@@ -156,7 +158,9 @@ namespace Jerome
             CmdEntry bufCmd;
             if (currentCmd == null && cmdQueue.TryDequeue(out bufCmd)  ){
                 currentCmd = bufCmd;
-                //System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
+                #if DEBUG
+                    System.Diagnostics.Debug.WriteLine(bufCmd.cmd);
+                #endif
                 connection.sendCommand("$KE" + ( bufCmd.cmd.Equals(String.Empty) ? "" : "," + bufCmd.cmd ));
                 replyTimer = new System.Threading.Timer(obj => replyTimeout(), null, timeout, Timeout.Infinite);
             }
@@ -183,13 +187,12 @@ namespace Jerome
         public bool connect()
         {
             connection.connect(connectionParams.host, connectionParams.port);
-            if (connection.connected)
-            {
-                connection.lineReceived += processReply;
-                connection.reconnect = true;
-                return true;
-            } else
-                return false;
+            return connection.connect();
+        }
+
+        public void asyncConnect()
+        {
+            connection.connect(connectionParams.host, connectionParams.port, true);
         }
 
         private void UsartConnection_lineReceived(object sender, LineReceivedEventArgs e)
@@ -223,7 +226,10 @@ namespace Jerome
         private void processReply(object sender, LineReceivedEventArgs e )
         {
             string reply = e.line;
-            //System.Diagnostics.Debug.WriteLine(reply);
+            #if DEBUG
+                System.Diagnostics.Debug.WriteLine(reply);
+            #endif
+
             if ( pingTimer != null)
                 pingTimer.Change(timeout, timeout);
             Match match = rEVT.Match(reply);

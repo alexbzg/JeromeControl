@@ -111,24 +111,23 @@ namespace NetComm
                 mi.Visible = !connected;
                 mi.Click += delegate(object sender, EventArgs e)
                 {
-                    if (connections[c].connected)
+                    if (connections[c].active)
                         connections[c].controller.disconnect();
                     else
-                        if (!connect(c))
-                            MessageBox.Show(c.name + ": подключение не удалось!");
+                        connect(c);
                 };
                 miControl.DropDownItems.Add(mi);
                 menuControl[c] = mi;
             }
         }
 
-        private bool connect(JeromeConnectionParams cp)
+        private void connect(JeromeConnectionParams cp)
         {
             connections[cp].controller = JeromeController.create(cp);
             connections[cp].controller.onDisconnected += controllerDisconnected;
             connections[cp].controller.onConnected += controllerConnected;
             writeConfig();
-            return connections[cp].controller.connect();
+            connections[cp].controller.asyncConnect();
         }
 
         private void controllerConnected( object sender, EventArgs e )

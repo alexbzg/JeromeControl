@@ -131,8 +131,7 @@ namespace WX0B
         {
             config.terminalActive = true;
             writeConfig();
-            if ( !terminalJConnection.connect() )
-                appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + " не удалось!", ToolTipIcon.Error);
+            terminalJConnection.asyncConnect();
         }
 
         private void updateTX()
@@ -390,7 +389,7 @@ namespace WX0B
                 if (config.activeController != -1 && config.activeController < controllers.Count)
                     controllers[config.activeController].jConnection.disconnect();
                 if (idx != -1)
-                    controllers[idx].jConnection.connect();
+                    controllers[idx].jConnection.asyncConnect();
                 config.activeController = idx;
                 writeConfig();
             }

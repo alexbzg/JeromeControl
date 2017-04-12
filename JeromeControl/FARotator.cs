@@ -43,10 +43,6 @@ namespace AntennaeRotator
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
 
-        internal bool editConnectionGroup(ConnectionSettings connectionSettings)
-        {
-            throw new NotImplementedException();
-        }
 
         DeviceTemplate currentTemplate;
         AntennaeRotatorConfig config;
@@ -532,7 +528,6 @@ namespace AntennaeRotator
 
         private void connect()
         {
-            miConnections.Enabled = false;
             if (controller == null)
             {
                 controller = JeromeController.create(currentConnection.jeromeParams);
@@ -545,13 +540,7 @@ namespace AntennaeRotator
                     controller.lineStateChanged += lineStateChanged;
 
             }
-            if (!controller.connect())
-            {
-                controller.disconnect();
-                controller = null;
-                showMessage("Подключение не удалось", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            miConnections.Enabled = true;
+            controller.asyncConnect();
         }
 
         private void readADC()
@@ -1192,11 +1181,6 @@ namespace AntennaeRotator
         internal int ledLine;
     }
 
-    public class ConnectionSettings
-    {
-
-
-    }
 
 
 
