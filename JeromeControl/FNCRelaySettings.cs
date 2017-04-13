@@ -13,11 +13,11 @@ namespace NetComm
     public partial class FRelaySettings : Form
     {
         private JeromeConnectionParams[] _lConnections;
-        private Dictionary<JeromeConnectionParams, ConnectionFormState> _connections;
+        private Dictionary<JeromeConnectionParams, JeromeConnectionState> _connections;
         public ComboBox[] cbLines;
         public JeromeConnectionParams connection;
 
-        public FRelaySettings(Dictionary<JeromeConnectionParams, ConnectionFormState> connections, List<string> buttonLabels)
+        public FRelaySettings(Dictionary<JeromeConnectionParams, JeromeConnectionState> connections, List<string> buttonLabels)
         {
             InitializeComponent();
             _connections = connections;

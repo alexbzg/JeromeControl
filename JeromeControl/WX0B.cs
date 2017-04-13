@@ -12,10 +12,11 @@ using Jerome;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using StorableFormState;
 
 namespace WX0B
 {
-    public partial class FWX0B : Form, IJCChildForm
+    public partial class FWX0B : FormWStorableState, IJCChildForm
     {
         internal static WX0BTerminalTemplate TerminalTemplate = new WX0BTerminalTemplate() {
             switches = new WX0BTerminalSwitchTemplate[] {
@@ -73,8 +74,10 @@ namespace WX0B
         internal volatile bool pttTX = false;
         internal volatile bool esTX = false;
 
+        public override StorableFormConfig _config { get { return config; } }
+
         internal JCAppContext appContext;
-        internal WX0BConfig config;
+        private WX0BConfig config;
         internal Color defForeColor; 
 
         JeromeController terminalJConnection;
@@ -82,10 +85,12 @@ namespace WX0B
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
-        public FWX0B(JCAppContext _appContext)
+        public FWX0B(JCAppContext _appContext) : base()
         {
             appContext = _appContext;
             config = _appContext.config.WX0BConfig;
+            if (config == null)
+                config = new WX0BConfig();
             InitializeComponent();
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
@@ -97,6 +102,8 @@ namespace WX0B
                 }
             }
             defForeColor = cbConnectTerminal.ForeColor;
+            if (config.terminalConnectionParams == null )
+                config.terminalConnectionParams = new JeromeConnectionParams();
             updateTerminalConnectionParamsCaption();
             terminalJConnection = JeromeController.create(config.terminalConnectionParams);
             terminalJConnection.onConnected += TerminalJControllerConnected;
@@ -283,7 +290,7 @@ namespace WX0B
 
         private void updateTerminalConnectionParamsCaption()
         {
-            if (config.terminalConnectionParams == null)
+            if (config.terminalConnectionParams.host == null || config.terminalConnectionParams.host == "")
                 bTerminalConnectionParams.Text = "Настроить соединение";
             else
                 bTerminalConnectionParams.Text = config.terminalConnectionParams.host;
@@ -309,7 +316,7 @@ namespace WX0B
             updateTerminalConnectionParamsCaption();
         }
 
-        internal void writeConfig()
+        public override void writeConfig()
         {
             appContext.config.WX0BConfig = config;
             appContext.writeConfig();
@@ -474,7 +481,7 @@ namespace WX0B
         public int esMHz;
     }
 
-    public class WX0BConfig
+    public class WX0BConfig : StorableFormConfig 
     {
         public JeromeConnectionParams terminalConnectionParams;
         public List<WX0BControllerConfigEntry> controllers = new List<WX0BControllerConfigEntry>();

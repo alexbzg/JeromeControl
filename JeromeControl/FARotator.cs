@@ -22,11 +22,12 @@ using System.Diagnostics;
 using JeromeControl;
 using JeromeControl.Properties;
 using JeromeModuleSettings;
+using StorableFormState;
 
 namespace AntennaeRotator
 {
 
-    public partial class FRotator : Form, IJCChildForm
+    public partial class FRotator : FormWStorableState, IJCChildForm
     {
         
         static DeviceTemplate[] templates = {
@@ -42,7 +43,7 @@ namespace AntennaeRotator
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
-
+        public override StorableFormConfig _config { get { return config; } }
 
         DeviceTemplate currentTemplate;
         AntennaeRotatorConfig config;
@@ -84,11 +85,6 @@ namespace AntennaeRotator
         double mapRatio = 0;
         AntennaeRotatorConnectionSettings currentConnection;
         bool closingFl = false;
-        bool loaded = false;
-        bool formSPmodified = false;
-        int connectionFromArgs = -1;
-        IPEndPoint esEndPoint;
-        ExpertSyncConnector esConnector;
         JCAppContext appContext;
         private int secOnGear0;
 
@@ -97,7 +93,7 @@ namespace AntennaeRotator
             return currentAngle;
         }
 
-        public FRotator(JCAppContext _appContext)
+        public FRotator(JCAppContext _appContext) : base()
         {
             InitializeComponent();
             appContext = _appContext;
@@ -159,23 +155,10 @@ namespace AntennaeRotator
         }
 
 
-        private void formSPfromConnection(int ci)
-        {
-            AntennaeRotatorConnectionSettings c = config.connections[ci];
-            if (!c.formSize.IsEmpty)
-            {
-                this.DesktopBounds =
-                    new Rectangle(c.formLocation, c.formSize);
-                formSPmodified = false;
-            }
-        }
-
         private void loadConnection(int index)
         {
             currentConnection = config.connections[index];
             config.currentConnection = index;
-            if (!formSPmodified)
-                formSPfromConnection(index);
 
             currentTemplate = getTemplate(currentConnection.deviceType);
             if (currentConnection.limitsSerialize != null)
@@ -421,13 +404,11 @@ namespace AntennaeRotator
             }
         }
 
-        public void writeConfig()
+        public override void writeConfig()
         {
             if (loaded && currentConnection != null)
             {
                 System.Drawing.Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
-                currentConnection.formLocation = bounds.Location;
-                currentConnection.formSize = bounds.Size;
                 if (currentConnection.limits != null)
                 {
                     currentConnection.limitsSerialize = new int[] { -1, -1 };
@@ -1110,24 +1091,6 @@ namespace AntennaeRotator
         {
         }
 
-        private void fMain_Load(object sender, EventArgs e)
-        {
-            if (config.currentConnection != -1 && config.connections.Count > config.currentConnection)
-                loadConnection(config.currentConnection);
-                //formSPfromConnection(config.currentConnection);
-            loaded = true;
-        }
-
-        private void fMain_ResizeEnd(object sender, EventArgs e)
-        {
-            if (loaded)
-            {
-                if (currentConnection != null)
-                    writeConfig();
-                else
-                    formSPmodified = true;
-            }
-        }
 
         private void pMap_MouseMove(object sender, MouseEventArgs e)
         {

@@ -15,15 +15,24 @@ using AsyncConnectionNS;
 using JeromeModuleSettings;
 using JeromeControl;
 using System.Threading;
+using StorableFormState;
 
 namespace NetComm
 {
-    public partial class FNetComm : Form, IJCChildForm
+    public partial class FNetComm : FormWStorableState, IJCChildForm
     {
         public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
         //public static int buttonsQty = 6;
 
-        private Dictionary<JeromeConnectionParams, ConnectionFormState> connections = new Dictionary<JeromeConnectionParams,ConnectionFormState>();
+        public override StorableFormConfig _config
+        {
+            get
+            {
+                return config;
+            }
+        }
+
+        private Dictionary<JeromeConnectionParams, JeromeConnectionState> connections = new Dictionary<JeromeConnectionParams,JeromeConnectionState>();
         private List<CheckBox> buttons = new List<CheckBox>();
         private List<string> buttonLabels = new List<string>();
         private Dictionary<JeromeConnectionParams, ToolStripMenuItem> menuControl = new Dictionary<JeromeConnectionParams, ToolStripMenuItem>();
@@ -33,9 +42,7 @@ namespace NetComm
         private Dictionary<int, int> esBindings = new Dictionary< int, int> ();
         private IPEndPoint esEndPoint;
         private NetCommConfig config;
-        private bool loaded = false;
         private JeromeConnectionParams connectionFromArgs = null;
-        private bool formSPModified = false;
         private bool trx = false;
         private JCAppContext appContext;
 
@@ -55,7 +62,7 @@ namespace NetComm
                 buttons[no].Text = buttonLabels[no];
         }
 
-        public FNetComm( JCAppContext _appContext )
+        public FNetComm( JCAppContext _appContext ) : base()
         {
             InitializeComponent();
             Width = 200;
@@ -148,9 +155,6 @@ namespace NetComm
                   connections[cp].controller.setLineMode(lines[c], 0);
                   buttons[c].Checked = linesState[lines[c] - 1] == '1';
               }
-              if (!formSPModified && !connections[cp].formLocation.IsEmpty)
-                  this.DesktopBounds =
-                          new Rectangle(connections[cp].formLocation, connections[cp].formSize);
           });
         }
 
@@ -211,7 +215,6 @@ namespace NetComm
                     {
                         b.ForeColor = buttonsColor;
                     }
-                    System.Diagnostics.Debug.WriteLine(b.Text + (b.Checked ? " on" : " off"));
                     Parallel.ForEach(connections.Where(x => x.Value.active && x.Value.connected), x =>
                     { x.Value.controller.switchLine(lines[x.Value.lines[no] - 1], b.Checked ? 1 : 0); });
                 });
@@ -228,53 +231,45 @@ namespace NetComm
                     connect(config.connections[config.lastConnection]);
 
             }
-            loaded = true;
         }
 
         
-        public void writeConfig()
+        public override void writeConfig()
         {
             if (!loaded)
                 return;
-            NetCommConfig s = new NetCommConfig();
-            s.lastConnection = -1;
+            config.lastConnection = -1;
 
-            s.connections = new JeromeConnectionParams[connections.Count];
-            s.states = new ConnectionFormState[connections.Count];
+            config.connections = new JeromeConnectionParams[connections.Count];
+            config.states = new JeromeConnectionState[connections.Count];
             int co = 0;
-            foreach (KeyValuePair<JeromeConnectionParams, ConnectionFormState> x in connections)
+            foreach (KeyValuePair<JeromeConnectionParams, JeromeConnectionState> x in connections)
             {
                 if (x.Value.active)
-                {
-                    s.lastConnection = co;
-                    System.Drawing.Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
-                    x.Value.formLocation = bounds.Location;
-                    x.Value.formSize = bounds.Size;
-                    formSPModified = false;
-                }
-                s.connections[co] = x.Key;
-                s.states[co] = x.Value;
+                    config.lastConnection = co;
+                config.connections[co] = x.Key;
+                config.states[co] = x.Value;
                 co++;
             }
 
-            s.buttonLabels = buttonLabels.ToArray();
+            config.buttonLabels = buttonLabels.ToArray();
 
-            s.esMhzValues = new int[ esBindings.Count ];
-            s.esButtons = new int[esBindings.Count];
+            config.esMhzValues = new int[ esBindings.Count ];
+            config.esButtons = new int[esBindings.Count];
             co = 0;
             foreach ( KeyValuePair<int,int> x in esBindings ) {
-                s.esMhzValues[co] = x.Key;
-                s.esButtons[co] = x.Value;
+                config.esMhzValues[co] = x.Key;
+                config.esButtons[co] = x.Value;
                 co++;
             }
 
             if (esEndPoint != null)
             {
-                s.esHost = esEndPoint.Address.ToString();
-                s.esPort = esEndPoint.Port;
+                config.esHost = esEndPoint.Address.ToString();
+                config.esPort = esEndPoint.Port;
             }
 
-            appContext.config.netCommConfig = s;
+            appContext.config.netCommConfig = config;
             appContext.writeConfig();
 
         }
@@ -285,17 +280,17 @@ namespace NetComm
             if (config.connections != null)
             {
                 if (config.states == null || config.states.Count() == 0)
-                    config.states = new ConnectionFormState[config.connections.Count()];
+                    config.states = new JeromeConnectionState[config.connections.Count()];
                 for (int co = 0; co < config.connections.Count(); co++)
                 {
                     if (config.states[co] == null)
-                        config.states[co] = new ConnectionFormState();
+                        config.states[co] = new JeromeConnectionState();
                     config.states[co].active = false;
                     connections[config.connections[co]] = config.states[co];
                 }
             }
             else
-                connections = new Dictionary<JeromeConnectionParams, ConnectionFormState>();
+                connections = new Dictionary<JeromeConnectionParams, JeromeConnectionState>();
             if (config.buttonLabels != null) 
                 buttonLabels = config.buttonLabels.ToList();
             if ( config.esMhzValues != null )
@@ -323,7 +318,7 @@ namespace NetComm
         private void connectionCreated(object obj, EventArgs e)
         {
             JeromeConnectionParams c = (JeromeConnectionParams)obj;
-            connections[c] = new ConnectionFormState();
+            connections[c] = new JeromeConnectionState();
             createConnectionMI(c);
             miRelaySettings.Enabled = true;
             writeConfig();
@@ -441,17 +436,8 @@ namespace NetComm
                 b.Height = bHeight;
                 b.Top = 25 + (bHeight + 2) * co;
             }
-            if (!connections.Values.ToList().Exists(item => item.active))
-                formSPModified = true;
-            writeConfig();
         }
 
-        private void FMain_LocationChanged(object sender, EventArgs e)
-        {
-            if (!connections.Values.ToList().Exists(item => item.active))
-                formSPModified = true;
-            writeConfig();
-        }
 
         private void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
         {

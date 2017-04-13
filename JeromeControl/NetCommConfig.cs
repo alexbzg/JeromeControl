@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using StorableFormState;
 
 namespace NetComm
 {
@@ -37,16 +38,11 @@ namespace NetComm
         }
     }
 
-    public class ConnectionFormState : JeromeConnectionState
-    {
-        public System.Drawing.Point formLocation;
-        public System.Drawing.Size formSize;
-    }
 
-    public class NetCommConfig
+    public class NetCommConfig : StorableFormConfig
     {
         public JeromeConnectionParams[] connections;
-        public ConnectionFormState[] states;
+        public JeromeConnectionState[] states;
         public string[] buttonLabels;
         public int[] esMhzValues;
         public int[] esButtons;

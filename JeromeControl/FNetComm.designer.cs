@@ -130,7 +130,6 @@
             this.Text = "Ant Comm";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FNetComm_FormClosed);
             this.Load += new System.EventHandler(this.FMain_Load);
-            this.LocationChanged += new System.EventHandler(this.FMain_LocationChanged);
             this.SizeChanged += new System.EventHandler(this.FMain_ResizeEnd);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FMain_KeyDown);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.form_MouseClick);

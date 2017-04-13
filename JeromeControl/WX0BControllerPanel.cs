@@ -46,7 +46,7 @@ namespace WX0B
         public void updateConnectionParamsCaption()
         {
             if ( controller.config.connectionParams == null || controller.config.connectionParams.host == null)
-                bConnectionParams.Text = "Настроить соединиение";
+                bConnectionParams.Text = "Настроить соединение";
             else
                 bConnectionParams.Text = controller.config.connectionParams.host;
         }

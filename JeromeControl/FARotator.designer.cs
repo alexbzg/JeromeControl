@@ -295,9 +295,6 @@
             this.Name = "FRotator";
             this.Text = "Нет соединения";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.fMain_FormClosing);
-            this.Load += new System.EventHandler(this.fMain_Load);
-            this.ResizeEnd += new System.EventHandler(this.fMain_ResizeEnd);
-            this.LocationChanged += new System.EventHandler(this.fMain_ResizeEnd);
             this.Resize += new System.EventHandler(this.fMain_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pMap)).EndInit();
             this.toolStrip1.ResumeLayout(false);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using StorableFormState;
 
 namespace AntennaeRotator
 {
@@ -17,13 +18,13 @@ namespace AntennaeRotator
         public Dictionary<int, int> limits = new Dictionary<int, int> { { 1, -1 }, { -1, -1 } };
         public int deviceType = 0;
         public int icon = 0;
-        public System.Drawing.Point formLocation;
-        public System.Drawing.Size formSize;
         internal bool ignoreEngineOffMovement;
         public bool hwLimits;
         public int[] limitsSerialize;
         public int esMhz;
         public bool calibrated;
+
+
 
         public override string ToString()
         {
@@ -32,7 +33,7 @@ namespace AntennaeRotator
 
     }
 
-    public class AntennaeRotatorConfig
+    public class AntennaeRotatorConfig : StorableFormConfig
     {
         public int currentConnection = -1;
         public List<string> maps = new List<string>();
