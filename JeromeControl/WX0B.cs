@@ -74,7 +74,9 @@ namespace WX0B
         internal volatile bool pttTX = false;
         internal volatile bool esTX = false;
 
-        public override StorableFormConfig _config { get { return config; } }
+        public override StorableFormConfig _config { get { return appContext.config.getChildForm(this); } }
+        internal int _idx;
+        public int idx {  get { return _idx; } }
 
         internal JCAppContext appContext;
         private WX0BConfig config;
@@ -85,12 +87,11 @@ namespace WX0B
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
-        public FWX0B(JCAppContext _appContext) : base()
+        public FWX0B(JCAppContext _appContext, int __idx) : base()
         {
             appContext = _appContext;
+            _idx = __idx;
             config = _appContext.config.WX0BConfig;
-            if (config == null)
-                config = new WX0BConfig();
             InitializeComponent();
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {

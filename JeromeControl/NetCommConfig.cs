@@ -39,7 +39,7 @@ namespace NetComm
     }
 
 
-    public class NetCommConfig : StorableFormConfig
+    public class NetCommConfig
     {
         public JeromeConnectionParams[] connections;
         public JeromeConnectionState[] states;

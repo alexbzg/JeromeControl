@@ -43,7 +43,9 @@ namespace AntennaeRotator
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
-        public override StorableFormConfig _config { get { return config; } }
+        public override StorableFormConfig _config { get { return appContext.config.getChildForm(this); } }
+        private int _idx;
+        public int idx { get { return _idx; } }
 
         DeviceTemplate currentTemplate;
         AntennaeRotatorConfig config;
@@ -93,10 +95,11 @@ namespace AntennaeRotator
             return currentAngle;
         }
 
-        public FRotator(JCAppContext _appContext) : base()
+        public FRotator(JCAppContext _appContext, int __idx) : base()
         {
             InitializeComponent();
             appContext = _appContext;
+            _idx = __idx;
             config = _appContext.config.antennaeRotatorConfig;
             updateConnectionsMenu();
             Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));

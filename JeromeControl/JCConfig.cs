@@ -9,17 +9,27 @@ using System.Xml.Serialization;
 using AntennaeRotator;
 using NetComm;
 using WX0B;
+using StorableFormState;
 
 namespace JeromeControl
 {
+    public class JCChildFormState : StorableFormConfig
+    {
+        public bool active;
+    }
+
     public class JCConfig
     {
+        internal static readonly string[] ChildFormsTypes = new string[] { "AntennaeRotator.FRotator", "NetComm.FNetComm", "WX0B.FWX0B" };
+        internal static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
+        internal static readonly int[] ChildFormsCount = new int[] { 2, 1, 1 };
+
         public string esHost = null;
         public int esPort = 0;
         public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
         public NetCommConfig netCommConfig = new NetCommConfig();
         public WX0BConfig WX0BConfig = new WX0BConfig();
-        public bool[] activeChildForms = new bool[JCAppContext.ChildFormsTypes.Count()];
+        public JCChildFormState[][] childForms = new JCChildFormState[ChildFormsTypes.Count()][];
 
         public void write()
         {
@@ -28,6 +38,16 @@ namespace JeromeControl
                 XmlSerializer ser = new XmlSerializer(typeof(JCConfig));
                 ser.Serialize(sw, this);
             }
+        }
+
+        public int getTypeIdx( IJCChildForm form )
+        {
+            return Array.IndexOf(JCConfig.ChildFormsTypes, form.GetType().ToString() );
+        }
+
+        public JCChildFormState getChildForm( IJCChildForm form )
+        {
+            return childForms[getTypeIdx(form)][form.idx];
         }
 
         public static JCConfig read()
@@ -56,6 +76,14 @@ namespace JeromeControl
                 result.netCommConfig = new NetCommConfig();
             if (result.WX0BConfig == null)
                 result.WX0BConfig = new WX0BConfig();
+            for (int c = 0; c < ChildFormsTypes.Count(); c++)
+            {
+                if ( result.childForms[c] == null )
+                    result.childForms[c] = new JCChildFormState[ChildFormsCount[c]];
+                for (int c0 = 0; c0 < ChildFormsCount[c]; c0++)
+                    if (result.childForms[c][c0] == null)
+                        result.childForms[c][c0] = new JCChildFormState();
+            }
             return result;
         }
     }

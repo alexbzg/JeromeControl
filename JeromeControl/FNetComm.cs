@@ -28,10 +28,13 @@ namespace NetComm
         {
             get
             {
-                return config;
+                return appContext.config.getChildForm(this);
             }
         }
 
+        public int idx { get { return _idx; } }
+
+        private int _idx;
         private Dictionary<JeromeConnectionParams, JeromeConnectionState> connections = new Dictionary<JeromeConnectionParams,JeromeConnectionState>();
         private List<CheckBox> buttons = new List<CheckBox>();
         private List<string> buttonLabels = new List<string>();
@@ -62,8 +65,9 @@ namespace NetComm
                 buttons[no].Text = buttonLabels[no];
         }
 
-        public FNetComm( JCAppContext _appContext ) : base()
+        public FNetComm( JCAppContext _appContext, int __idx ) : base()
         {
+            _idx = __idx;
             InitializeComponent();
             Width = 200;
 
