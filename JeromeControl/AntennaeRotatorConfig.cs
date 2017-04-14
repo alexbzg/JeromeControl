@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using StorableFormState;
+using JeromeControl;
 
 namespace AntennaeRotator
 {
@@ -33,13 +33,28 @@ namespace AntennaeRotator
 
     }
 
-    public class AntennaeRotatorConfig : StorableFormConfig
+    public class AntennaeRotatorFormState : JCChildFormState
+    {
+        public int currentConnection = -1;
+    }
+
+    public class AntennaeRotatorConfig : JCComponentConfig
     {
         public int currentConnection = -1;
         public List<string> maps = new List<string>();
         public int currentMap = -1;
         public List<AntennaeRotatorConnectionSettings> connections = new List<AntennaeRotatorConnectionSettings>();
-    }
+        private AntennaeRotatorFormState[] _formStates;
+        public override JCChildFormState[] formStates { get { return _formStates; } set { _formStates = (AntennaeRotatorFormState[])value; } }
 
+        public override void initFormStates( int formCount)
+        {
+            formStates = new AntennaeRotatorFormState[formCount];
+            for (var c = 0; c < formCount; c++)
+                formStates[c] = new AntennaeRotatorFormState();
+        }
+
+        public AntennaeRotatorConfig(int formCount) : base(formCount) { }
+    }
 
 }

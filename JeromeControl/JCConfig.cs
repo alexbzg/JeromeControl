@@ -10,12 +10,29 @@ using AntennaeRotator;
 using NetComm;
 using WX0B;
 using StorableFormState;
+using System.Reflection;
 
 namespace JeromeControl
 {
     public class JCChildFormState : StorableFormConfig
     {
         public bool active;
+    }
+
+    public class JCComponentConfig
+    {
+        public virtual JCChildFormState[] formStates { get { return _formStates; } set { _formStates = value; } }
+        private JCChildFormState[] _formStates;
+        public virtual void initFormStates( int formCount ) {
+            formStates = new JCChildFormState[formCount];
+            for (var c = 0; c < formCount; c++)
+                formStates[c] = new JCChildFormState();
+        }
+        public JCComponentConfig( int formCount )
+        {
+            initFormStates(formCount);
+        }
+
     }
 
     public class JCConfig
@@ -26,10 +43,7 @@ namespace JeromeControl
 
         public string esHost = null;
         public int esPort = 0;
-        public AntennaeRotatorConfig antennaeRotatorConfig = new AntennaeRotatorConfig();
-        public NetCommConfig netCommConfig = new NetCommConfig();
-        public WX0BConfig WX0BConfig = new WX0BConfig();
-        public JCChildFormState[][] childForms = new JCChildFormState[ChildFormsTypes.Count()][];
+        public JCComponentConfig[] components;
 
         public void write()
         {
@@ -40,14 +54,14 @@ namespace JeromeControl
             }
         }
 
-        public int getTypeIdx( IJCChildForm form )
+        public int getTypeIdx( JCChildForm form )
         {
             return Array.IndexOf(JCConfig.ChildFormsTypes, form.GetType().ToString() );
         }
 
-        public JCChildFormState getChildForm( IJCChildForm form )
+        public JCChildFormState getFormState( JCChildForm form )
         {
-            return childForms[getTypeIdx(form)][form.idx];
+            return components[getTypeIdx(form)].formStates[form.idx];
         }
 
         public static JCConfig read()
@@ -70,19 +84,13 @@ namespace JeromeControl
             }
             if (result == null)
                 result = new JCConfig();
-            if (result.antennaeRotatorConfig == null)
-                result.antennaeRotatorConfig = new AntennaeRotatorConfig();
-            if (result.netCommConfig == null)
-                result.netCommConfig = new NetCommConfig();
-            if (result.WX0BConfig == null)
-                result.WX0BConfig = new WX0BConfig();
             for (int c = 0; c < ChildFormsTypes.Count(); c++)
             {
-                if ( result.childForms[c] == null )
-                    result.childForms[c] = new JCChildFormState[ChildFormsCount[c]];
-                for (int c0 = 0; c0 < ChildFormsCount[c]; c0++)
-                    if (result.childForms[c][c0] == null)
-                        result.childForms[c][c0] = new JCChildFormState();
+                if ( result.components[c] == null )
+                {
+                    Type childFormType = Type.GetType(ChildFormsTypes[c]);
+                    result.components[c] = ((JCChildForm)childFormType).createConfig(ChildFormsCount[c]);
+                }
             }
             return result;
         }

@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using StorableFormState;
+using JeromeControl;
 
 namespace NetComm
 {
     public class JeromeConnectionState
     {
         public bool watch = false;
-        public bool active = false;
         public bool[] linesStates;
         [XmlIgnoreAttribute]
         public JeromeController controller = null;
@@ -39,7 +38,7 @@ namespace NetComm
     }
 
 
-    public class NetCommConfig
+    public class NetCommConfig : JCComponentConfig
     {
         public JeromeConnectionParams[] connections;
         public JeromeConnectionState[] states;
@@ -49,5 +48,8 @@ namespace NetComm
         public string esHost;
         public int esPort;
         public int lastConnection;
+
+        public NetCommConfig( int formCount ) : base(formCount) { }
+
     }
 }

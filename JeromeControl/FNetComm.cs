@@ -28,8 +28,13 @@ namespace NetComm
         {
             get
             {
-                return appContext.config.getChildForm(this);
+                return appContext.config.getFormState(this);
             }
+        }
+
+        public JCComponentConfig createConfig(int formCount)
+        {
+            return new NetCommConfig(formCount);
         }
 
         public int idx { get { return _idx; } }

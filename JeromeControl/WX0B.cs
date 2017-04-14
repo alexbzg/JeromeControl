@@ -64,6 +64,8 @@ namespace WX0B
         };
         internal static int[] ControllerTemplate = new int[] { 1, 5, 10, 12 };
 
+        public static JCComponentConfig createConfig( int formCount) { return new WX0BConfig(formCount); }
+
         internal Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch> switches = new Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch>();
         internal WX0BTerminalSwitch defaultSwitch;
         internal volatile WX0BTerminalSwitch activeSwitch = null;
@@ -74,7 +76,7 @@ namespace WX0B
         internal volatile bool pttTX = false;
         internal volatile bool esTX = false;
 
-        public override StorableFormConfig _config { get { return appContext.config.getChildForm(this); } }
+        public override StorableFormConfig _config { get { return appContext.config.getFormState(this); } }
         internal int _idx;
         public int idx {  get { return _idx; } }
 
@@ -482,12 +484,14 @@ namespace WX0B
         public int esMHz;
     }
 
-    public class WX0BConfig : StorableFormConfig 
+    public class WX0BConfig : JCComponentConfig
     {
         public JeromeConnectionParams terminalConnectionParams;
         public List<WX0BControllerConfigEntry> controllers = new List<WX0BControllerConfigEntry>();
         public int activeController = -1;
         public bool terminalActive;
+
+        public WX0BConfig( int formCount ) : base( formCount ) { }
     }
 
 

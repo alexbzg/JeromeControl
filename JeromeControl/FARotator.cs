@@ -43,7 +43,9 @@ namespace AntennaeRotator
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
-        public override StorableFormConfig _config { get { return appContext.config.getChildForm(this); } }
+        public static JCComponentConfig createConfig( int formCount ) { return new AntennaeRotatorConfig(formCount); }
+
+        public override StorableFormConfig _config { get { return appContext.config.getFormState(this); } }
         private int _idx;
         public int idx { get { return _idx; } }
 
@@ -158,8 +160,13 @@ namespace AntennaeRotator
         }
 
 
-        private void loadConnection(int index)
+        public void loadConnection(int index)
         {
+            if (currentConnection == config.connections[index])
+                return;
+            if (controller != null && controller.connected)
+                disconnect();
+
             currentConnection = config.connections[index];
             config.currentConnection = index;
 
@@ -1110,6 +1117,7 @@ namespace AntennaeRotator
 
         public void esMessage(int mhz, bool trx)
         {
+            return;
             //int mhz = ((int)e.vfoa) / 1000000;
             if ( config.connections.Exists( x => x.esMhz == mhz) ) 
                    this.Invoke((MethodInvoker)delegate {

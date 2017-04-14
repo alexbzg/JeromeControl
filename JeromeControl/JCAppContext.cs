@@ -257,8 +257,8 @@ namespace JeromeControl
                 Form childForm = (Form)constructor.Invoke(new object[] { this, idx });
                 childForm.Show();
                 childForm.FormClosed += formClosed;
-                childForms[childFormTypeStr][idx] = (IJCChildForm)childForm;
-                config.getChildForm((IJCChildForm)childForm).active = true;
+                childForms[childFormTypeStr][idx] = (JCChildForm)childForm;
+                config.getFormState((JCChildForm)childForm).active = true;
                 writeConfig();
             }
         }
@@ -266,11 +266,11 @@ namespace JeromeControl
         private void formClosed( object sender, EventArgs e )
         {
             string childFormTypeStr = sender.GetType().ToString();
-            int idx = ((IJCChildForm)sender).idx;
+            int idx = ((JCChildForm)sender).idx;
             childForms[childFormTypeStr][idx] = null;
             if (!exiting)
             {
-                config.getChildForm((IJCChildForm)sender).active = true;
+                config.getFormState((JCChildForm)sender).active = false;
                 writeConfig();
             }
         }
@@ -299,10 +299,5 @@ namespace JeromeControl
 
     }
 
-    public interface IJCChildForm
-    {
-        void esMessage(int mhz, bool trx);
-        int idx { get; }
-    }
 
 }
