@@ -16,7 +16,7 @@ using StorableFormState;
 
 namespace WX0B
 {
-    public partial class FWX0B : FormWStorableState, IJCChildForm
+    public partial class FWX0B : JCChildForm
     {
         internal static WX0BTerminalTemplate TerminalTemplate = new WX0BTerminalTemplate() {
             switches = new WX0BTerminalSwitchTemplate[] {
@@ -64,8 +64,6 @@ namespace WX0B
         };
         internal static int[] ControllerTemplate = new int[] { 1, 5, 10, 12 };
 
-        public static JCComponentConfig createConfig( int formCount) { return new WX0BConfig(formCount); }
-
         internal Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch> switches = new Dictionary<WX0BTerminalSwitchTemplate, WX0BTerminalSwitch>();
         internal WX0BTerminalSwitch defaultSwitch;
         internal volatile WX0BTerminalSwitch activeSwitch = null;
@@ -76,12 +74,8 @@ namespace WX0B
         internal volatile bool pttTX = false;
         internal volatile bool esTX = false;
 
-        public override StorableFormConfig _config { get { return appContext.config.getFormState(this); } }
         internal int _idx;
-        public int idx {  get { return _idx; } }
-
-        internal JCAppContext appContext;
-        private WX0BConfig config;
+        private WX0BConfig config { get { return (WX0BConfig)componentConfig; } }
         internal Color defForeColor; 
 
         JeromeController terminalJConnection;
@@ -89,11 +83,10 @@ namespace WX0B
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
-        public FWX0B(JCAppContext _appContext, int __idx) : base()
+        public FWX0B(JCAppContext _appContext, int __idx) : base( _appContext, __idx)
         {
             appContext = _appContext;
             _idx = __idx;
-            config = _appContext.config.WX0BConfig;
             InitializeComponent();
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
@@ -321,11 +314,10 @@ namespace WX0B
 
         public override void writeConfig()
         {
-            appContext.config.WX0BConfig = config;
             appContext.writeConfig();
         }
 
-        public void esMessage(int mhz, bool trx)
+        public override void esMessage(int mhz, bool trx)
         {
             System.Diagnostics.Debug.WriteLine("MHz " + mhz.ToString());
             if ( trx != esTX)
@@ -491,7 +483,7 @@ namespace WX0B
         public int activeController = -1;
         public bool terminalActive;
 
-        public WX0BConfig( int formCount ) : base( formCount ) { }
+        public WX0BConfig( JCAppContext appContext ) : base( appContext ) { }
     }
 
 

@@ -18,6 +18,14 @@ namespace JeromeControl
             }
         }
 
+        public override StorableFormConfig storableConfig
+        {
+            get
+            {
+                return componentConfig.formStates[idx];
+            }
+        }
+
         public virtual void esMessage(int mhz, bool trx) { }
 
         public JCChildForm(JCAppContext _appContext, int _idx) : base() {

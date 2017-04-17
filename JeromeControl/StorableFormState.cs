@@ -9,22 +9,22 @@ namespace StorableFormState
 {
     public class FormWStorableState : Form
     {
-        public virtual StorableFormConfig _config { get; }
+        public virtual StorableFormConfig storableConfig { get; }
         public virtual void writeConfig() { }
         public bool loaded = false;
 
         public void storeFormState()
         {
             Rectangle bounds = this.WindowState != FormWindowState.Normal ? this.RestoreBounds : this.DesktopBounds;
-            _config.formLocation = bounds.Location;
-            _config.formSize = bounds.Size;
+            storableConfig.formLocation = bounds.Location;
+            storableConfig.formSize = bounds.Size;
         }
 
         public void restoreFormState()
         {
-              if (_config != null && _config.formLocation != null && !_config.formLocation.IsEmpty)
+              if (storableConfig != null && storableConfig.formLocation != null && !storableConfig.formLocation.IsEmpty)
                   this.DesktopBounds =
-                          new Rectangle(_config.formLocation, _config.formSize);
+                          new Rectangle(storableConfig.formLocation, storableConfig.formSize);
         }
 
         public FormWStorableState()

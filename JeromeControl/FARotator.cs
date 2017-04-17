@@ -43,19 +43,7 @@ namespace AntennaeRotator
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
-        public override JCComponentConfig config
-        {
-            get
-            {
-                return appContext.config.components[JCConfig.getTypeIdx(this)];
-            }
-            set
-            {
-                appContext.config.components[JCConfig.getTypeIdx(this)] = value;
-            }
-        }
-
-        public override StorableFormConfig _config { get { return appContext.config.getFormState(this); } }
+        private AntennaeRotatorConfig config { get { return (AntennaeRotatorConfig)componentConfig; } }
 
         DeviceTemplate currentTemplate;
         JeromeController controller;
@@ -96,7 +84,6 @@ namespace AntennaeRotator
         double mapRatio = 0;
         AntennaeRotatorConnectionSettings currentConnection;
         bool closingFl = false;
-        JCAppContext appContext;
         private int secOnGear0;
 
         public int getCurrentAngle()
@@ -108,7 +95,6 @@ namespace AntennaeRotator
         {
             InitializeComponent();
             appContext = _appContext;
-            config = (AntennaeRotatorConfig)_appContext.config.components[JCConfig.getTypeIdx(this)];
             updateConnectionsMenu();
             Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));
             Trace.AutoFlush = true;
@@ -116,17 +102,17 @@ namespace AntennaeRotator
             Trace.WriteLine("Initialization");
 
             string currentMapStr = "";
-            if (this.config.currentMap != -1 && this.config.currentMap < this.config.maps.Count)
-                currentMapStr = this.config.maps[this.config.currentMap];
-            this.config.maps.RemoveAll(item => !File.Exists(item));
+            if (config.currentMap != -1 && config.currentMap < config.maps.Count)
+                currentMapStr = config.maps[config.currentMap];
+            config.maps.RemoveAll(item => !File.Exists(item));
             if (!currentMapStr.Equals(string.Empty))
-                this.config.currentMap = this.config.maps.IndexOf(currentMapStr);
+                config.currentMap = config.maps.IndexOf(currentMapStr);
             else
-                this.config.currentMap = -1;
-            this.config.maps.ForEach(item => loadMap(item));
-            if (this.config.currentMap != -1)
-                setCurrentMap(this.config.currentMap);
-            else if (this.config.maps.Count > 0)
+                config.currentMap = -1;
+            config.maps.ForEach(item => loadMap(item));
+            if (config.currentMap != -1)
+                setCurrentMap(config.currentMap);
+            else if (config.maps.Count > 0)
                 setCurrentMap(0);
             prevHeight = Height;
         }
@@ -1119,7 +1105,7 @@ namespace AntennaeRotator
         }
 
 
-
+/*
         public void esMessage(int mhz, bool trx)
         {
             return;
@@ -1135,6 +1121,7 @@ namespace AntennaeRotator
                        }
                    });
         }
+        */
 
         private void miCalibrate_Click(object sender, EventArgs e)
         {

@@ -24,7 +24,7 @@ namespace NetComm
         public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
         //public static int buttonsQty = 6;
 
-        public override StorableFormConfig _config
+        public override StorableFormConfig storableConfig
         {
             get
             {
@@ -44,7 +44,6 @@ namespace NetComm
         private NetCommConfig config;
         private JeromeConnectionParams connectionFromArgs = null;
         private bool trx = false;
-        private JCAppContext appContext;
 
         private bool connected
         {
@@ -398,7 +397,7 @@ namespace NetComm
         }
 
 
-        public void esMessage(int mhz, bool _trx)
+        public override void esMessage(int mhz, bool _trx)
         {
             if (trx != _trx)
             {
