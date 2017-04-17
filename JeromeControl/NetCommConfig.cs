@@ -11,6 +11,7 @@ namespace NetComm
     public class JeromeConnectionState
     {
         public bool watch = false;
+        public bool active = false;
         public bool[] linesStates;
         [XmlIgnoreAttribute]
         public JeromeController controller = null;
@@ -49,7 +50,7 @@ namespace NetComm
         public int esPort;
         public int lastConnection;
 
-        public NetCommConfig( int formCount ) : base(formCount) { }
+        public NetCommConfig( JCAppContext _appContext ) : base(_appContext) { }
 
     }
 }

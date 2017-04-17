@@ -44,8 +44,10 @@ namespace AntennaeRotator
         public List<string> maps = new List<string>();
         public int currentMap = -1;
         public List<AntennaeRotatorConnectionSettings> connections = new List<AntennaeRotatorConnectionSettings>();
-        private AntennaeRotatorFormState[] _formStates;
+
         public override JCChildFormState[] formStates { get { return _formStates; } set { _formStates = (AntennaeRotatorFormState[])value; } }
+        [XmlIgnoreAttribute]
+        private AntennaeRotatorFormState[] _formStates;
 
         public override void initFormStates( int formCount)
         {
@@ -54,7 +56,30 @@ namespace AntennaeRotator
                 formStates[c] = new AntennaeRotatorFormState();
         }
 
-        public AntennaeRotatorConfig(int formCount) : base(formCount) { }
+        public AntennaeRotatorConfig(JCAppContext _appContext) : base(_appContext) { }
+
+        public override void esMessage(int mhz, bool trx)
+        {
+            List<AntennaeRotatorConnectionSettings> bc = connections.Where(x => x.esMhz == mhz).ToList();
+            for (int c = 0; c < forms.Count(); c++)
+            {
+                if (c < bc.Count())
+                {
+                    int cIdx = connections.IndexOf(bc[c]);
+                    if (forms[c] == null)
+                    {
+                        FRotator f = new FRotator(appContext, c);
+                    }
+                    ((FRotator)forms[c]).loadConnection(cIdx);                    
+                } else
+                {
+                    if (forms[c] != null)
+                        forms[c].Close();
+                }
+
+            }
+                
+        }
     }
 
 }

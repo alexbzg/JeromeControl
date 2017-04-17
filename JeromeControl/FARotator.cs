@@ -27,7 +27,7 @@ using StorableFormState;
 namespace AntennaeRotator
 {
 
-    public partial class FRotator : FormWStorableState, IJCChildForm
+    public partial class FRotator : JCChildForm
     {
         
         static DeviceTemplate[] templates = {
@@ -43,14 +43,21 @@ namespace AntennaeRotator
                     };
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
-        public static JCComponentConfig createConfig( int formCount ) { return new AntennaeRotatorConfig(formCount); }
+        public override JCComponentConfig config
+        {
+            get
+            {
+                return appContext.config.components[JCConfig.getTypeIdx(this)];
+            }
+            set
+            {
+                appContext.config.components[JCConfig.getTypeIdx(this)] = value;
+            }
+        }
 
         public override StorableFormConfig _config { get { return appContext.config.getFormState(this); } }
-        private int _idx;
-        public int idx { get { return _idx; } }
 
         DeviceTemplate currentTemplate;
-        AntennaeRotatorConfig config;
         JeromeController controller;
         int currentAngle = -1;
         int targetAngle = -1;
@@ -97,12 +104,11 @@ namespace AntennaeRotator
             return currentAngle;
         }
 
-        public FRotator(JCAppContext _appContext, int __idx) : base()
+        public FRotator(JCAppContext _appContext, int __idx) : base( _appContext, __idx)
         {
             InitializeComponent();
             appContext = _appContext;
-            _idx = __idx;
-            config = _appContext.config.antennaeRotatorConfig;
+            config = (AntennaeRotatorConfig)_appContext.config.components[JCConfig.getTypeIdx(this)];
             updateConnectionsMenu();
             Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));
             Trace.AutoFlush = true;
@@ -428,7 +434,6 @@ namespace AntennaeRotator
                         currentConnection.limitsSerialize[1] = currentConnection.limits[-1];
                 }
             }
-            appContext.config.antennaeRotatorConfig = config;
             appContext.writeConfig();
         }
 

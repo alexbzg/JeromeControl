@@ -10,12 +10,32 @@ namespace JeromeControl
     {
         public JCAppContext appContext;
         public int idx;
+        public JCComponentConfig componentConfig { get {
+                return appContext.config.components[JCConfig.getTypeIdx(this)];
+            }
+            set {
+                appContext.config.components[JCConfig.getTypeIdx(this)] = value;
+            }
+        }
 
         public virtual void esMessage(int mhz, bool trx) { }
 
         public JCChildForm(JCAppContext _appContext, int _idx) : base() {
             appContext = _appContext;
             idx = _idx;
+            componentConfig.forms[idx] = this;
+            componentConfig.formStates[idx].active = true;
+            appContext.writeConfig();
+            this.FormClosed += _formClosed;
+        }
+
+        private void _formClosed(object sender, EventArgs e)
+        {
+            if (!appContext.exiting)
+            {
+                appContext.config.getFormState(this).active = false;
+                appContext.writeConfig();
+            }
         }
 
     }

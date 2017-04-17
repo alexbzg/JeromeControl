@@ -69,9 +69,7 @@ namespace JeromeControl
         private ExpertSyncConnector esConnector;
         ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
 
-        private Dictionary<string, IJCChildForm[]> childForms = new Dictionary<string, IJCChildForm[]>();
-
-        volatile bool exiting;
+        public volatile bool exiting;
         /// <summary>
 		/// This class should be created and passed into Application.Run( ... )
 		/// </summary>
@@ -111,10 +109,8 @@ namespace JeromeControl
         {
             int mhz = ((int)e.vfoa) / 1000000;
             System.Diagnostics.Debug.WriteLine("TRX " + (e.trx ? "ON" : "OFF"));
-            foreach (IJCChildForm[] forms in childForms.Values)
-                foreach(IJCChildForm form in forms)
-                    if (form != null)
-                        form.esMessage(mhz, e.trx);
+            foreach (JCComponentConfig compConfig in config.components)
+                compConfig.esMessage(mhz, e.trx);
         }
 
         # region the child forms
@@ -156,12 +152,11 @@ namespace JeromeControl
             };
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
-            config = JCConfig.read();
+            config = JCConfig.read(this);
             esConnect();
 
             for (int c = 0; c < JCConfig.ChildFormsTypes.Count(); c++)
             {
-                childForms[JCConfig.ChildFormsTypes[c]] = new IJCChildForm[JCConfig.ChildFormsCount[c]];
                 for (int c0 = 0; c0 < JCConfig.ChildFormsCount[c]; c0++)
                 {
                     string title = JCConfig.ChildFormsTitles[c];
@@ -175,7 +170,7 @@ namespace JeromeControl
                         createForm(childFormTypeStr, idx);
                     });
                     notifyIcon.ContextMenuStrip.Items.Add(mi);
-                    if (config.childForms[c][c0].active)
+                    if (config.components[c].formStates[c0].active)
                         createForm(JCConfig.ChildFormsTypes[c], c0);
                 }
             }
@@ -248,30 +243,13 @@ namespace JeromeControl
 
         private void createForm( string childFormTypeStr, int idx)
         {
-            if (childForms[childFormTypeStr][idx] != null)
-                ((Form)childForms[childFormTypeStr][idx]).Focus();
+            JCComponentConfig compConfig = config.components[JCConfig.getTypeIdx(childFormTypeStr)];
+            if (compConfig.forms[idx] != null)
+                compConfig.forms[idx].Focus();
             else
             {
-                Type childFormType = Type.GetType(childFormTypeStr);
-                var constructor = childFormType.GetConstructors()[0];
-                Form childForm = (Form)constructor.Invoke(new object[] { this, idx });
+                Form childForm = (Form)(JCConfig.getConstructor( childFormTypeStr ) ).Invoke(new object[] { this, idx });
                 childForm.Show();
-                childForm.FormClosed += formClosed;
-                childForms[childFormTypeStr][idx] = (JCChildForm)childForm;
-                config.getFormState((JCChildForm)childForm).active = true;
-                writeConfig();
-            }
-        }
-
-        private void formClosed( object sender, EventArgs e )
-        {
-            string childFormTypeStr = sender.GetType().ToString();
-            int idx = ((JCChildForm)sender).idx;
-            childForms[childFormTypeStr][idx] = null;
-            if (!exiting)
-            {
-                config.getFormState((JCChildForm)sender).active = false;
-                writeConfig();
             }
         }
 

@@ -19,7 +19,7 @@ using StorableFormState;
 
 namespace NetComm
 {
-    public partial class FNetComm : FormWStorableState, IJCChildForm
+    public partial class FNetComm : JCChildForm
     {
         public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
         //public static int buttonsQty = 6;
@@ -32,14 +32,6 @@ namespace NetComm
             }
         }
 
-        public JCComponentConfig createConfig(int formCount)
-        {
-            return new NetCommConfig(formCount);
-        }
-
-        public int idx { get { return _idx; } }
-
-        private int _idx;
         private Dictionary<JeromeConnectionParams, JeromeConnectionState> connections = new Dictionary<JeromeConnectionParams,JeromeConnectionState>();
         private List<CheckBox> buttons = new List<CheckBox>();
         private List<string> buttonLabels = new List<string>();
@@ -70,14 +62,13 @@ namespace NetComm
                 buttons[no].Text = buttonLabels[no];
         }
 
-        public FNetComm( JCAppContext _appContext, int __idx ) : base()
+        public FNetComm( JCAppContext _appContext, int __idx ) : base( _appContext, __idx)
         {
-            _idx = __idx;
             InitializeComponent();
             Width = 200;
 
             appContext = _appContext;
-            initConfig( _appContext.config.netCommConfig );
+            initConfig( (NetCommConfig)config );
             for (int co = buttonLabels.Count(); co < lines.Count(); co++)
                 buttonLabels.Add("");
             miRelaySettings.Enabled = connections.Count > 0;
@@ -278,7 +269,6 @@ namespace NetComm
                 config.esPort = esEndPoint.Port;
             }
 
-            appContext.config.netCommConfig = config;
             appContext.writeConfig();
 
         }
