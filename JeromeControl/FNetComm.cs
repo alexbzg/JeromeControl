@@ -41,7 +41,7 @@ namespace NetComm
         private Color buttonsColor;
         private Dictionary<int, int> esBindings = new Dictionary< int, int> ();
         private IPEndPoint esEndPoint;
-        private NetCommConfig config;
+        private NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
         private JeromeConnectionParams connectionFromArgs = null;
         private bool trx = false;
 
@@ -67,7 +67,7 @@ namespace NetComm
             Width = 200;
 
             appContext = _appContext;
-            initConfig( (NetCommConfig)config );
+            initConfig();
             for (int co = buttonLabels.Count(); co < lines.Count(); co++)
                 buttonLabels.Add("");
             miRelaySettings.Enabled = connections.Count > 0;
@@ -272,9 +272,8 @@ namespace NetComm
 
         }
 
-        private void initConfig( NetCommConfig _config )
+        private void initConfig()
         {
-            config = _config;
             if (config.connections != null)
             {
                 if (config.states == null || config.states.Count() == 0)

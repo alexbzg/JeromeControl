@@ -142,19 +142,29 @@ namespace AsyncConnectionNS
         public IAsyncResult _connect()
         {
             System.Diagnostics.Debug.WriteLine("Connecting to " + _host + ":" + _port.ToString());
-            // Create a TCP/IP socket.
-            socket = new Socket(AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                // Create a TCP/IP socket.
+                socket = new Socket(AddressFamily.InterNetwork,
+                    SocketType.Stream, ProtocolType.Tcp);
 
-            // Connect to the remote endpoint.
-            return socket.BeginConnect(_host, _port,
-                new AsyncCallback(connectCallback), null);
+                // Connect to the remote endpoint.
+
+                return socket.BeginConnect(_host, _port,
+                    new AsyncCallback(connectCallback), null);
+            } catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.ToString());
+                return null;
+            }
         }
 
         public void asyncConnect()
         {
             IAsyncResult ar = _connect();
-            ThreadPool.RegisterWaitForSingleObject(ar.AsyncWaitHandle, new WaitOrTimerCallback(asyncConnectTimeout), null, timeout, true);
+            if (ar != null)
+                ThreadPool.RegisterWaitForSingleObject(ar.AsyncWaitHandle, new WaitOrTimerCallback(asyncConnectTimeout), null, timeout, true);
+            else asyncConnect();
         }
 
         private void asyncConnectTimeout(object state, bool timedOut)
@@ -163,7 +173,9 @@ namespace AsyncConnectionNS
             {
                 Debug.WriteLine("Async connect timeout");
                 if (socket != null)
+                {
                     socket.Close();
+                }
                 if (reconnect)
                     asyncConnect();
             }

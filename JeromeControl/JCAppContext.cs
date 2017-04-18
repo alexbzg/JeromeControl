@@ -62,6 +62,7 @@ namespace JeromeControl
         // Icon graphic from http://prothemedesign.com/circular-icons/
         private static readonly string IconFileName = "icon_ant1.ico";
         private static readonly string DefaultTooltip = "Управление антеннами";
+        public static JCAppContext CurrentAppContext;
 
         public JCConfig config;
         static bool disableES = false;
@@ -75,6 +76,7 @@ namespace JeromeControl
 		/// </summary>
 		public JCAppContext()
         {
+            CurrentAppContext = this;
             InitializeContext();
 
         }
@@ -94,10 +96,10 @@ namespace JeromeControl
             e.Cancel = false;
             miExpertSync.Text = "ExpertSync";
             miExpertSync.Image = null;
-            #if DEBUG
+#if DEBUG
                 if (disableES)
                     return;
-            #endif
+#endif
             if (config.esHost != null && config.esPort != 0 )
             {
                 miExpertSync.Text += " " + config.esHost + ":" + config.esPort.ToString();
@@ -152,7 +154,7 @@ namespace JeromeControl
             };
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
-            config = JCConfig.read(this);
+            config = JCConfig.read();
             esConnect();
 
             for (int c = 0; c < JCConfig.ChildFormsTypes.Count(); c++)
@@ -176,6 +178,7 @@ namespace JeromeControl
             }
 
 
+
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
 
             miExpertSync.Click += esItem_Click;
@@ -187,6 +190,24 @@ namespace JeromeControl
             miExit.Click += exitItem_Click;
             notifyIcon.ContextMenuStrip.Items.Add(miExit);
 
+#if DEBUG
+            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+
+            MessageEventArgs[] testMessages = new MessageEventArgs[] {
+                new MessageEventArgs { vfoa = 7000000, trx = false  },
+                new MessageEventArgs { vfoa = 10000000, trx = false  },
+                new MessageEventArgs { vfoa = 14000000, trx = false  },
+                new MessageEventArgs { vfoa = 7000000, trx = true  }
+            };
+            foreach (MessageEventArgs msg in testMessages)
+            {
+                ToolStripMenuItem mi = new ToolStripMenuItem(msg.vfoa.ToString() + ' ' + msg.trx.ToString());
+                mi.Click += new EventHandler(delegate (object sender, EventArgs e) {
+                    esMessage(null, msg);
+                });
+                notifyIcon.ContextMenuStrip.Items.Add(mi);
+            }
+#endif
 
 
         }

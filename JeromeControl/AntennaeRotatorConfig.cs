@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using JeromeControl;
+using System.Windows.Forms;
 
 namespace AntennaeRotator
 {
@@ -40,12 +41,25 @@ namespace AntennaeRotator
 
     public class AntennaeRotatorConfig : JCComponentConfig
     {
-        public int currentConnection = -1;
         public List<string> maps = new List<string>();
         public int currentMap = -1;
         public List<AntennaeRotatorConnectionSettings> connections = new List<AntennaeRotatorConnectionSettings>();
 
-        public override JCChildFormState[] formStates { get { return _formStates; } set { _formStates = (AntennaeRotatorFormState[])value; } }
+        public override JCChildFormState[] formStates {
+            get {
+                return _formStates;
+            }
+            set {
+                if (value == null)
+                    _formStates = null;
+                else
+                {
+                    _formStates = new AntennaeRotatorFormState[value.Count()];
+                    for (int c = 0; c < value.Count(); c++)
+                        _formStates[c] = (AntennaeRotatorFormState)value[c];
+                }
+            }
+        }
         [XmlIgnoreAttribute]
         private AntennaeRotatorFormState[] _formStates;
 
@@ -56,11 +70,10 @@ namespace AntennaeRotator
                 formStates[c] = new AntennaeRotatorFormState();
         }
 
-        public AntennaeRotatorConfig(JCAppContext _appContext) : base(_appContext) { }
-
         public override void esMessage(int mhz, bool trx)
         {
             List<AntennaeRotatorConnectionSettings> bc = connections.Where(x => x.esMhz == mhz).ToList();
+            JCAppContext appContext = JCAppContext.CurrentAppContext;
             for (int c = 0; c < forms.Count(); c++)
             {
                 if (c < bc.Count())
@@ -68,9 +81,12 @@ namespace AntennaeRotator
                     int cIdx = connections.IndexOf(bc[c]);
                     if (forms[c] == null)
                     {
+                        _formStates[c].currentConnection = cIdx;
                         FRotator f = new FRotator(appContext, c);
+                        f.Show();
                     }
-                    ((FRotator)forms[c]).loadConnection(cIdx);                    
+                    else 
+                        ((FRotator)forms[c]).loadConnection(cIdx);                    
                 } else
                 {
                     if (forms[c] != null)

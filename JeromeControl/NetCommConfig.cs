@@ -50,7 +50,6 @@ namespace NetComm
         public int esPort;
         public int lastConnection;
 
-        public NetCommConfig( JCAppContext _appContext ) : base(_appContext) { }
 
     }
 }

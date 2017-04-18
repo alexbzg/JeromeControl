@@ -22,11 +22,11 @@ namespace JeromeControl
     public class JCComponentConfig
     {
         [XmlIgnoreAttribute]
-        public JCAppContext appContext;
-        [XmlIgnoreAttribute]
         private JCChildForm[] _forms;
         [XmlIgnoreAttribute]
         public virtual JCChildForm[] forms { get { return _forms; } set { _forms = value; } }
+        [System.Xml.Serialization.XmlArrayItem(typeof(JCChildFormState)),
+            System.Xml.Serialization.XmlArrayItem(typeof(AntennaeRotator.AntennaeRotatorFormState))]
         public virtual JCChildFormState[] formStates { get { return _formStates; } set { _formStates = value; } }
         [XmlIgnoreAttribute]
         private JCChildFormState[] _formStates;
@@ -35,9 +35,8 @@ namespace JeromeControl
             for (var c = 0; c < formCount; c++)
                 formStates[c] = new JCChildFormState();
         }
-        public JCComponentConfig( JCAppContext _appContext )
+        public JCComponentConfig()
         {
-            appContext = _appContext;
             int formCount = JCConfig.ChildFormsCount[Array.IndexOf(JCConfig.ConfigComponentsTypes, this.GetType().ToString())];
             initFormStates(formCount);
             forms = new JCChildForm[formCount];
@@ -60,7 +59,10 @@ namespace JeromeControl
 
         public string esHost = null;
         public int esPort = 0;
-        public JCComponentConfig[] components;
+        [System.Xml.Serialization.XmlArrayItem(typeof(AntennaeRotator.AntennaeRotatorConfig)),
+        System.Xml.Serialization.XmlArrayItem(typeof(NetComm.NetCommConfig)),
+        System.Xml.Serialization.XmlArrayItem(typeof(WX0B.WX0BConfig))]
+        public JCComponentConfig[] components = new JCComponentConfig[ConfigComponentsTypes.Count()];
 
         public static ConstructorInfo getConstructor( string typeStr)
         {
@@ -72,8 +74,15 @@ namespace JeromeControl
         {
             using (StreamWriter sw = new StreamWriter(Application.StartupPath + "\\config.xml"))
             {
-                XmlSerializer ser = new XmlSerializer(typeof(JCConfig));
-                ser.Serialize(sw, this);
+                try
+                {
+                    XmlSerializer ser = new XmlSerializer(typeof(JCConfig));
+                    ser.Serialize(sw, this);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                }
             }
         }
 
@@ -94,7 +103,7 @@ namespace JeromeControl
 
 
 
-        public static JCConfig read( JCAppContext appContext)
+        public static JCConfig read()
         {
             JCConfig result = null;
             if (File.Exists(Application.StartupPath + "\\config.xml"))
@@ -108,7 +117,7 @@ namespace JeromeControl
                     }
                     catch (Exception e)
                     {
-                        System.Diagnostics.Debug.WriteLine(e.Message);
+                        System.Diagnostics.Debug.WriteLine(e.ToString());
                     }
                 }
             }
@@ -118,7 +127,7 @@ namespace JeromeControl
             {
                 if ( result.components[c] == null )
                 {
-                    result.components[c] = (JCComponentConfig)getConstructor(ConfigComponentsTypes[c]).Invoke( new object[] { ChildFormsCount[c] } );
+                    result.components[c] = (JCComponentConfig)getConstructor(ConfigComponentsTypes[c]).Invoke( new object[] {} );
                 }
             }
             return result;

@@ -42,6 +42,7 @@ namespace JeromeControl
             if (!appContext.exiting)
             {
                 appContext.config.getFormState(this).active = false;
+                componentConfig.forms[idx] = null;
                 appContext.writeConfig();
             }
         }

@@ -132,9 +132,12 @@ namespace WX0B
 
         public void connectTerminal()
         {
-            config.terminalActive = true;
-            writeConfig();
-            terminalJConnection.asyncConnect();
+            if (!terminalJConnection.connected)
+            {
+                config.terminalActive = true;
+                writeConfig();
+                terminalJConnection.asyncConnect();
+            }
         }
 
         private void updateTX()
@@ -209,8 +212,11 @@ namespace WX0B
 
         private void TerminalJControllerConnected(object sender, EventArgs e)
         {
-            cbConnectTerminal.ForeColor = Color.Green;
-            cbConnectTerminal.Checked = true;
+            Invoke((MethodInvoker)delegate ()
+          {
+              cbConnectTerminal.ForeColor = Color.Green;
+              cbConnectTerminal.Checked = true;
+          });
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
                 terminalJConnection.setLineMode(st.button, 1);
@@ -483,7 +489,6 @@ namespace WX0B
         public int activeController = -1;
         public bool terminalActive;
 
-        public WX0BConfig( JCAppContext appContext ) : base( appContext ) { }
     }
 
 

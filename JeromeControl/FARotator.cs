@@ -44,6 +44,7 @@ namespace AntennaeRotator
         static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
 
         private AntennaeRotatorConfig config { get { return (AntennaeRotatorConfig)componentConfig; } }
+        private AntennaeRotatorFormState formState {  get { return (AntennaeRotatorFormState)config.formStates[idx]; } }
 
         DeviceTemplate currentTemplate;
         JeromeController controller;
@@ -115,6 +116,8 @@ namespace AntennaeRotator
             else if (config.maps.Count > 0)
                 setCurrentMap(0);
             prevHeight = Height;
+            if (formState.currentConnection != -1)
+                loadConnection(formState.currentConnection);
         }
 
         private void scheduleTimeoutTimer()
@@ -160,7 +163,7 @@ namespace AntennaeRotator
                 disconnect();
 
             currentConnection = config.connections[index];
-            config.currentConnection = index;
+            formState.currentConnection = index;
 
             currentTemplate = getTemplate(currentConnection.deviceType);
             if (currentConnection.limitsSerialize != null)
@@ -365,6 +368,12 @@ namespace AntennaeRotator
                 }
                 if (currentTemplate.ledLine != 0)
                     toggleLine(currentTemplate.ledLine, 0);
+                if (currentTemplate.uartEncoder)
+                    controller.usartBytesReceived -= usartBytesReceived;
+                controller.onDisconnected -= onDisconnect;
+                controller.onConnected -= onConnect;
+                if (currentConnection.hwLimits)
+                    controller.lineStateChanged -= lineStateChanged;
                 controller.disconnect();
             }
         }
