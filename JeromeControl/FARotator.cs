@@ -97,10 +97,10 @@ namespace AntennaeRotator
             InitializeComponent();
             appContext = _appContext;
             updateConnectionsMenu();
-            Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));
+           /* Trace.Listeners.Add(new TextWriterTraceListener(Application.StartupPath + "\\rotator.log"));
             Trace.AutoFlush = true;
             Trace.Indent();
-            Trace.WriteLine("Initialization");
+            Trace.WriteLine("Initialization");*/
 
             string currentMapStr = "";
             if (config.currentMap != -1 && config.currentMap < config.maps.Count)
