@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DISABLE_ES
+
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
@@ -57,6 +59,8 @@ namespace JeromeControl
     /// Tray app code adapted from "Creating Applications with NotifyIcon in Windows Forms", Jessica Fosler,
     /// http://windowsclient.net/articles/notifyiconapplications.aspx
     /// </remarks>
+
+
     public class JCAppContext : ApplicationContext
     {
         // Icon graphic from http://prothemedesign.com/circular-icons/
@@ -65,7 +69,7 @@ namespace JeromeControl
         public static JCAppContext CurrentAppContext;
 
         public JCConfig config;
-        static bool disableES = false;
+
 
         private ExpertSyncConnector esConnector;
         ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
@@ -97,8 +101,9 @@ namespace JeromeControl
             miExpertSync.Text = "ExpertSync";
             miExpertSync.Image = null;
 #if DEBUG
-                if (disableES)
+#if DISABLE_ES
                     return;
+#endif
 #endif
             if (config.esHost != null && config.esPort != 0 )
             {
@@ -115,7 +120,7 @@ namespace JeromeControl
                 compConfig.esMessage(mhz, e.trx);
         }
 
-        # region the child forms
+
 
 
         // From http://stackoverflow.com/questions/2208690/invoke-notifyicons-context-menu
@@ -135,9 +140,7 @@ namespace JeromeControl
 //        private void detailsForm_Closed(object sender, EventArgs e) { detailsForm = null; }
 //        private void mainForm_Closed(object sender, EventArgs e) { introForm = null; }
 
-        # endregion the child forms
 
-        # region generic code framework
 
         private System.ComponentModel.IContainer components;	// a list of components to dispose when the context is disposed
         private NotifyIcon notifyIcon;				            // the icon that sits in the system tray
@@ -215,10 +218,11 @@ namespace JeromeControl
 
         private void esConnect()
         {
-            #if DEBUG
-                if (disableES)
+#if DEBUG
+#if DISABLE_ES
                     return;
-            #endif
+#endif
+#endif
             if (esConnector != null && esConnector.connected)
                 esConnector.disconnect();
             if (config.esHost != null && config.esPort != 0)
@@ -287,14 +291,6 @@ namespace JeromeControl
             notifyIcon.Visible = false; // should remove lingering tray icon
             base.ExitThreadCore();
         }
-
-        # endregion generic code framework
-
-        # region support methods
-
-
-        # endregion support methods
-
 
     }
 

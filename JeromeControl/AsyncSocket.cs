@@ -49,12 +49,6 @@ namespace AsyncConnectionNS
         protected static int _timeout = 10000;
 
         // ManualResetEvent instances signal completion.
-        private ManualResetEvent connectDone =
-            new ManualResetEvent(false);
-        private ManualResetEvent sendDone =
-            new ManualResetEvent(false);
-        private ManualResetEvent receiveDone =
-            new ManualResetEvent(false);
 
         private string _host;
         private int _port;
@@ -64,7 +58,7 @@ namespace AsyncConnectionNS
         public event EventHandler<DisconnectEventArgs> onDisconnected;
         public event EventHandler<LineReceivedEventArgs> lineReceived;
         public event EventHandler<BytesReceivedEventArgs> bytesReceived;
-        
+
         public string lineBreak = "\r\n";
         public bool binaryMode;
         public bool reconnect;
@@ -101,8 +95,7 @@ namespace AsyncConnectionNS
 
                 while ((socket == null || !socket.Connected) && retryCo++ < 3)
                 {
-                    IAsyncResult ar = _connect();
-                    ar.AsyncWaitHandle.WaitOne(timeout, true);
+                    _connect().AsyncWaitHandle.WaitOne(timeout, true);
 
                     if (socket != null && !socket.Connected)
                     {
@@ -149,7 +142,6 @@ namespace AsyncConnectionNS
                     SocketType.Stream, ProtocolType.Tcp);
 
                 // Connect to the remote endpoint.
-
                 return socket.BeginConnect(_host, _port,
                     new AsyncCallback(connectCallback), null);
             } catch (Exception e)
@@ -173,9 +165,7 @@ namespace AsyncConnectionNS
             {
                 Debug.WriteLine("Async connect timeout");
                 if (socket != null)
-                {
                     socket.Close();
-                }
                 if (reconnect)
                     asyncConnect();
             }
@@ -191,10 +181,9 @@ namespace AsyncConnectionNS
         private void _disconnect(bool requested)
         {
             System.Diagnostics.Debug.WriteLine("disconnect");
-            receiveDone.Set();
             if (requested)
                 reconnect = false;
-            if (socket != null && socket.Connected)
+            if (socket != null)
                 socket.Close();
             onDisconnected?.Invoke(this, new DisconnectEventArgs { requested = requested });
             if (reconnect && !requested)
@@ -208,12 +197,9 @@ namespace AsyncConnectionNS
                 if (socket != null && socket.Connected)
                 {
                     socket.EndConnect(ar);
-
                     System.Diagnostics.Debug.WriteLine("Socket connected to " +
                         socket.RemoteEndPoint.ToString());
 
-                    // Signal that the connection has been made.
-                    connectDone.Set();
                     onConnected?.Invoke(this, new EventArgs { });
                 }
             }
@@ -276,7 +262,6 @@ namespace AsyncConnectionNS
                                 }
                             }
                         }
-                        receiveDone.Set();
                         receive();
                     } else {
                         _disconnect(false);
@@ -342,8 +327,6 @@ namespace AsyncConnectionNS
                 int bytesSent = socket.EndSend(ar);
                 //Debug.WriteLine("Sent {0} bytes to server.", bytesSent);
 
-                // Signal that all bytes have been sent.
-                sendDone.Set();
                 
             }
             catch (Exception e)

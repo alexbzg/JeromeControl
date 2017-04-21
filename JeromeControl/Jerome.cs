@@ -44,9 +44,13 @@ namespace Jerome
 
         private static int timeout = 10000;
         private static Regex rEVT = new Regex(@"#EVT,IN,\d+,(\d+),(\d)");
+
         private System.Threading.Timer replyTimer;
         private System.Threading.Timer pingTimer;
         private volatile bool disconnecting;
+        private volatile bool _active;
+
+        public bool active {  get { return _active; } }
 
         // ManualResetEvent instances signal completion.
 
@@ -77,6 +81,7 @@ namespace Jerome
                 return connection != null && connection.connected;
             }
         }
+
 
         public bool usartConnected {
             get
@@ -186,12 +191,14 @@ namespace Jerome
 
         public bool connect()
         {
+            _active = true;
             connection.connect(connectionParams.host, connectionParams.port);
-            return connection.connect();
+            return connected;
         }
 
         public void asyncConnect()
         {
+            _active = true;
             connection.connect(connectionParams.host, connectionParams.port, true);
         }
 
@@ -202,6 +209,7 @@ namespace Jerome
 
         public void disconnect()
         {
+            _active = false;
             disconnect(false);
         }
 
@@ -211,6 +219,8 @@ namespace Jerome
             clearQueue();
             if (connected)
                 connection.disconnect();
+            else
+                onDisconnected?.Invoke(this, new DisconnectEventArgs { requested = true });
             if (usartConnected)
                 usartConnection.disconnect();
             if ( reconnect )

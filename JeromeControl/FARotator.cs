@@ -370,11 +370,13 @@ namespace AntennaeRotator
                     toggleLine(currentTemplate.ledLine, 0);
                 if (currentTemplate.uartEncoder)
                     controller.usartBytesReceived -= usartBytesReceived;
-                controller.onDisconnected -= onDisconnect;
+                if ( closingFl )
+                    controller.onDisconnected -= onDisconnect;
                 controller.onConnected -= onConnect;
                 if (currentConnection.hwLimits)
                     controller.lineStateChanged -= lineStateChanged;
                 controller.disconnect();
+                controller = null;
             }
         }
 
@@ -532,6 +534,14 @@ namespace AntennaeRotator
 
             }
             controller.asyncConnect();
+            connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
+            miConnections.Text = "Отключиться";
+            miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
+            miConnections.DropDownItems.Clear();
+            Text = currentConnection.name + " идет соединение";
+            lCaption.Text = Text;
+            Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+
         }
 
         private void readADC()
@@ -674,10 +684,6 @@ namespace AntennaeRotator
               miSetNorth.Visible = true;
               miSetNorth.Enabled = true;
               pMap.Enabled = true;
-              connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
-              miConnections.Text = "Отключиться";
-              miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
-              miConnections.DropDownItems.Clear();
               if (currentTemplate.adc != 0)
                   miCalibrate.Visible = true;
 
@@ -986,7 +992,7 @@ namespace AntennaeRotator
 
         private void miConnections_Click(object sender, EventArgs e)
         {
-            if (controller != null && controller.connected)
+            if (controller != null && controller.active)
             {
                 disconnect();
             }

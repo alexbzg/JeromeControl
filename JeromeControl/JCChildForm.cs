@@ -10,6 +10,7 @@ namespace JeromeControl
     {
         public JCAppContext appContext;
         public int idx;
+        public virtual void InitializeComponent() { }
         public JCComponentConfig componentConfig { get {
                 return appContext.config.components[JCConfig.getTypeIdx(this)];
             }
@@ -47,6 +48,9 @@ namespace JeromeControl
             }
         }
 
-    }
+        public JCChildForm() : base() {
+            InitializeComponent();
+        }
+        }   
 
-}
+    }
