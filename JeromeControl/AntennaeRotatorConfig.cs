@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Serialization;
 using JeromeControl;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace AntennaeRotator
 {
@@ -72,29 +73,44 @@ namespace AntennaeRotator
 
         public override void esMessage(int mhz, bool trx)
         {
-            List<AntennaeRotatorConnectionSettings> bc = connections.Where(x => x.esMhz == mhz).ToList();
-            JCAppContext appContext = JCAppContext.CurrentAppContext;
-            for (int c = 0; c < forms.Count(); c++)
+            try
             {
-                if (c < bc.Count())
+                List<AntennaeRotatorConnectionSettings> bc = connections.Where(x => x.esMhz == mhz).ToList();
+                JCAppContext appContext = JCAppContext.CurrentAppContext;
+                for (int c = 0; c < forms.Count(); c++)
                 {
-                    int cIdx = connections.IndexOf(bc[c]);
-                    if (forms[c] == null)
+                    if (c < bc.Count())
                     {
-                        _formStates[c].currentConnection = cIdx;
-                        FRotator f = new FRotator(appContext, c);
-                        f.Show();
-                    }
-                    else 
-                        ((FRotator)forms[c]).loadConnection(cIdx);                    
-                } else
-                {
-                    if (forms[c] != null)
-                        forms[c].Close();
-                }
+                        int cIdx = connections.IndexOf(bc[c]);
+                        if (forms[c] == null)
+                        {
+                            _formStates[c].currentConnection = cIdx;
+                            appContext.updateGUI( delegate() 
+                            {
+                                appContext.createForm("AntennaeRotator.FRotator", c);
+                            });
 
+                            
+                        }
+                        else
+                            ((FRotator)forms[c]).loadConnection(cIdx);
+                    }
+                    else
+                    {
+                        if (forms[c] != null)
+                            forms[c].Invoke((MethodInvoker)delegate ()
+                          {
+                              forms[c].Close();
+                          });
+                    }
+                }
             }
-                
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.ToString());
+            }
+
+
         }
     }
 

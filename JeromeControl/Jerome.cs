@@ -217,11 +217,8 @@ namespace Jerome
         {
             System.Diagnostics.Debug.WriteLine("disconnect");
             clearQueue();
-            if (connected)
-                connection.disconnect();
-            else
-                onDisconnected?.Invoke(this, new DisconnectEventArgs { requested = true });
-            if (usartConnected)
+            connection.disconnect();
+            if (usartConnection != null )
                 usartConnection.disconnect();
             if ( reconnect )
             {

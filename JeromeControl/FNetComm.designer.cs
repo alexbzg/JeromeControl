@@ -26,7 +26,7 @@
         /// Обязательный метод для поддержки конструктора - не изменяйте
         /// содержимое данного метода при помощи редактора кода.
         /// </summary>
-        private void InitializeComponent()
+        public override void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FNetComm));
             this.toolStrip = new System.Windows.Forms.ToolStrip();

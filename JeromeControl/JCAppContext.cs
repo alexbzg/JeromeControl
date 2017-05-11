@@ -1,4 +1,4 @@
-﻿#define DISABLE_ES
+﻿//#define DISABLE_ES
 
 using System;
 using System.Drawing;
@@ -67,6 +67,7 @@ namespace JeromeControl
         private static readonly string IconFileName = "icon_ant1.ico";
         private static readonly string DefaultTooltip = "Управление антеннами";
         public static JCAppContext CurrentAppContext;
+        private static Control invokeControl;
 
         public JCConfig config;
 
@@ -82,7 +83,9 @@ namespace JeromeControl
         {
             CurrentAppContext = this;
             InitializeContext();
-
+            invokeControl = new Control();
+            // force to create window handle
+            invokeControl.CreateControl();
         }
 
         public void writeConfig()
@@ -93,6 +96,14 @@ namespace JeromeControl
         public void showNotification( string title, string txt, ToolTipIcon icon)
         {
             notifyIcon.ShowBalloonTip(60 * 1000, title, txt, icon);
+        }
+
+        public void updateGUI( Action a)
+        {
+            if (invokeControl.InvokeRequired)
+                invokeControl.Invoke(a);
+            else
+                a();
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -114,10 +125,17 @@ namespace JeromeControl
 
         private void esMessage( object Sender, MessageEventArgs e )
         {
-            int mhz = ((int)e.vfoa) / 1000000;
-            System.Diagnostics.Debug.WriteLine("TRX " + (e.trx ? "ON" : "OFF"));
-            foreach (JCComponentConfig compConfig in config.components)
-                compConfig.esMessage(mhz, e.trx);
+            try
+            {
+                int mhz = ((int)e.vfoa) / 1000000;
+                System.Diagnostics.Debug.WriteLine(mhz.ToString() + "MHz; TRX " + (e.trx ? "ON" : "OFF"));
+                foreach (JCComponentConfig compConfig in config.components)
+                    compConfig.esMessage(mhz, e.trx);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
         }
 
 
@@ -266,14 +284,14 @@ namespace JeromeControl
             }
         }
 
-        private void createForm( string childFormTypeStr, int idx)
+        public void createForm( string childFormTypeStr, int idx)
         {
             JCComponentConfig compConfig = config.components[JCConfig.getTypeIdx(childFormTypeStr)];
             if (compConfig.forms[idx] != null)
-                compConfig.forms[idx].Focus();
+                compConfig.forms[idx].Invoke((MethodInvoker)delegate () { compConfig.forms[idx].Focus(); });
             else
             {
-                Form childForm = (Form)(JCConfig.getConstructor( childFormTypeStr ) ).Invoke(new object[] { this, idx });
+                Form childForm = (Form)(JCConfig.getConstructor(childFormTypeStr)).Invoke(new object[] { this, idx });
                 childForm.Show();
             }
         }

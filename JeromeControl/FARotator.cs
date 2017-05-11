@@ -113,9 +113,13 @@ namespace AntennaeRotator
             config.maps.ForEach(item => loadMap(item));
             if (config.currentMap != -1)
                 setCurrentMap(config.currentMap);
-            else if (config.maps.Count > 0)
-                setCurrentMap(0);
+            else
+            {
+                if (config.maps.Count > 0)
+                    setCurrentMap(0);
+            }
             prevHeight = Height;
+            System.Diagnostics.Debug.WriteLine("Rotator constructor finished");
             if (formState.currentConnection != -1)
                 loadConnection(formState.currentConnection);
         }
@@ -175,6 +179,7 @@ namespace AntennaeRotator
 
             writeConfig();
 
+            System.Diagnostics.Debug.WriteLine("Rotator connnection loaded");
             connect();
             pMap.Refresh();
         }
@@ -392,6 +397,9 @@ namespace AntennaeRotator
             {
                 currentConnection = null;
                 if (!closingFl)
+                {
+                    formState.currentConnection = -1;
+                    writeConfig();
                     this.Invoke((MethodInvoker)delegate
                     {
                         Text = "Нет соединения";
@@ -404,6 +412,7 @@ namespace AntennaeRotator
                         miCalibrate.Visible = false;
                         miIngnoreEngineOffMovement.Visible = false;
                     });
+                }
             } else
             {
                 this.Invoke((MethodInvoker)delegate
@@ -534,14 +543,29 @@ namespace AntennaeRotator
 
             }
             controller.asyncConnect();
-            connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
-            miConnections.Text = "Отключиться";
-            miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
-            miConnections.DropDownItems.Clear();
-            Text = currentConnection.name + " идет соединение";
-            lCaption.Text = Text;
-            Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+            System.Diagnostics.Debug.WriteLine("Rotator connnection started");
+            updateGUI(
+            delegate ()
+              {
+                  connectionsDropdown = new ToolStripMenuItem[miConnections.DropDownItems.Count];
+                  miConnections.Text = "Отключиться";
+                  miConnections.DropDownItems.CopyTo(connectionsDropdown, 0);
+                  miConnections.DropDownItems.Clear();
+                  Text = currentConnection.name + " идет соединение";
+                  lCaption.Text = Text;
+                  Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
+                  System.Diagnostics.Debug.WriteLine("Rotator interface updated");
+              });
 
+
+        }
+
+        private void updateGUI( Action a )
+        {
+            if (InvokeRequired)
+                Invoke(a);
+            else
+                a();
         }
 
         private void readADC()

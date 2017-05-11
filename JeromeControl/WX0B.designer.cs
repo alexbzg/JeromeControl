@@ -26,7 +26,7 @@
         /// Обязательный метод для поддержки конструктора - не изменяйте
         /// содержимое данного метода при помощи редактора кода.
         /// </summary>
-        private void InitializeComponent()
+        public override void InitializeComponent()
         {
             this.gbTerminal = new System.Windows.Forms.GroupBox();
             this.bTerminalConnectionParams = new System.Windows.Forms.Button();
