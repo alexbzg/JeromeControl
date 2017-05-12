@@ -27,12 +27,7 @@ namespace ExpertSync
             }
         }
 
-        public FESConnection()
-        {
-            InitializeComponent();
-        }
-
-        public FESConnection( string host, int port)
+        public FESConnection( string host = "127.0.0.1", int port = 50040)
         {
             InitializeComponent();
             tbAddress.Text = host;

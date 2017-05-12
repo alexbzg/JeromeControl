@@ -57,8 +57,8 @@ namespace JeromeControl
         internal static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
         internal static readonly int[] ChildFormsCount = new int[] { 2, 1, 1 };
 
-        public string esHost = null;
-        public int esPort = 0;
+        public string esHost = "127.0.0.1";
+        public int esPort = 50040;
         [System.Xml.Serialization.XmlArrayItem(typeof(AntennaeRotator.AntennaeRotatorConfig)),
         System.Xml.Serialization.XmlArrayItem(typeof(NetComm.NetCommConfig)),
         System.Xml.Serialization.XmlArrayItem(typeof(WX0B.WX0BConfig))]

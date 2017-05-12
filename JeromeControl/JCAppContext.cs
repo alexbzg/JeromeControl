@@ -274,7 +274,7 @@ namespace JeromeControl
 
         private void esItem_Click( object sender, EventArgs e )
         {
-            FESConnection fesc = new FESConnection();
+            FESConnection fesc = new FESConnection( config.esHost, config.esPort );
             if ( fesc.ShowDialog() == DialogResult.OK && 
                 ( config.esHost != fesc.host || config.esPort != fesc.port ) )
             {
