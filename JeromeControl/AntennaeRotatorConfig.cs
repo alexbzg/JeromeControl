@@ -85,15 +85,18 @@ namespace AntennaeRotator
                         if (forms[c] == null)
                         {
                             _formStates[c].currentConnection = cIdx;
-                            appContext.updateGUI( delegate() 
-                            {
-                                appContext.createForm("AntennaeRotator.FRotator", c);
-                            });
+                            appContext.updateGUI(delegate ()
+                           {
+                               appContext.createForm("AntennaeRotator.FRotator", c);
+                           });
 
-                            
+
                         }
                         else
-                            ((FRotator)forms[c]).loadConnection(cIdx);
+                            appContext.updateGUI(delegate ()
+                           {
+                               ((FRotator)forms[c]).loadConnection(cIdx);
+                           });
                     }
                     else
                     {
