@@ -135,7 +135,7 @@ namespace AntennaeRotator
                             controller.disconnect( true );
                     });
                 },
-                null, 5000, Timeout.Infinite);
+                null, 50000, Timeout.Infinite);
         }
 
         private void setCurrentMap(int val)

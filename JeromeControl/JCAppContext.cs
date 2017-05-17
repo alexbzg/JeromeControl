@@ -1,4 +1,4 @@
-﻿//#define DISABLE_ES
+﻿#define DISABLE_ES
 
 using System;
 using System.Drawing;
