@@ -393,7 +393,7 @@ namespace AntennaeRotator
             targetAngle = -1;
             pMap.Invalidate();
             offLimit();
-            if (e.requested && !controllerTimeout)
+            if (e.requested && !controller.active)
             {
                 currentConnection = null;
                 if (!closingFl)
