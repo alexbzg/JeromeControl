@@ -257,6 +257,18 @@
   <ItemGroup>
     <None Include="Resources\icon_ant1.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_connected1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_connected2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon_delete.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">

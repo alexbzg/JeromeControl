@@ -163,8 +163,7 @@ namespace AntennaeRotator
         {
             if (currentConnection == config.connections[index])
                 return;
-            if (controller != null && controller.connected)
-                disconnect();
+            controller?.disconnect();
 
             currentConnection = config.connections[index];
             formState.currentConnection = index;
@@ -530,18 +529,14 @@ namespace AntennaeRotator
 
         private void connect()
         {
-            if (controller == null)
-            {
-                controller = JeromeController.create(currentConnection.jeromeParams);
-                if (currentTemplate.uartEncoder)
-                    controller.usartBytesReceived += usartBytesReceived;
-                controller.onDisconnected += onDisconnect;
-                controller.onConnected += onConnect;
-                controller.usartBinaryMode = true;
-                if (currentConnection.hwLimits)
-                    controller.lineStateChanged += lineStateChanged;
-
-            }
+            controller = JeromeController.create(currentConnection.jeromeParams);
+            if (currentTemplate.uartEncoder)
+                controller.usartBytesReceived += usartBytesReceived;
+            controller.onDisconnected += onDisconnect;
+            controller.onConnected += onConnect;
+            controller.usartBinaryMode = true;
+            if (currentConnection.hwLimits)
+                controller.lineStateChanged += lineStateChanged;
             controller.asyncConnect();
             System.Diagnostics.Debug.WriteLine("Rotator connnection started");
             updateGUI(

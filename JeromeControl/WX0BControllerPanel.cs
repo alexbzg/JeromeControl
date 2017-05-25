@@ -46,9 +46,9 @@ namespace WX0B
         public void updateConnectionParamsCaption()
         {
             if ( controller.config.connectionParams == null || controller.config.connectionParams.host == null)
-                bConnectionParams.Text = "Настроить соединение";
+                bConnectionParams.Text = "Настроить";
             else
-                bConnectionParams.Text = controller.config.connectionParams.host;
+                bConnectionParams.Text = controller.config.connectionParams.name + " " + controller.config.connectionParams.host;
         }
 
         private void bConnectionParams_Click(object sender, EventArgs e)
@@ -81,7 +81,10 @@ namespace WX0B
 
         private void сontrollerConnected(object sender, EventArgs e)
         {
-            cbConnect.ForeColor = Color.Green;
+            Invoke((MethodInvoker)delegate
+          {
+              cbConnect.Image = JeromeControl.Properties.Resources.icon_connected;
+          });
         }
 
         private void controllerDisconnected(object sender, DisconnectEventArgs e)
@@ -91,13 +94,13 @@ namespace WX0B
                 if (e.requested)
                 {
                     cbConnect.Checked = false;
-                    cbConnect.ForeColor = fWX0B.defForeColor;
+                    cbConnect.Image = JeromeControl.Properties.Resources.icon_connect;
                     fWX0B.writeConfig();
                 }
                 else
                 {
                     fWX0B.appContext.showNotification("WX0B", "Cоединение с контроллером " + controller.jConnection.connectionParams.host + "потеряно!", ToolTipIcon.Error);
-                    cbConnect.ForeColor = Color.Red;
+                    cbConnect.Image = JeromeControl.Properties.Resources.icon_disconnected;
                 }
             });
 

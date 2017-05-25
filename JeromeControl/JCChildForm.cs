@@ -12,20 +12,14 @@ namespace JeromeControl
         public int idx;
         public virtual void InitializeComponent() { }
         public JCComponentConfig componentConfig { get {
-                return appContext.config.components[JCConfig.getTypeIdx(this)];
+                return appContext?.config?.components[JCConfig.getTypeIdx(this)];
             }
             set {
                 appContext.config.components[JCConfig.getTypeIdx(this)] = value;
             }
         }
 
-        public override StorableFormConfig storableConfig
-        {
-            get
-            {
-                return componentConfig.formStates[idx];
-            }
-        }
+        public override StorableFormConfig storableConfig => componentConfig?.formStates[idx];
 
         public virtual void esMessage(int mhz, bool trx) { }
 

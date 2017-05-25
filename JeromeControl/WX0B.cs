@@ -14,6 +14,7 @@ using System.Drawing;
 using System.Linq;
 using StorableFormState;
 
+
 namespace WX0B
 {
     public partial class FWX0B : JCChildForm
@@ -73,6 +74,7 @@ namespace WX0B
         internal volatile bool tx = false;
         internal volatile bool pttTX = false;
         internal volatile bool esTX = false;
+        volatile bool closingFl = false;
 
         internal int _idx;
         private WX0BConfig config { get { return (WX0BConfig)componentConfig; } }
@@ -119,7 +121,7 @@ namespace WX0B
                 cbConnectTerminal.Enabled = false;
             }
             if (config.activeController != -1 && config.activeController < controllers.Count)
-                controllers[config.activeController].jConnection.connect();
+                controllers[config.activeController].jConnection.asyncConnect();
             else
                 setActiveController(-1);
 
@@ -214,8 +216,8 @@ namespace WX0B
         {
             Invoke((MethodInvoker)delegate ()
           {
-              cbConnectTerminal.ForeColor = Color.Green;
               cbConnectTerminal.Checked = true;
+              cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_connected;
           });
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
@@ -277,14 +279,17 @@ namespace WX0B
                 if (e.requested)
                 {
                     cbConnectTerminal.Checked = false;
-                    cbConnectTerminal.ForeColor = defForeColor;
-                    config.terminalActive = false;
-                    writeConfig();
+                    cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_connect;
+                    if (!closingFl)
+                    {
+                        config.terminalActive = false;
+                        writeConfig();
+                    }
                 }
                 else
                 {
                     appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + "потеряно!", ToolTipIcon.Error);
-                    cbConnectTerminal.ForeColor = Color.Red;
+                    cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_disconnected;
                 }
             });
 
@@ -293,9 +298,9 @@ namespace WX0B
         private void updateTerminalConnectionParamsCaption()
         {
             if (config.terminalConnectionParams.host == null || config.terminalConnectionParams.host == "")
-                bTerminalConnectionParams.Text = "Настроить соединение";
+                bTerminalConnectionParams.Text = "Настроить";
             else
-                bTerminalConnectionParams.Text = config.terminalConnectionParams.host;
+                bTerminalConnectionParams.Text = config.terminalConnectionParams.name + " " + config.terminalConnectionParams.host;
         }
 
         private void bTerminalConnectionParams_Click(object sender, EventArgs e)
@@ -365,6 +370,7 @@ namespace WX0B
             cp.Dock = DockStyle.Bottom;
             gbControllers.Controls.Add(cp);
             cp.controller.jConnection.onConnected += controllerConnected;
+            updateFormHeight();
         }
 
         private void controllerConnected( object sender, EventArgs e)
@@ -386,6 +392,7 @@ namespace WX0B
                     _cp.updateIndex();
                 config.controllers.Remove(cp.controller.config);
                 cp.Dispose();
+                updateFormHeight();
                 writeConfig();
             }
         }
@@ -398,14 +405,30 @@ namespace WX0B
                     controllers[config.activeController].jConnection.disconnect();
                 if (idx != -1)
                     controllers[idx].jConnection.asyncConnect();
-                config.activeController = idx;
-                writeConfig();
+                if (!closingFl)
+                {
+                    config.activeController = idx;
+                    writeConfig();
+                }
             }
         }
 
-        private void FWX0B_Load(object sender, EventArgs e)
+        public override void restoreFormState()
         {
+            if (storableConfig?.formLocation != null && !storableConfig.formLocation.IsEmpty)
+                this.Location = storableConfig.formLocation;
+        }
 
+        private void FWX0B_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            closingFl = true;
+            terminalJConnection?.disconnect();
+            setActiveController(-1);
+        }
+
+        private void updateFormHeight()
+        {            
+            Height = gbControllers.Bottom + 50;
         }
     }
 

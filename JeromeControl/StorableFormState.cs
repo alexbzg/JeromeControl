@@ -20,9 +20,9 @@ namespace StorableFormState
             storableConfig.formSize = bounds.Size;
         }
 
-        public void restoreFormState()
+        public virtual void restoreFormState()
         {
-              if (storableConfig != null && storableConfig.formLocation != null && !storableConfig.formLocation.IsEmpty)
+              if (storableConfig?.formLocation != null && !storableConfig.formLocation.IsEmpty)
                   this.DesktopBounds =
                           new Rectangle(storableConfig.formLocation, storableConfig.formSize);
         }
