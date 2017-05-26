@@ -42,7 +42,6 @@ namespace NetComm
         private Dictionary<int, int> esBindings = new Dictionary< int, int> ();
         private IPEndPoint esEndPoint;
         private NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
-        private JeromeConnectionParams connectionFromArgs = null;
         private bool trx = false;
 
         private bool connected
@@ -73,6 +72,9 @@ namespace NetComm
             miRelaySettings.Enabled = connections.Count > 0;
             foreach ( JeromeConnectionParams c in connections.Keys )
                 createConnectionMI( c );
+            Parallel.ForEach(connections.Where(x => x.Value.active),
+                x => connect(x.Key));
+
         }
 
         private void onWatchTimer()
@@ -118,7 +120,11 @@ namespace NetComm
                 mi.Click += delegate(object sender, EventArgs e)
                 {
                     if (connections[c].active)
+                    {
                         connections[c].controller.disconnect();
+                        connections[c].active = false;
+                        writeConfig();
+                    }
                     else
                         connect(c);
                 };
@@ -129,6 +135,7 @@ namespace NetComm
 
         private void connect(JeromeConnectionParams cp)
         {
+            connections[cp].active = true;
             connections[cp].controller = JeromeController.create(cp);
             connections[cp].controller.onDisconnected += controllerDisconnected;
             connections[cp].controller.onConnected += controllerConnected;
@@ -142,7 +149,6 @@ namespace NetComm
             this.Invoke((MethodInvoker)delegate
           {
               connections[cp].watch = false;
-              connections[cp].active = true;
               menuWatch[cp].Visible = false;
               menuWatch[cp].Checked = false;
               menuControl[cp].Checked = true;
@@ -159,9 +165,22 @@ namespace NetComm
 
         private void updateButtonsMode()
         {
-            for ( int co = 0; co < buttons.Count(); co++ )
-                buttons[co].Enabled = !trx && connected && 
-                    !connections.Values.ToList().Exists(x => x.watch && x.linesStates[co]);
+            for (int co = 0; co < buttons.Count(); co++)
+            {
+                bool busy = connections.Values.ToList().Exists(x => x.watch && x.linesStates[co]);
+                buttons[co].Enabled = !trx && connected && !busy;
+                if (esBindings.ContainsValue(co) )
+                {
+                    int band = esBindings.First(x => x.Value == co).Key;
+                    if (busy)
+                    {
+                        if (!appContext.busyBands.Contains(band))
+                            appContext.busyBands.Add(band);
+                    } else 
+                        if (appContext.busyBands.Contains(band))
+                            appContext.busyBands.Remove(band);
+                }
+            }
         }
 
         private void controllerDisconnected(object obj, DisconnectEventArgs e)
@@ -174,7 +193,6 @@ namespace NetComm
                     menuWatch[c].Visible = true;
                     menuControl[c].Checked = false;
                     this.Text = "Ant Comm";
-                    connections[c].active = false;
                 }
                 else
                 {
@@ -222,14 +240,14 @@ namespace NetComm
             }
             buttonsColor = buttons[0].ForeColor;
             watchTimer = new System.Threading.Timer(obj => onWatchTimer(), null, 1000, 1000);
-            if (connections.Count > 0 )
+/*            if (connections.Count > 0 )
             {
                 if (connectionFromArgs != null)
                     connect(connectionFromArgs);
                 else if (config.lastConnection > -1 && connections.ContainsKey( config.connections[config.lastConnection] ) )
                     connect(config.connections[config.lastConnection]);
 
-            }
+            }*/
         }
 
         
@@ -282,7 +300,7 @@ namespace NetComm
                 {
                     if (config.states[co] == null)
                         config.states[co] = new JeromeConnectionState();
-                    config.states[co].active = false;
+                    //config.states[co].active = false;
                     connections[config.connections[co]] = config.states[co];
                 }
             }

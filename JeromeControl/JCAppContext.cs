@@ -70,7 +70,8 @@ namespace JeromeControl
         private static Control invokeControl;
 
         public JCConfig config;
-
+        public HashSet<int> busyBands = new HashSet<int>();
+        private int currentBand;
 
         private ExpertSyncConnector esConnector;
         ToolStripMenuItem miExpertSync = new ToolStripMenuItem("ExpertSync");
@@ -128,6 +129,10 @@ namespace JeromeControl
             try
             {
                 int mhz = ((int)e.vfoa) / 1000000;
+                if (busyBands.Contains(mhz))
+                    mhz = currentBand;
+                else
+                    currentBand = mhz;
                 System.Diagnostics.Debug.WriteLine(mhz.ToString() + "MHz; TRX " + (e.trx ? "ON" : "OFF"));
                 foreach (JCComponentConfig compConfig in config.components)
                     compConfig.esMessage(mhz, e.trx);
