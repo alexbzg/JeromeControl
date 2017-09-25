@@ -77,13 +77,15 @@ namespace WX0B
         volatile bool closingFl = false;
 
         internal int _idx;
-        private WX0BConfig config { get { return (WX0BConfig)componentConfig; } }
+        internal WX0BConfig config { get { return (WX0BConfig)componentConfig; } }
         internal Color defForeColor; 
 
         JeromeController terminalJConnection;
 
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
+
+        private FWX0BStatus fStatus; 
 
         public FWX0B(JCAppContext _appContext, int __idx) : base( _appContext, __idx)
         {
@@ -124,7 +126,8 @@ namespace WX0B
                 controllers[config.activeController].jConnection.asyncConnect();
             else
                 setActiveController(-1);
-
+            if (config.statusOnly)
+                WindowState = FormWindowState.Minimized;
         }
 
         private void delayedConnectTerminal()
@@ -430,6 +433,21 @@ namespace WX0B
         {            
             Height = gbControllers.Bottom + 50;
         }
+
+        private void FWX0B_Resize(object sender, EventArgs e)
+        {
+            if ( WindowState == FormWindowState.Minimized )
+            {
+                if (fStatus == null)
+                    fStatus = new FWX0BStatus(this);
+                fStatus.Show();
+                fStatus.Activate();
+                WindowState = FormWindowState.Normal;
+                Hide();
+                config.statusOnly = true;
+                writeConfig();
+            }
+        }
     }
 
     internal class WX0BTerminalSwitchTemplate
@@ -511,7 +529,8 @@ namespace WX0B
         public List<WX0BControllerConfigEntry> controllers = new List<WX0BControllerConfigEntry>();
         public int activeController = -1;
         public bool terminalActive;
-
+        public StorableFormConfig statusConfig = new StorableFormConfig();
+        public bool statusOnly = false;
     }
 
 

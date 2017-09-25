@@ -515,6 +515,7 @@ namespace AntennaeRotator
                     hi = (e.bytes[co] - 128) << 5;
                 else
                     lo = e.bytes[co] - 64;
+            //System.Diagnostics.Debug.WriteLine("lo: " + lo.ToString() + " hi: " + hi.ToString());
             if (lo != -1 && hi != -1 && encGrayVal != lo + hi)
             {
                 encGrayVal = lo + hi;
@@ -524,6 +525,7 @@ namespace AntennaeRotator
                     val = val ^ mask;
                 }
                 this.Invoke((MethodInvoker)delegate { setCurrentAngle(val); });
+                System.Diagnostics.Debug.WriteLine("angle: " + val.ToString());
             }
         }
 

@@ -109,9 +109,11 @@
             this.Controls.Add(this.gbTerminal);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.MaximizeBox = false;
             this.Name = "FWX0B";
             this.Text = "WX0B";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FWX0B_FormClosing);
+            this.Resize += new System.EventHandler(this.FWX0B_Resize);
             this.gbTerminal.ResumeLayout(false);
             this.gbTerminal.PerformLayout();
             this.gbControllers.ResumeLayout(false);

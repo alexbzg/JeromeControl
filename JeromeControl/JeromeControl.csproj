@@ -75,6 +75,12 @@
   <ItemGroup>
     <Compile Include="AntennaeRotatorConfig.cs" />
     <Compile Include="AsyncSocket.cs" />
+    <Compile Include="WX0BStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WX0BStatus.Designer.cs">
+      <DependentUpon>WX0BStatus.cs</DependentUpon>
+    </Compile>
     <Compile Include="JCChildForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -216,6 +222,9 @@
     <EmbeddedResource Include="WX0BControllerPanel.resx">
       <DependentUpon>WX0BControllerPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="WX0BStatus.resx">
+      <DependentUpon>WX0BStatus.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -258,16 +267,12 @@
     <None Include="Resources\icon_ant1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\icon_connect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\icon_connected1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\icon_connected2.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\icon_delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\icon_connect.png" />
+    <Content Include="Resources\icon_connected1.png" />
+    <Content Include="Resources\icon_connected2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
