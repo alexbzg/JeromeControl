@@ -49,6 +49,14 @@ namespace WX0B
                 bConnectionParams.Text = "Настроить";
             else
                 bConnectionParams.Text = controller.config.connectionParams.name + " " + controller.config.connectionParams.host;
+            if (fWX0B.config.activeController == index)
+                updateStatusPanelCaption();
+        }
+
+        internal void updateStatusPanelCaption()
+        {
+            fWX0B.fStatus.lController.Text = (bConnectionParams.Text == "Настроить" ? "Контроллер" : bConnectionParams.Text) +
+                " " + controller.config.esMHz.ToString();
         }
 
         private void bConnectionParams_Click(object sender, EventArgs e)
@@ -84,6 +92,7 @@ namespace WX0B
             Invoke((MethodInvoker)delegate
           {
               cbConnect.Image = JeromeControl.Properties.Resources.icon_connected;
+              fWX0B.fStatus.pControllerStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_connected;
           });
         }
 
@@ -95,12 +104,14 @@ namespace WX0B
                 {
                     cbConnect.Checked = false;
                     cbConnect.Image = JeromeControl.Properties.Resources.icon_connect;
+                    fWX0B.fStatus.pControllerStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_connect;
                     fWX0B.writeConfig();
                 }
                 else
                 {
                     fWX0B.appContext.showNotification("WX0B", "Cоединение с контроллером " + controller.jConnection.connectionParams.host + "потеряно!", ToolTipIcon.Error);
                     cbConnect.Image = JeromeControl.Properties.Resources.icon_disconnected;
+                    fWX0B.fStatus.pControllerStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_disconnected;
                 }
             });
 

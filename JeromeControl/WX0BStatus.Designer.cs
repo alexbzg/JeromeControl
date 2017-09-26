@@ -36,25 +36,27 @@
             // 
             // lTerminal
             // 
-            this.lTerminal.Location = new System.Drawing.Point(10, 16);
+            this.lTerminal.Location = new System.Drawing.Point(2, 11);
             this.lTerminal.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lTerminal.Name = "lTerminal";
             this.lTerminal.Size = new System.Drawing.Size(207, 20);
             this.lTerminal.TabIndex = 0;
-            this.lTerminal.Text = "label1";
+            this.lTerminal.Text = "Терминал";
             // 
             // lController
             // 
-            this.lController.Location = new System.Drawing.Point(10, 60);
+            this.lController.Location = new System.Drawing.Point(2, 55);
             this.lController.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lController.Name = "lController";
             this.lController.Size = new System.Drawing.Size(207, 20);
             this.lController.TabIndex = 1;
-            this.lController.Text = "label2";
+            this.lController.Text = "Контроллер";
             // 
             // pTerminalStatus
             // 
-            this.pTerminalStatus.Location = new System.Drawing.Point(225, 7);
+            this.pTerminalStatus.BackgroundImage = global::JeromeControl.Properties.Resources.icon_connect;
+            this.pTerminalStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.pTerminalStatus.Location = new System.Drawing.Point(170, 2);
             this.pTerminalStatus.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pTerminalStatus.Name = "pTerminalStatus";
             this.pTerminalStatus.Size = new System.Drawing.Size(38, 38);
@@ -62,7 +64,9 @@
             // 
             // pControllerStatus
             // 
-            this.pControllerStatus.Location = new System.Drawing.Point(225, 51);
+            this.pControllerStatus.BackgroundImage = global::JeromeControl.Properties.Resources.icon_connect;
+            this.pControllerStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.pControllerStatus.Location = new System.Drawing.Point(170, 46);
             this.pControllerStatus.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pControllerStatus.Name = "pControllerStatus";
             this.pControllerStatus.Size = new System.Drawing.Size(38, 38);
@@ -72,7 +76,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(271, 96);
+            this.ClientSize = new System.Drawing.Size(209, 84);
             this.Controls.Add(this.pControllerStatus);
             this.Controls.Add(this.pTerminalStatus);
             this.Controls.Add(this.lController);
@@ -85,7 +89,6 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "WX0B";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FWX0BStatus_FormClosed);
-            this.Load += new System.EventHandler(this.FWX0BStatus_Load);
             this.Resize += new System.EventHandler(this.FWX0BStatus_Resize);
             this.ResumeLayout(false);
 
@@ -93,9 +96,9 @@
 
         #endregion
 
-        private System.Windows.Forms.Label lTerminal;
-        private System.Windows.Forms.Label lController;
-        private System.Windows.Forms.Panel pTerminalStatus;
-        private System.Windows.Forms.Panel pControllerStatus;
+        internal System.Windows.Forms.Label lTerminal;
+        internal System.Windows.Forms.Label lController;
+        internal System.Windows.Forms.Panel pTerminalStatus;
+        internal System.Windows.Forms.Panel pControllerStatus;
     }
 }

@@ -31,6 +31,7 @@ namespace WX0B
             if (WindowState == FormWindowState.Maximized)
             {
                 fWX0B.Show();
+                fWX0B.WindowState = FormWindowState.Normal;
                 fWX0B.Activate();
                 WindowState = FormWindowState.Normal;
                 Hide();
@@ -44,12 +45,6 @@ namespace WX0B
             fWX0B.Close();
         }
 
-        internal void updateForm()
-        {
-            JeromeConnectionParams tParams = fWX0B.config.terminalConnectionParams;
-            lController.Text = ( tParams == null || tParams.host == "" ) ? "Терминал" : tParams.name + " " + tParams.host;
-
-        }
 
     }
 }

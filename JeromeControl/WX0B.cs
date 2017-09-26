@@ -80,18 +80,19 @@ namespace WX0B
         internal WX0BConfig config { get { return (WX0BConfig)componentConfig; } }
         internal Color defForeColor; 
 
-        JeromeController terminalJConnection;
+        internal JeromeController terminalJConnection;
 
         internal List<WX0BController> controllers = new List<WX0BController>();
         internal List<WX0BControllerPanel> controllerPanels = new List<WX0BControllerPanel>();
 
-        private FWX0BStatus fStatus; 
+        internal FWX0BStatus fStatus; 
 
         public FWX0B(JCAppContext _appContext, int __idx) : base( _appContext, __idx)
         {
             appContext = _appContext;
             _idx = __idx;
             InitializeComponent();
+            fStatus = new FWX0BStatus(this);
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
                 switches[st] = new WX0BTerminalSwitch(st);
@@ -126,6 +127,7 @@ namespace WX0B
                 controllers[config.activeController].jConnection.asyncConnect();
             else
                 setActiveController(-1);
+            
             if (config.statusOnly)
                 WindowState = FormWindowState.Minimized;
         }
@@ -221,6 +223,7 @@ namespace WX0B
           {
               cbConnectTerminal.Checked = true;
               cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_connected;
+              fStatus.pTerminalStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_connected;
           });
             foreach ( WX0BTerminalSwitchTemplate st in TerminalTemplate.switches)
             {
@@ -283,6 +286,7 @@ namespace WX0B
                 {
                     cbConnectTerminal.Checked = false;
                     cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_connect;
+                    fStatus.pTerminalStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_connect;
                     if (!closingFl)
                     {
                         config.terminalActive = false;
@@ -293,6 +297,7 @@ namespace WX0B
                 {
                     appContext.showNotification("WX0B", "Cоединение с терминалом " + terminalJConnection.connectionParams.host + "потеряно!", ToolTipIcon.Error);
                     cbConnectTerminal.Image = JeromeControl.Properties.Resources.icon_disconnected;
+                    fStatus.pTerminalStatus.BackgroundImage = JeromeControl.Properties.Resources.icon_disconnected;
                 }
             });
 
@@ -301,9 +306,16 @@ namespace WX0B
         private void updateTerminalConnectionParamsCaption()
         {
             if (config.terminalConnectionParams.host == null || config.terminalConnectionParams.host == "")
+            {
                 bTerminalConnectionParams.Text = "Настроить";
+                fStatus.lTerminal.Text = "Терминал";
+            }
             else
+            {
                 bTerminalConnectionParams.Text = config.terminalConnectionParams.name + " " + config.terminalConnectionParams.host;
+                fStatus.lTerminal.Text = bTerminalConnectionParams.Text;
+            }
+
         }
 
         private void bTerminalConnectionParams_Click(object sender, EventArgs e)
@@ -407,7 +419,10 @@ namespace WX0B
                 if (config.activeController != -1 && config.activeController < controllers.Count)
                     controllers[config.activeController].jConnection.disconnect();
                 if (idx != -1)
+                {
                     controllers[idx].jConnection.asyncConnect();
+                    controllerPanels[idx].updateStatusPanelCaption();
+                }
                 if (!closingFl)
                 {
                     config.activeController = idx;
@@ -438,8 +453,6 @@ namespace WX0B
         {
             if ( WindowState == FormWindowState.Minimized )
             {
-                if (fStatus == null)
-                    fStatus = new FWX0BStatus(this);
                 fStatus.Show();
                 fStatus.Activate();
                 WindowState = FormWindowState.Normal;
