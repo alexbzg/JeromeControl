@@ -43,6 +43,8 @@ namespace NetComm
         private IPEndPoint esEndPoint;
         private NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
         private bool trx = false;
+        private volatile bool closing = false;
+        private volatile bool watchPending = false;
 
         private bool connected
         {
@@ -79,14 +81,27 @@ namespace NetComm
 
         private void onWatchTimer()
         {
+            if (watchPending)
+                return;
+            watchPending = true;
             Parallel.ForEach( connections.Where(x => x.Value.watch), x =>
             {
                 JeromeControllerState state = x.Key.getState();
-                for (int co = 0; co < lines.Count(); co++)
-                    x.Value.linesStates[co] = state.linesStates[lines[co] - 1];
+                if (state != null )
+                    for (int co = 0; co < lines.Count(); co++)
+                        x.Value.linesStates[co] = state.linesStates[lines[co] - 1];
             });
-            this.Invoke((MethodInvoker)delegate
-                { updateButtonsMode(); });
+            try
+            {
+                if (!closing)
+                    this.Invoke((MethodInvoker)delegate
+                        { updateButtonsMode(); });
+            } 
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine( e.ToString());
+            }
+            watchPending = false;
         }
 
   
@@ -456,6 +471,7 @@ namespace NetComm
 
         private void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            closing = true;
             watchTimer.Change(Timeout.Infinite, Timeout.Infinite);
             Parallel.ForEach(connections.Where(x => x.Value.controller != null),
                 x => x.Value.controller.disconnect());
