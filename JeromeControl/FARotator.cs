@@ -790,7 +790,7 @@ namespace AntennaeRotator
             {
                 System.Diagnostics.Debug.WriteLine("New angle: " + newAngle.ToString());
                 if (currentAngle != -1 && (Math.Abs(currentAngle - newAngle) > 10 && Math.Abs(currentAngle - newAngle) < 350))
-                    return;s
+                    return;
                 currentAngle = newAngle;
                 System.Diagnostics.Debug.WriteLine("Current angle: " + currentAngle.ToString());
                 angleChanged = true;
