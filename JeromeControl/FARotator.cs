@@ -788,7 +788,11 @@ namespace AntennaeRotator
             int newAngle = currentTemplate.uartEncoder ? (int)(((double)num) * 0.3515625) : num;
             if (newAngle != currentAngle)
             {
+                System.Diagnostics.Debug.WriteLine("New angle: " + newAngle.ToString());
+                if (currentAngle != -1 && (Math.Abs(currentAngle - newAngle) > 10 && Math.Abs(currentAngle - newAngle) < 350))
+                    return;s
                 currentAngle = newAngle;
+                System.Diagnostics.Debug.WriteLine("Current angle: " + currentAngle.ToString());
                 angleChanged = true;
                 if (currentConnection.northAngle != -1 && engineStatus != 0 && targetAngle != -1)
                 {
