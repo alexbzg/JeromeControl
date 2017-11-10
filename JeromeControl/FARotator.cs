@@ -119,7 +119,6 @@ namespace AntennaeRotator
                     setCurrentMap(0);
             }
             prevHeight = Height;
-            System.Diagnostics.Debug.WriteLine("Rotator constructor finished");
             if (formState.currentConnection != -1)
                 loadConnection(formState.currentConnection);
         }
@@ -163,7 +162,7 @@ namespace AntennaeRotator
         {
             if (currentConnection == config.connections[index])
                 return;
-            controller?.disconnect();
+            disconnect();
 
             currentConnection = config.connections[index];
             formState.currentConnection = index;
@@ -390,6 +389,8 @@ namespace AntennaeRotator
             if (adcTimer != null)
                 adcTimer.Change(Timeout.Infinite, Timeout.Infinite);
             targetAngle = -1;
+            currentAngle = -1;
+            encGrayVal = -1;
             pMap.Invalidate();
             offLimit();
             if (e.requested && !controller.active)
@@ -511,21 +512,24 @@ namespace AntennaeRotator
             int lo = -1;
             int hi = -1;
             for (int co = 0; co < e.count; co++)
+            {
                 if (e.bytes[co] >= 128)
                     hi = (e.bytes[co] - 128) << 5;
                 else
                     lo = e.bytes[co] - 64;
-            //System.Diagnostics.Debug.WriteLine("lo: " + lo.ToString() + " hi: " + hi.ToString());
+            }
             if (lo != -1 && hi != -1 && encGrayVal != lo + hi)
             {
+
                 encGrayVal = lo + hi;
+                System.Diagnostics.Debug.WriteLine(idx.ToString() + " encgrayval: " + encGrayVal.ToString());
                 int val = encGrayVal;
                 for (int mask = val >> 1; mask != 0; mask = mask >> 1)
                 {
                     val = val ^ mask;
                 }
                 this.Invoke((MethodInvoker)delegate { setCurrentAngle(val); });
-                System.Diagnostics.Debug.WriteLine("angle: " + val.ToString());
+                System.Diagnostics.Debug.WriteLine(idx.ToString() + " angle: " + val.ToString());
             }
         }
 
@@ -540,7 +544,6 @@ namespace AntennaeRotator
             if (currentConnection.hwLimits)
                 controller.lineStateChanged += lineStateChanged;
             controller.asyncConnect();
-            System.Diagnostics.Debug.WriteLine("Rotator connnection started");
             updateGUI(
             delegate ()
               {
@@ -551,7 +554,6 @@ namespace AntennaeRotator
                   Text = currentConnection.name + " идет соединение";
                   lCaption.Text = Text;
                   Icon = (Icon)Resources.ResourceManager.GetObject(CommonInf.icons[currentConnection.icon]);
-                  System.Diagnostics.Debug.WriteLine("Rotator interface updated");
               });
 
 
@@ -788,11 +790,11 @@ namespace AntennaeRotator
             int newAngle = currentTemplate.uartEncoder ? (int)(((double)num) * 0.3515625) : num;
             if (newAngle != currentAngle)
             {
-                System.Diagnostics.Debug.WriteLine("New angle: " + newAngle.ToString());
+               /* System.Diagnostics.Debug.WriteLine("New angle: " + newAngle.ToString());
                 if (currentAngle != -1 && (Math.Abs(currentAngle - newAngle) > 10 && Math.Abs(currentAngle - newAngle) < 350))
-                    return;
+                    return;*/
                 currentAngle = newAngle;
-                System.Diagnostics.Debug.WriteLine("Current angle: " + currentAngle.ToString());
+                System.Diagnostics.Debug.WriteLine(idx.ToString() + " Current angle: " + currentAngle.ToString());
                 angleChanged = true;
                 if (currentConnection.northAngle != -1 && engineStatus != 0 && targetAngle != -1)
                 {
