@@ -361,14 +361,14 @@ namespace AntennaeRotator
                 {
                     engine(0);
                 }
-                if (engineTaskActive)
-                    clearEngineTask();
                 if (engineTask != null)
                 {
                     await engineTask;
                     engineTask.Dispose();
                     engineTask = null;
                 }
+                if (engineTaskActive)
+                    clearEngineTask();
                 if (currentTemplate.ledLine != 0)
                     toggleLine(currentTemplate.ledLine, 0);
                 if (currentTemplate.uartEncoder)

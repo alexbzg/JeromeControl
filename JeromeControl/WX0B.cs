@@ -352,10 +352,7 @@ namespace WX0B
                 updateTX();
             }
             WX0BController c = controllers.FirstOrDefault(x => x.config.esMHz == mhz);
-            if ( c != null)
-            {
-                setActiveController(controllers.IndexOf(c));
-            }
+            setActiveController(c == null ? -1 : controllers.IndexOf(c));
         }
 
         private void cbConnectTerminal_CheckedChanged(object sender, EventArgs e)
