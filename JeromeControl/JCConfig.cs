@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using AntennaeRotator;
 using NetComm;
 using WX0B;
+using NetPA;
 using StorableFormState;
 using System.Reflection;
 
@@ -52,10 +53,10 @@ namespace JeromeControl
 
     public class JCConfig
     {
-        internal static readonly string[] ChildFormsTypes = new string[] { "AntennaeRotator.FRotator", "NetComm.FNetComm", "WX0B.FWX0B" };
-        internal static readonly string[] ConfigComponentsTypes = new string[] { "AntennaeRotator.AntennaeRotatorConfig", "NetComm.NetCommConfig", "WX0B.WX0BConfig" };
-        internal static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B" };
-        internal static readonly int[] ChildFormsCount = new int[] { 2, 1, 1 };
+        internal static readonly string[] ChildFormsTypes = new string[] { "AntennaeRotator.FRotator", "NetComm.FNetComm", "WX0B.FWX0B", "NetPA.FNetPA" };
+        internal static readonly string[] ConfigComponentsTypes = new string[] { "AntennaeRotator.AntennaeRotatorConfig", "NetComm.NetCommConfig", "WX0B.WX0BConfig", "Net PA" };
+        internal static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B", "NetPA" };
+        internal static readonly int[] ChildFormsCount = new int[] { 2, 1, 1, 1 };
 
         public string esHost = "127.0.0.1";
         public int esPort = 50040;

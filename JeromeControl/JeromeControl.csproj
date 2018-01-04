@@ -90,6 +90,12 @@
   <ItemGroup>
     <Compile Include="AntennaeRotatorConfig.cs" />
     <Compile Include="AsyncSocket.cs" />
+    <Compile Include="FNetPA.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FNetPA.designer.cs">
+      <DependentUpon>FNetPA.cs</DependentUpon>
+    </Compile>
     <Compile Include="WX0BStatus.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -188,6 +194,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="UpdatesChecker.cs" />
+    <EmbeddedResource Include="FNetPA.resx">
+      <DependentUpon>FNetPA.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WX0B.resx">
       <DependentUpon>WX0B.cs</DependentUpon>
     </EmbeddedResource>

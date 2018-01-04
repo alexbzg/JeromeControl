@@ -46,8 +46,6 @@ namespace NetComm
         public string[] buttonLabels;
         public int[] esMhzValues;
         public int[] esButtons;
-        public string esHost;
-        public int esPort;
         public int lastConnection;
 
 
