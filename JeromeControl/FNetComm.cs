@@ -32,19 +32,18 @@ namespace NetComm
             }
         }
 
-        private Dictionary<JeromeConnectionParams, JeromeConnectionState> connections = new Dictionary<JeromeConnectionParams,JeromeConnectionState>();
-        private List<CheckBox> buttons = new List<CheckBox>();
-        private List<string> buttonLabels = new List<string>();
-        private Dictionary<JeromeConnectionParams, ToolStripMenuItem> menuControl = new Dictionary<JeromeConnectionParams, ToolStripMenuItem>();
-        private Dictionary<JeromeConnectionParams, ToolStripMenuItem> menuWatch = new Dictionary<JeromeConnectionParams, ToolStripMenuItem>();
-        private System.Threading.Timer watchTimer;
-        private Color buttonsColor;
-        private Dictionary<int, int> esBindings = new Dictionary< int, int> ();
-        private IPEndPoint esEndPoint;
-        private NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
-        private bool trx = false;
-        private volatile bool closing = false;
-        private volatile bool watchPending = false;
+        protected Dictionary<JeromeConnectionParams, JeromeConnectionState> connections = new Dictionary<JeromeConnectionParams,JeromeConnectionState>();
+        protected List<CheckBox> buttons = new List<CheckBox>();
+        protected List<string> buttonLabels = new List<string>();
+        protected Dictionary<JeromeConnectionParams, ToolStripMenuItem> menuControl = new Dictionary<JeromeConnectionParams, ToolStripMenuItem>();
+        protected Dictionary<JeromeConnectionParams, ToolStripMenuItem> menuWatch = new Dictionary<JeromeConnectionParams, ToolStripMenuItem>();
+        protected System.Threading.Timer watchTimer;
+        protected Color buttonsColor;
+        protected Dictionary<int, int> esBindings = new Dictionary< int, int> ();
+        protected NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
+        protected bool trx = false;
+        protected volatile bool closing = false;
+        protected volatile bool watchPending = false;
 
         private bool connected
         {
@@ -54,7 +53,7 @@ namespace NetComm
             }
         }
 
-        private void updateButtonLabel(int no)
+        protected void updateButtonLabel(int no)
         {
             if (buttonLabels[no].Equals(string.Empty))
                 buttons[no].Text = (no + 1).ToString();
@@ -79,7 +78,7 @@ namespace NetComm
 
         }
 
-        private void onWatchTimer()
+        protected void onWatchTimer()
         {
             if (watchPending)
                 return;
@@ -104,15 +103,15 @@ namespace NetComm
             watchPending = false;
         }
 
-  
-        private void createConnectionMI(JeromeConnectionParams c)
+
+        protected void createConnectionMI(JeromeConnectionParams c)
         {
             createConnectionMI(c, true);
             createConnectionMI(c, false);
         }
 
 
-        private void createConnectionMI(JeromeConnectionParams c, bool watch)
+        protected void createConnectionMI(JeromeConnectionParams c, bool watch)
         {
             ToolStripMenuItem mi = new ToolStripMenuItem();
             mi.Text = c.name;
@@ -148,7 +147,7 @@ namespace NetComm
             }
         }
 
-        private void connect(JeromeConnectionParams cp)
+        protected void connect(JeromeConnectionParams cp)
         {
             connections[cp].active = true;
             connections[cp].controller = JeromeController.create(cp);
@@ -158,7 +157,7 @@ namespace NetComm
             connections[cp].controller.asyncConnect();
         }
 
-        private void controllerConnected( object sender, EventArgs e )
+        protected void controllerConnected( object sender, EventArgs e )
         {
             JeromeConnectionParams cp = connections.First(x => x.Value.controller == sender).Key;
             this.Invoke((MethodInvoker)delegate
@@ -178,7 +177,7 @@ namespace NetComm
           });
         }
 
-        private void updateButtonsMode()
+        protected void updateButtonsMode()
         {
             for (int co = 0; co < buttons.Count(); co++)
             {
@@ -198,7 +197,7 @@ namespace NetComm
             }
         }
 
-        private void controllerDisconnected(object obj, DisconnectEventArgs e)
+        protected void controllerDisconnected(object obj, DisconnectEventArgs e)
         {
             JeromeConnectionParams c = ((JeromeController)obj).connectionParams;
             this.Invoke((MethodInvoker)delegate
@@ -218,7 +217,7 @@ namespace NetComm
             });
         }
 
-        private void FMain_Load(object sender, EventArgs e)
+        protected void FMain_Load(object sender, EventArgs e)
         {
             Width = 100;
             for (int co = 0; co < lines.Count(); co++)
@@ -265,7 +264,7 @@ namespace NetComm
             }*/
         }
 
-        
+
         public override void writeConfig()
         {
             if (!loaded)
@@ -295,17 +294,11 @@ namespace NetComm
                 co++;
             }
 
-            if (esEndPoint != null)
-            {
-                config.esHost = esEndPoint.Address.ToString();
-                config.esPort = esEndPoint.Port;
-            }
-
             appContext.writeConfig();
 
         }
 
-        private void initConfig()
+        protected void initConfig()
         {
             if (config.connections != null)
             {
@@ -326,17 +319,14 @@ namespace NetComm
             if ( config.esMhzValues != null )
                 for (int co = 0; co < config.esButtons.Count(); co++)
                     esBindings[config.esMhzValues[co]] = config.esButtons[co];
-            IPAddress hostIP;
-            if (IPAddress.TryParse(config.esHost, out hostIP))
-                esEndPoint = new IPEndPoint(hostIP, config.esPort);
         }
 
-        private void miModuleSettings_Click(object sender, EventArgs e)
+        protected void miModuleSettings_Click(object sender, EventArgs e)
         {
             (new fModuleSettings()).ShowDialog();
         }
 
-        private void miConnectionsList_Click(object sender, EventArgs e)
+        protected void miConnectionsList_Click(object sender, EventArgs e)
         {
             FConnectionsList flist = new FConnectionsList(connections.Keys.ToList());
             flist.connectionCreated += connectionCreated;
@@ -345,7 +335,7 @@ namespace NetComm
             flist.ShowDialog(this);
         }
 
-        private void connectionCreated(object obj, EventArgs e)
+        protected void connectionCreated(object obj, EventArgs e)
         {
             JeromeConnectionParams c = (JeromeConnectionParams)obj;
             connections[c] = new JeromeConnectionState();
@@ -354,7 +344,7 @@ namespace NetComm
             writeConfig();
         }
 
-        private void connectionEdited(object obj, EventArgs e)
+        protected void connectionEdited(object obj, EventArgs e)
         {
             JeromeConnectionParams c = (JeromeConnectionParams)obj;
             menuControl[c].Text = connections[c].active ? "Отключиться от " + c.name : c.name;
@@ -362,7 +352,7 @@ namespace NetComm
             writeConfig();
         }
 
-        private void connectionDeleted(object obj, EventArgs e)
+        protected void connectionDeleted(object obj, EventArgs e)
         {
             JeromeConnectionParams c = (JeromeConnectionParams)obj;
             if (connections[c].active)
@@ -380,7 +370,7 @@ namespace NetComm
         }
 
 
-        private void form_MouseClick(object sender, MouseEventArgs e)
+        protected void form_MouseClick(object sender, MouseEventArgs e)
         {
             //System.Diagnostics.Debug.WriteLine("Mouse click");
             if (e.Button == MouseButtons.Right)
@@ -416,7 +406,7 @@ namespace NetComm
             }
         }
 
-        private void miRelaySettings_Click(object sender, EventArgs e)
+        protected void miRelaySettings_Click(object sender, EventArgs e)
         {
             FRelaySettings frs = new FRelaySettings(connections, buttonLabels);
             frs.ShowDialog();
@@ -445,7 +435,7 @@ namespace NetComm
         }
 
 
-        private void FMain_KeyDown(object sender, KeyEventArgs e)
+        protected void FMain_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode >= Keys.NumPad0 && e.KeyCode <= Keys.NumPad9 && e.KeyCode - Keys.NumPad0 - 1 < buttons.Count)
             {
@@ -457,7 +447,7 @@ namespace NetComm
             }
         }
 
-        private void FMain_ResizeEnd(object sender, EventArgs e)
+        protected void FMain_ResizeEnd(object sender, EventArgs e)
         {
             int bHeight = ( this.ClientSize.Height - 50 ) / lines.Count() - 2;
             for (int co = 0; co < buttons.Count(); co++)
@@ -469,7 +459,7 @@ namespace NetComm
         }
 
 
-        private void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
+        protected void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
         {
             closing = true;
             watchTimer.Change(Timeout.Infinite, Timeout.Infinite);

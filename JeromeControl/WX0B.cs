@@ -188,7 +188,7 @@ namespace WX0B
                     lockButtonState = e.state;
                     if (e.state == 0)
                     {
-                        lockSwitch = activeSwitch;
+                        lockSwitch = lockSwitch == null ? activeSwitch : null;
                         displayLockSwitch();
                     }
 
@@ -497,8 +497,8 @@ namespace WX0B
                 controllerLinesState[3] = 1;
             }
             else if (template.combo.Length == 2)
-                for (int i = 0; i < 4; i++)
-                    if (Array.Exists(template.combo, x => x == i + 1))
+                for (int i = 0; i < 3; i++)
+                    if (!Array.Exists(template.combo, x => x == i + 1))
                         controllerLinesState[i] = 1;
         }
 
