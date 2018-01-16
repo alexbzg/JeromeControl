@@ -54,7 +54,7 @@ namespace JeromeControl
     public class JCConfig
     {
         internal static readonly string[] ChildFormsTypes = new string[] { "AntennaeRotator.FRotator", "NetComm.FNetComm", "WX0B.FWX0B", "NetPA.FNetPA" };
-        internal static readonly string[] ConfigComponentsTypes = new string[] { "AntennaeRotator.AntennaeRotatorConfig", "NetComm.NetCommConfig", "WX0B.WX0BConfig", "Net PA" };
+        internal static readonly string[] ConfigComponentsTypes = new string[] { "AntennaeRotator.AntennaeRotatorConfig", "NetComm.NetCommConfig", "WX0B.WX0BConfig", "NetComm.NetCommConfig" };
         internal static readonly string[] ChildFormsTitles = new string[] { "AntennaRotator", "NetComm", "WX0B", "NetPA" };
         internal static readonly int[] ChildFormsCount = new int[] { 2, 1, 1, 1 };
 

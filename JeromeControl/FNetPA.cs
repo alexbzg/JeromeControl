@@ -22,8 +22,14 @@ namespace NetPA
 {
     public partial class FNetPA : JCChildForm
     {
-        public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
-        //public static int buttonsQty = 6;
+        public static NetPAControllerTemplate controllerTemplate = new NetPAControllerTemplate
+        {
+            limits = new Dictionary<int, int> { { -1, 22 }, { 1, 21 } },
+            enable = 15,
+            pulse = 14,
+            dir = 13
+        };
+        public static int buttonsQty = 7;
 
         public override StorableFormConfig storableConfig
         {
@@ -43,6 +49,9 @@ namespace NetPA
         protected bool trx = false;
         protected volatile bool closing = false;
         protected volatile bool watchPending = false;
+        protected JeromeConnectionState activeConnection;
+        protected volatile int position = -1;
+        private Task stepTask;
 
         private bool connected
         {
@@ -67,7 +76,7 @@ namespace NetPA
 
             appContext = _appContext;
             initConfig();
-            for (int co = buttonLabels.Count(); co < lines.Count(); co++)
+            for (int co = buttonLabels.Count(); co < buttonsQty; co++)
                 buttonLabels.Add("");
             miRelaySettings.Enabled = connections.Count > 0;
             foreach ( JeromeConnectionParams c in connections.Keys )
@@ -75,31 +84,6 @@ namespace NetPA
             Parallel.ForEach(connections.Where(x => x.Value.active),
                 x => connect(x.Key));
 
-        }
-
-        protected void onWatchTimer()
-        {
-            if (watchPending)
-                return;
-            watchPending = true;
-            Parallel.ForEach( connections.Where(x => x.Value.watch), x =>
-            {
-                JeromeControllerState state = x.Key.getState();
-                if (state != null )
-                    for (int co = 0; co < lines.Count(); co++)
-                        x.Value.linesStates[co] = state.linesStates[lines[co] - 1];
-            });
-            try
-            {
-                if (!closing)
-                    this.Invoke((MethodInvoker)delegate
-                        { updateButtonsMode(); });
-            } 
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine( e.ToString());
-            }
-            watchPending = false;
         }
 
 
@@ -121,7 +105,8 @@ namespace NetPA
 
         protected void disconnect(JeromeConnectionParams c)
         {
-            connections[c].controller.disconnect();
+            if (connections[c].controller != null)
+                connections[c].controller.disconnect();
             connections[c].active = false;
             writeConfig();
         }
@@ -130,7 +115,7 @@ namespace NetPA
         {
             foreach (JeromeConnectionParams c in connections.Keys)
             {
-                if (connections[c].active)
+                if (connections[c].active && connections[c].connected)
                 {
                     disconnect(c);
                     menuControl[c].Checked = false;
@@ -142,9 +127,10 @@ namespace NetPA
             connections[cp].controller.onConnected += controllerConnected;
             writeConfig();
             connections[cp].controller.asyncConnect();
+            activeConnection = connections[cp];
         }
 
-        protected void controllerConnected( object sender, EventArgs e )
+        protected async void controllerConnected( object sender, EventArgs e )
         {
             JeromeConnectionParams cp = connections.First(x => x.Value.controller == sender).Key;
             this.Invoke((MethodInvoker)delegate
@@ -153,13 +139,57 @@ namespace NetPA
               menuControl[cp].Checked = true;
               this.Text = cp.name;
               updateButtonsMode();
-              string linesState = connections[cp].controller.readlines();
-              for (var c = 0; c < lines.Count(); c++)
-              {
-                  connections[cp].controller.setLineMode(lines[c], 0);
-                  buttons[c].Checked = linesState[lines[c] - 1] == '1';
-              }
           });
+            JeromeController controller = connections[cp].controller;
+            string linesState = controller.readlines();
+            controller.setLineMode(controllerTemplate.dir, 0);
+            controller.setLineMode(controllerTemplate.pulse, 0);
+            controller.setLineMode(controllerTemplate.enable, 0);
+            controller.switchLine(controllerTemplate.enable, 1);
+            controller.switchLine(controllerTemplate.pulse, 0);
+            foreach (int line in controllerTemplate.limits.Values)
+                controller.setLineMode(line, 1);
+            controller.lineStateChanged += controllerLineStateChanged;
+            if (linesState[controllerTemplate.limits[-1] - 1] == '0')
+                position = 0;
+            else
+                await rotate(0);
+        }
+
+        private void controllerLineStateChanged(object sender, LineStateChangedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine(e.line.ToString() + " " + e.state.ToString());
+            if ( controllerTemplate.limits.ContainsValue(e.line) && e.state == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("Limit");
+                activeConnection.controller.switchLine(controllerTemplate.enable, 1);
+                activeConnection.controller.switchLine(controllerTemplate.pulse, 0);
+                if (e.line == controllerTemplate.limits[-1])
+                    position = 0;
+            }
+        }
+
+        private async Task rotate( int target)
+        {
+            System.Diagnostics.Debug.WriteLine("Rotate to " + target.ToString());
+            if (activeConnection.controller == null || !activeConnection.controller.connected || target == position)
+                return;
+            int dir = target < position || position == -1 ? -1 : 1;
+            JeromeController controller = activeConnection.controller;
+            controller.switchLine(controllerTemplate.dir, dir == -1 ? 0 : 1 );
+            controller.switchLine(controllerTemplate.enable, 0);
+            while (target != position )
+            {
+                activeConnection.controller.switchLine(controllerTemplate.pulse, 1);
+                await TaskEx.Delay(1);
+                activeConnection.controller.switchLine(controllerTemplate.pulse, 0);
+                if (position != -1)
+                    position += dir;
+                if (position == 0)
+                    break;
+            }
+            controller.switchLine(controllerTemplate.enable, 1);
+
         }
 
         protected void updateButtonsMode()
@@ -204,7 +234,7 @@ namespace NetPA
         protected void FMain_Load(object sender, EventArgs e)
         {
             Width = 100;
-            for (int co = 0; co < lines.Count(); co++)
+            for (int co = 0; co < buttonsQty; co++)
             {
                 CheckBox b = new CheckBox();
                 b.Height = 25;
@@ -225,13 +255,16 @@ namespace NetPA
                     {
                         buttons.Where(x => x != b).ToList().ForEach(x => x.Checked = false);
                         b.ForeColor = Color.Red;
+                        TaskEx.Run(async () =>
+                       {
+                           await rotate(275 * no );
+                       }
+                        );
                     }
                     else
                     {
                         b.ForeColor = buttonsColor;
                     }
-                    Parallel.ForEach(connections.Where(x => x.Value.active && x.Value.connected), x =>
-                    { x.Value.controller.switchLine(lines[x.Value.lines[no] - 1], b.Checked ? 1 : 0); });
                 });
                 b.MouseDown += form_MouseClick;
                 Controls.Add(b);
@@ -392,7 +425,7 @@ namespace NetPA
             frs.ShowDialog();
             if (frs.DialogResult == DialogResult.OK)
             {
-                for (int co = 0; co < lines.Count(); co++)
+                for (int co = 0; co < buttonsQty; co++)
                     connections[frs.connection].lines[co] = frs.cbLines[co].SelectedIndex + 1;
                 writeConfig();
             }
@@ -429,7 +462,7 @@ namespace NetPA
 
         protected void FMain_ResizeEnd(object sender, EventArgs e)
         {
-            int bHeight = ( this.ClientSize.Height - 50 ) / lines.Count() - 2;
+            int bHeight = ( this.ClientSize.Height - 50 ) / buttonsQty - 2;
             for (int co = 0; co < buttons.Count(); co++)
             {
                 CheckBox b = buttons[co];
@@ -446,6 +479,15 @@ namespace NetPA
                 x => x.Value.controller.disconnect());
         }
     }
+
+    public class NetPAControllerTemplate
+    {
+        public Dictionary<int, int> limits;
+        public int enable;
+        public int pulse;
+        public int dir;
+    }
+        
 
 
 }
