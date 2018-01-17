@@ -36,6 +36,7 @@
             this.miConnectionsList = new System.Windows.Forms.ToolStripMenuItem();
             this.miRelaySettings = new System.Windows.Forms.ToolStripMenuItem();
             this.miModuleSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.bReset = new System.Windows.Forms.Button();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +54,7 @@
             this.toolStrip.Location = new System.Drawing.Point(24, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip.Size = new System.Drawing.Size(42, 44);
+            this.toolStrip.Size = new System.Drawing.Size(42, 25);
             this.toolStrip.TabIndex = 0;
             // 
             // ddbSettings
@@ -105,12 +106,24 @@
             this.miModuleSettings.Text = "Настройки модуля";
             this.miModuleSettings.Click += new System.EventHandler(this.miModuleSettings_Click);
             // 
-            // FNetComm
+            // bReset
+            // 
+            this.bReset.Location = new System.Drawing.Point(3, 263);
+            this.bReset.Name = "bReset";
+            this.bReset.Size = new System.Drawing.Size(75, 23);
+            this.bReset.TabIndex = 1;
+            this.bReset.Text = "RESET";
+            this.bReset.UseVisualStyleBackColor = true;
+            this.bReset.MouseDown += new System.Windows.Forms.MouseEventHandler(this.bReset_MouseDown);
+            this.bReset.MouseUp += new System.Windows.Forms.MouseEventHandler(this.bReset_MouseUp);
+            // 
+            // FNetPA
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(120, 288);
+            this.Controls.Add(this.bReset);
             this.Controls.Add(this.toolStrip);
             this.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -118,7 +131,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "FNetComm";
+            this.Name = "FNetPA";
             this.Text = "Ant Comm";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FNetComm_FormClosed);
             this.Load += new System.EventHandler(this.FMain_Load);
@@ -141,6 +154,7 @@
         private System.Windows.Forms.ToolStripMenuItem miModuleSettings;
         private System.Windows.Forms.ToolStripMenuItem miControl;
         private System.Windows.Forms.ToolStripMenuItem miRelaySettings;
+        private System.Windows.Forms.Button bReset;
     }
 }
 

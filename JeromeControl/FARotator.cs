@@ -65,7 +65,6 @@ namespace AntennaeRotator
         volatile Task engineTask;
         CancellationTokenSource engineTaskCTS = new CancellationTokenSource();
         volatile bool engineTaskActive;
-        volatile bool controllerTimeout;
         const int adcDataLength = 10;
         int[] adcData = new int[adcDataLength];
         int adcDataCount = 0;
@@ -680,7 +679,6 @@ namespace AntennaeRotator
 
         private void onConnect( object sender, EventArgs e)
         {
-            controllerTimeout = false;
             
             if (currentTemplate.adc != 0)
                 adcTimer = new System.Threading.Timer(obj => readADC(), null, 100, 100);

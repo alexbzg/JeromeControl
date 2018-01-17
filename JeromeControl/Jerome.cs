@@ -1,4 +1,4 @@
-﻿#define DEBUG_JEROME_COMM
+﻿//#define DEBUG_JEROME_COMM
 
 using System;
 using System.Collections.Generic;
