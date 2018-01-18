@@ -297,6 +297,7 @@
     <Content Include="Resources\icon_connect.png" />
     <Content Include="Resources\icon_connected1.png" />
     <Content Include="Resources\icon_connected2.png" />
+    <None Include="Resources\rotate_icon.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">

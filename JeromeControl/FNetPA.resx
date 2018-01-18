@@ -127,15 +127,18 @@
   <data name="ddbSettings.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHeSURBVDhPlZM9SMNQFIWjVsFSKS6ioIuORaxkqUXMUpM2
-        yQsV6dRQ3URHh0JK6Z+DiAiujk6uFWer6KI4OYtuopOCP6hQjOemr5KmdfDCJel777v33PNSwRuapqUZ
-        Yxuqqob50v8ilUoFUOAM+Y1im6Io9kqS5MNWF+0Xi8W+Uqm0hGc3/e4YAAK6rl8wpttQYmLJDR8ibeQ+
-        mvXQektQ5Wg0OoDuVSoAJad83Q07mcvlFJo5E4/HRz3wIOAnwFTgpBOcz+e3aTwBUtcg80aW5TGC8T6s
-        6+oKwdi7Mk1zyAtblrWDPb/jDQE4/J5IJO6gpIbOH7yzTcrQveqFY7FYMBKJ9EO0443AmLocCoXqfGYn
-        Uf2LugA698Kk9BemoFkMQ52DigMougZYMwxDK5fLi1DwSCpg2JaiKCMEk1ccbYT7npsBeAFdH2DWtKbJ
-        UzDWQIN7fq1t0RFGpzBAC4owVmM8GhVraX60PdwwyUXXeXR9bXrzZxEAGYBHbrhpGApE8f7CC1xC0To3
-        eZbjggDwFmkXCoU9N9w0DIdnqAieu/iEgzD0Ge95B65UKiIO1lHgOJvNKtjwt9wzDyoCBW+NK2efGEN0
-        NgCPI4foNrz/Pm8kk8kJxrRVeDMpSZLvB7UQGEoYn9Y6AAAAAElFTkSuQmCC
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHeSURBVDhPlZM9SMNQFIWjVsFSKS6ioItuBbGSpRYxS03a
+        JC9UpFNDdRMdHQoppX8OIiK4Ojq5Vpytoovi5Cy6iU4K/qBCMZ6bvkqa1sELl6Tvve/ec89LBW9ompZm
+        jG2oqhrmS/+LVCoVQIEz5DeKbYqi2CtJkg9bXbRfLBb7SqXSEp7d9LtjAAjoun7BmG5DiYklN3yItJH7
+        aNZD6y1BlaPR6AC6V6kAlJzydTfsZC6XU2jmTDweH/XAg4CfAFOBk05wPp/fpvEESF2DzBtZlscIxvuw
+        rqsrBGPvyjTNIS9sWdYO9vyONwTg8HsikbiDkho6f/DONilD96oXjsViwUgk0g/RjjcCY+pyKBSq85md
+        RPUv6gLo3AuT0l+YgmYxDHUOKg6g6BpgzTAMrVwuL0LBI6mAYVuKoowQTF5xtBHue24G4AV0fYBZ05om
+        T8FYAw3u+bW2RUcYncIALSjCWI3xaFSspfnR9nDDJBdd59H1tenNn0UAZAAeueGmYSgQxfsLL3AJRevc
+        5FmOCwLAW6RdKBT23HDTMByeoSJ47uITDsLQZ7znHbhSqYg4WEeB42w2q2DD33LPPKgIFLw1rpx9YgzR
+        2QA8jhyi2/D++7yRTCYnGNNW4c2kJEm+H6ZGGD72NWUrAAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>115, 17</value>
+  </metadata>
 </root>

@@ -163,6 +163,16 @@ namespace JeromeControl.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap rotate_icon {
+            get {
+                object obj = ResourceManager.GetObject("rotate_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap signal_green {
             get {
                 object obj = ResourceManager.GetObject("signal_green", resourceCulture);

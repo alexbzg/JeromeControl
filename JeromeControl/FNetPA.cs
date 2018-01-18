@@ -50,7 +50,6 @@ namespace NetPA
         protected NetCommConfig config { get { return (NetCommConfig)componentConfig; } }
         protected bool trx = false;
         protected volatile bool closing = false;
-        protected volatile bool watchPending = false;
         protected JeromeConnectionState activeConnection;
         protected volatile int _position = -1;
         protected int position
@@ -73,7 +72,13 @@ namespace NetPA
         }
         private CancellationTokenSource rotateTaskCTS = new CancellationTokenSource();
         private volatile Task rotateTask;
+        private System.Threading.Timer blinkTimer;
+        protected volatile int target = -1;
 
+        private void onBlinkTimer(object state)
+        {
+            Invoke((MethodInvoker)delegate { lRotation.Visible = !lRotation.Visible; });
+        }
 
         private bool connected
         {
@@ -105,7 +110,7 @@ namespace NetPA
                 createConnectionMI( c );
             Parallel.ForEach(connections.Where(x => x.Value.active),
                 x => connect(x.Key));
-
+            blinkTimer = new System.Threading.Timer(onBlinkTimer, null, Timeout.Infinite, Timeout.Infinite);
         }
 
 
@@ -206,43 +211,39 @@ namespace NetPA
             rotateTaskCTS = new CancellationTokenSource();
         }
 
-        private void rotate( int target)
+        private void rotate( int newTarget)
         {
-            System.Diagnostics.Debug.WriteLine("Rotate to " + target.ToString());
-            if (activeConnection.controller == null || !activeConnection.controller.connected || target == position)
+            System.Diagnostics.Debug.WriteLine("Rotate to " + newTarget.ToString());
+            if (activeConnection.controller == null || !activeConnection.controller.connected || target == newTarget)
                 return;
-            if (rotateTask != null)
-            {
-                rotateTaskCTS.Cancel();
-                try
-                {
-                    rotateTask.Wait();
-                }
-                catch (AggregateException) { }
-            }
-            int dir = target < position || position == -1 ? -1 : 1;
-            JeromeController controller = activeConnection.controller;
-            controller.switchLine(controllerTemplate.dir, dir == -1 ? 0 : 1 );
-            controller.switchLine(controllerTemplate.enable, 0);
-            controller.switchLine(controllerTemplate.ptt, 1);
-            CancellationToken ct = rotateTaskCTS.Token;
-            rotateTask = TaskEx.Run(async () =>
-           {
-               while (target != position && !ct.IsCancellationRequested)
+            target = newTarget;
+            if (rotateTask == null)
+                rotateTask = TaskEx.Run(async () =>
                {
-                   controller.switchLine(controllerTemplate.pulse, 1);
-                   await TaskEx.Delay(1);
+                   JeromeController controller = activeConnection.controller;
+                   System.Diagnostics.Debug.WriteLine("start rotate to " + target.ToString());
+                   blinkTimer.Change(1000, 1000);
+                   controller.switchLine(controllerTemplate.enable, 0);
+                   controller.switchLine(controllerTemplate.ptt, 1);
+                   while (target != position && controller.connected)
+                   {
+                       int dir = target < position || position == -1 ? -1 : 1;
+                       controller.switchLine(controllerTemplate.dir, dir == -1 ? 0 : 1);
+                       controller.switchLine(controllerTemplate.pulse, 1);
+                       await TaskEx.Delay(1);
+                       controller.switchLine(controllerTemplate.pulse, 0);
+                       if (position != -1 )
+                           position += dir;
+                       if (position == 0 || position == buttonPositions[buttonPositions.Count() - 1])
+                           break;
+                   }
                    controller.switchLine(controllerTemplate.pulse, 0);
-                   if (position != -1 )
-                       position += dir;
-                   if (position == 0 || position == buttonPositions[buttonPositions.Count() - 1])
-                       break;
-               }
-               controller.switchLine(controllerTemplate.pulse, 0);
-               controller.switchLine(controllerTemplate.enable, 1);
-               controller.switchLine(controllerTemplate.ptt, 0);
-               clearRotateTask();
-           }, ct);
+                   controller.switchLine(controllerTemplate.enable, 1);
+                   controller.switchLine(controllerTemplate.ptt, 0);
+                   blinkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                   clearRotateTask();
+                   Invoke((MethodInvoker)delegate { lRotation.Visible = false; });
+               });
         }
 
         protected void updateButtonsMode()
@@ -308,7 +309,7 @@ namespace NetPA
                     {
                         buttons.Where(x => x != b).ToList().ForEach(x => x.Checked = false);
                         b.ForeColor = Color.Red;
-                        rotate(buttonPositions[no] );
+                        TaskEx.Run( () => { rotate(buttonPositions[no]); } );
                     }
                     else
                     {
@@ -538,6 +539,11 @@ namespace NetPA
         {
             if (activeConnection != null && activeConnection.connected)
                 activeConnection.controller.switchLine(controllerTemplate.reset, 0);
+        }
+
+        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 

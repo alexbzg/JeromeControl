@@ -180,19 +180,19 @@
   <data name="ddSettings.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHaSURBVDhPlZM/SMNAFMaDVsFSKS5FQRedJZUstYhZatMm
-        uVCRTi3VTXR0KLSE/nMQEcHV0cm14mwVXRQnZ9FNdFLwDyoU4/eSC8bUDj545Li73/e+964V/KFpWo4x
-        tq6qapRv/S+y2WwIAqfIL4htSJLUJ8tygB8L1Wq1v1arLeLbw7c6A0BI1/VzxnQLTvJ824UPkBZyD8V6
-        +dFPkHI8Hh9E9SYJwMkJ3/fCdpbLZYV6LqRSqVEfPAT4ETAJHP8Fm6a5Re0JsLoKm9fJZHKMYKyHdV1d
-        Jhhnl/l8PuKHS6XSNs6C9mwIwOW3dDp9CyctVH7nlS1yhupNP5xIJMKxWGyAXNvBmLokimKb92wn1D+p
-        CqAzP0xOOeoE9WIY6ixc7MPRFcCWYRhavV5fgIMHcoGBbSqKMkIwzYqjTnjf2Q3A86h6j2FNaVpSxGAN
-        FLjzPmvXcGFUigIswRHactqjVrGX41c7wwuTXVSdQ9UXdzZdRQAUAB56YXdgEIhj/cwFLuBojQ95huOC
-        APAGaVUqlV0v7A4Ml6dJBN8d/ITDGOgT1qYNNxoNCRfbEDgqFosKDoK/3pkHicDBq/Pk7ANtSPYB4HFk
-        hF7D/+/zRyaTmWBMW8FsJmVZDnwD4RgYchj0u10AAAAASUVORK5CYII=
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHaSURBVDhPlZM/SMNAFMaDVsFSKS5FQRedrZUstYhZatIm
+        uVCRTg3VTXR0KKSU/nMQEcHV0cm14mwVXRQnZ9FNdFLwDyoU4/fSC8ZUBx88ctzd73vfe9cK/tA0LccY
+        W1NVNca3/hfZbDYEgRPkJ8TWRVHskSQpwI+FSqXSW61WF/Dt4ludASCk6/oZY7oNJybfduF9pI3cRbFu
+        fvQdpJxIJPpRvUECcHLM972wk8ViUaGe86lUatgHDwB+AEwCR7/BpVJpk9oTYHUFNq9kWR4hGOtBXVeX
+        CMbZhWmaET9sWdYWzoLObAjA5dd0On0DJ01UfuOVbXKG6g0/nEwmw/F4vI9cO8GYuhiNRlu8Zyeh/kFV
+        AJ36YXLK0XZQL4ahzsDFHhxdAmwahqHVarV5OLgnFxjYhqIoQwTTrDjaDu87uwF4DlXvMKxJTZMnMFgD
+        BW69z/pnuDAqxQBacIS22u1Rq9jL8aud4YXJLqrOouqzO5s/RQDkAR54YXdgEEhg/cQFzuFolQ95muOC
+        APAaaZfL5R0v7A4Ml6dIBN9t/ITDGOgj1iUHrtfrIi62IHBYKBQUHAR/vDMPEoGDl/aTs3e0IToHgEeR
+        EXoN/7/PH5lMZowxbRmzGZckKfAF0k4YZnjJpRQAAAAASUVORK5CYII=
 </value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>78</value>
+    <value>54</value>
   </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
