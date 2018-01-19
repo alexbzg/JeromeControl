@@ -142,7 +142,7 @@ namespace NetPA
         {
             foreach (JeromeConnectionParams c in connections.Keys)
             {
-                if (connections[c].active && connections[c].connected)
+                if (connections[c].active)
                 {
                     disconnect(c);
                     menuControl[c].Checked = false;
@@ -413,7 +413,8 @@ namespace NetPA
         protected void connectionEdited(object obj, EventArgs e)
         {
             JeromeConnectionParams c = (JeromeConnectionParams)obj;
-            menuControl[c].Text = connections[c].active ? "Отключиться от " + c.name : c.name;
+            menuControl[c].Text = c.name;
+            c.usartPort = 0;
             writeConfig();
         }
 

@@ -124,9 +124,11 @@ namespace JeromeControl
             }
             if (result == null)
                 result = new JCConfig();
+            if (result.components.Length < ChildFormsTypes.Length)
+                Array.Resize(ref result.components, ChildFormsTypes.Length);
             for (int c = 0; c < ChildFormsTypes.Count(); c++)
             {
-                if ( result.components[c] == null )
+                if (result.components[c] == null )
                 {
                     result.components[c] = (JCComponentConfig)getConstructor(ConfigComponentsTypes[c]).Invoke( new object[] {} );
                 }
