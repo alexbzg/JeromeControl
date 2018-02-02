@@ -21,8 +21,9 @@ namespace NetComm
 {
     public partial class FNetComm : JCChildForm
     {
-        public static int[] lines = { 5, 4, 3, 2, 1, 6, 7 };
-        //public static int buttonsQty = 6;
+        public static readonly int[] lines = { 18, 19, 20, 21, 4, 5, 6 };
+        public static readonly int enLine = 22;
+        public static readonly int clkLine = 7;
 
         public override StorableFormConfig storableConfig
         {
@@ -174,6 +175,10 @@ namespace NetComm
                   connections[cp].controller.setLineMode(lines[c], 0);
                   buttons[c].Checked = linesState[lines[c] - 1] == '1';
               }
+              connections[cp].controller.setLineMode(enLine, 0);
+              connections[cp].controller.switchLine(enLine, 1);
+              connections[cp].controller.setLineMode(clkLine, 0);
+              connections[cp].controller.switchLine(clkLine, 0);
           });
         }
 
@@ -247,7 +252,7 @@ namespace NetComm
                         b.ForeColor = buttonsColor;
                     }
                     Parallel.ForEach(connections.Where(x => x.Value.active && x.Value.connected), x =>
-                    { x.Value.controller.switchLine(lines[x.Value.lines[no] - 1], b.Checked ? 1 : 0); });
+                    { switchLine(x.Value.controller, lines[x.Value.lines[no] - 1], b.Checked ? 1 : 0); });
                 });
                 b.MouseDown += form_MouseClick;
                 Controls.Add(b);
@@ -263,6 +268,18 @@ namespace NetComm
 
             }*/
         }
+
+        public void switchLine(JeromeController controller, int line, int state)
+        {
+            controller.switchLine(enLine, 0);
+            controller.switchLine(line, state);
+            //Thread.Sleep(1);
+            controller.switchLine(clkLine, 1);
+            //Thread.Sleep(1);
+            controller.switchLine(clkLine, 0);
+            controller.switchLine(enLine, 1);
+        }
+
 
 
         public override void writeConfig()
