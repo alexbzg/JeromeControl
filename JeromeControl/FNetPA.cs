@@ -264,6 +264,7 @@ namespace NetPA
                             appContext.busyBands.Remove(band);
                 }
             }
+            bReset.Enabled = !trx && connected;
         }
 
         protected void controllerDisconnected(object obj, DisconnectEventArgs e)
@@ -320,14 +321,17 @@ namespace NetPA
                 Controls.Add(b);
             }
             buttonsColor = buttons[0].ForeColor;
-/*            if (connections.Count > 0 )
-            {
-                if (connectionFromArgs != null)
-                    connect(connectionFromArgs);
-                else if (config.lastConnection > -1 && connections.ContainsKey( config.connections[config.lastConnection] ) )
-                    connect(config.connections[config.lastConnection]);
+            bReset.Height = 25;
+            bReset.Top = 25 + 27 * buttonPositions.Count();
 
-            }*/
+            /*            if (connections.Count > 0 )
+                        {
+                            if (connectionFromArgs != null)
+                                connect(connectionFromArgs);
+                            else if (config.lastConnection > -1 && connections.ContainsKey( config.connections[config.lastConnection] ) )
+                                connect(config.connections[config.lastConnection]);
+
+                        }*/
         }
 
 
@@ -513,13 +517,16 @@ namespace NetPA
 
         protected void FMain_ResizeEnd(object sender, EventArgs e)
         {
-            int bHeight = ( this.ClientSize.Height - 50 ) / buttonPositions.Count() - 2;
+            int bHeight = ( this.ClientSize.Height - 50 ) / ( buttonPositions.Count() + 1 ) - 2;
             for (int co = 0; co < buttons.Count(); co++)
             {
                 CheckBox b = buttons[co];
                 b.Height = bHeight;
                 b.Top = 25 + (bHeight + 2) * co;
             }
+            bReset.Height = bHeight;
+            bReset.Top = 25 + (bHeight + 2) * buttons.Count();
+
         }
 
 

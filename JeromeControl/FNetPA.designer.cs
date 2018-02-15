@@ -111,9 +111,11 @@
             // 
             // bReset
             // 
-            this.bReset.Location = new System.Drawing.Point(0, 240);
+            this.bReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.bReset.Enabled = false;
+            this.bReset.Location = new System.Drawing.Point(0, 268);
             this.bReset.Name = "bReset";
-            this.bReset.Size = new System.Drawing.Size(75, 23);
+            this.bReset.Size = new System.Drawing.Size(120, 23);
             this.bReset.TabIndex = 1;
             this.bReset.Text = "RESET";
             this.bReset.UseVisualStyleBackColor = true;
@@ -125,7 +127,7 @@
             this.statusStrip1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lRotation});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 266);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 303);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(120, 22);
             this.statusStrip1.TabIndex = 2;
@@ -144,7 +146,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(120, 288);
+            this.ClientSize = new System.Drawing.Size(120, 325);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.bReset);
             this.Controls.Add(this.toolStrip);

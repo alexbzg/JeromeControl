@@ -21,7 +21,7 @@ namespace NetComm
 {
     public partial class FNetComm : JCChildForm
     {
-        public static readonly int[] lines = { 18, 19, 20, 21, 4, 5, 6 };
+        public static readonly int[] lines = { 4, 21, 20, 19, 18, 5, 6 };
         public static readonly int enLine = 22;
         public static readonly int clkLine = 7;
 
