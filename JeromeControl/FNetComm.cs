@@ -118,7 +118,7 @@ namespace NetComm
             mi.Text = c.name;
             if (watch)
             {
-                mi.Visible = !connections[c].active;
+                mi.Visible = true;
                 mi.CheckOnClick = true;
                 mi.Checked = connections[c].watch;
                 mi.Click += delegate(object sender, EventArgs e)
@@ -131,7 +131,7 @@ namespace NetComm
             }
             else
             {
-                mi.Visible = !connected;
+                mi.Visible = true;
                 mi.Click += delegate(object sender, EventArgs e)
                 {
                     if (connections[c].active)
@@ -475,13 +475,17 @@ namespace NetComm
             }
         }
 
+        private async Task disconnectTask( JeromeConnectionState st)
+        {
+            st.controller.disconnect();
+        }
 
-        protected void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
+        protected async void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
         {
             closing = true;
             watchTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            Parallel.ForEach(connections.Where(x => x.Value.controller != null),
-                x => x.Value.controller.disconnect());
+            await TaskEx.WhenAll(connections.Where(x => x.Value.controller != null)
+                .Select(x => disconnectTask( x.Value )));
         }
     }
 
