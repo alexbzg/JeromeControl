@@ -173,6 +173,8 @@ namespace AntennaeRotator
                     { -1, currentConnection.limitsSerialize[1] }
                 };
             }
+            if (currentTemplate.adc != 0 && currentConnection.limits[1] == currentConnection.limits[-1])
+                currentConnection.calibrated = false;
 
             writeConfig();
 
