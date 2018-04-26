@@ -158,7 +158,7 @@
             this.MinimizeBox = false;
             this.Name = "FNetPA";
             this.Text = "Ant Comm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FNetComm_FormClosed);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FNetPA_FormClosed);
             this.Load += new System.EventHandler(this.FMain_Load);
             this.SizeChanged += new System.EventHandler(this.FMain_ResizeEnd);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FMain_KeyDown);

@@ -160,7 +160,12 @@ namespace NetComm
 
         protected void controllerConnected( object sender, EventArgs e )
         {
-            JeromeConnectionParams cp = connections.First(x => x.Value.controller == sender).Key;
+            bool senderFound = false;
+            KeyValuePair<JeromeConnectionParams, JeromeConnectionState> senderEntry =
+                connections.FirstOrDefault(x => x.Value.controller == sender && (senderFound = true));
+            if (!senderFound)
+                return;
+            JeromeConnectionParams cp = senderEntry.Key;
             this.Invoke((MethodInvoker)delegate
           {
               connections[cp].watch = false;

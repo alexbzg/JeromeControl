@@ -154,7 +154,7 @@ namespace Jerome
             newCmd("EVT,ON");
             pingTimer = new System.Threading.Timer(obj =>  newCmd(""), null, timeout, timeout);
             if (usartConnection != null)
-                usartConnection.connect(connectionParams.host,connectionParams.usartPort);
+                usartConnection.connect(connectionParams.host,connectionParams.usartPort,true);
             onConnected?.Invoke(this, e);
         }
 

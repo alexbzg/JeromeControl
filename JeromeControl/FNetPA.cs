@@ -159,7 +159,12 @@ namespace NetPA
 
         protected void controllerConnected( object sender, EventArgs e )
         {
-            JeromeConnectionParams cp = connections.First(x => x.Value.controller == sender).Key;
+            bool senderFound = false;
+            KeyValuePair<JeromeConnectionParams, JeromeConnectionState> senderEntry =
+                connections.FirstOrDefault(x => x.Value.controller == sender && (senderFound = true));
+            if (!senderFound)
+                return;
+            JeromeConnectionParams cp = senderEntry.Key;
             this.Invoke((MethodInvoker)delegate
           {
               connections[cp].watch = false;
@@ -529,12 +534,19 @@ namespace NetPA
 
         }
 
+        private async Task disconnectTask(JeromeConnectionState st)
+        {
+            st.controller.onDisconnected -= controllerDisconnected;
+            st.controller.onConnected -= controllerConnected;
+            st.controller.disconnect();
+            st.controller = null;
+        }
 
-        protected void FNetComm_FormClosed(object sender, FormClosedEventArgs e)
+        protected async void FNetPA_FormClosed(object sender, FormClosedEventArgs e)
         {
             closing = true;
-            Parallel.ForEach(connections.Where(x => x.Value.controller != null),
-                x => x.Value.controller.disconnect());
+            await TaskEx.WhenAll(connections.Where(x => x.Value.controller != null)
+                .Select(x => disconnectTask(x.Value)));
         }
 
         private void bReset_MouseDown(object sender, MouseEventArgs e)
