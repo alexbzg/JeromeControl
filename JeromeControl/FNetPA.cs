@@ -179,7 +179,7 @@ namespace NetPA
             controller.setLineMode(controllerTemplate.enable, 0);
             controller.setLineMode(controllerTemplate.ptt, 0);
             controller.setLineMode(controllerTemplate.reset, 0);
-            controller.switchLine(controllerTemplate.enable, 0);
+            controller.switchLine(controllerTemplate.enable, 1);
             controller.switchLine(controllerTemplate.pulse, 0);
             controller.switchLine(controllerTemplate.ptt, 0);
             controller.switchLine(controllerTemplate.reset, 0);
@@ -206,7 +206,7 @@ namespace NetPA
                     position = buttonPositions[buttonPositions.Count() - 1];
                 if (target == -1 || target == position)
                 {
-                    activeConnection.controller.switchLine(controllerTemplate.enable, 0);
+                    activeConnection.controller.switchLine(controllerTemplate.enable, 1);
                     activeConnection.controller.switchLine(controllerTemplate.pulse, 0);
                 }
                 else
@@ -234,15 +234,16 @@ namespace NetPA
                    JeromeController controller = activeConnection.controller;
                    System.Diagnostics.Debug.WriteLine("start rotate to " + target.ToString());
                    blinkTimer.Change(1000, 1000);
-                   controller.switchLine(controllerTemplate.enable, 1);
+                   controller.switchLine(controllerTemplate.enable, 0);
                    controller.switchLine(controllerTemplate.ptt, 1);
                    while (target != position && controller.connected)
                    {
                        int dir = target < position || position == -1 ? -1 : 1;
-                       controller.switchLine(controllerTemplate.dir, dir == -1 ? 1 : 0);
+                       controller.switchLine(controllerTemplate.dir, dir == -1 ? 0 : 1);
                        controller.switchLine(controllerTemplate.pulse, 1);
-                       await TaskEx.Delay(1);
+                       await TaskEx.Delay(5);
                        controller.switchLine(controllerTemplate.pulse, 0);
+                       await TaskEx.Delay(5);
                        if (position != -1 )
                            position += dir;
                        /*if (position == 0 || position == buttonPositions[buttonPositions.Count() - 1])
@@ -253,7 +254,7 @@ namespace NetPA
                    }
                    System.Diagnostics.Debug.WriteLine("Rotated to " + position.ToString());
                    controller.switchLine(controllerTemplate.pulse, 0);
-                   controller.switchLine(controllerTemplate.enable, 0);
+                   controller.switchLine(controllerTemplate.enable, 1);
                    controller.switchLine(controllerTemplate.ptt, 0);
                    blinkTimer.Change(Timeout.Infinite, Timeout.Infinite);
                    clearRotateTask();
