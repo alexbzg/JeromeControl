@@ -25,9 +25,9 @@ namespace NetPA
         public static NetPAControllerTemplate controllerTemplate = new NetPAControllerTemplate
         {
             limits = new Dictionary<int, int> { { -1, 22 }, { 1, 21 } },
-            enable = 15,
-            pulse = 14,
-            dir = 13,
+            enable = 2,
+            pulse = 4,
+            dir = 6,
             ptt = 1,
             reset = 3
         };
@@ -179,7 +179,7 @@ namespace NetPA
             controller.setLineMode(controllerTemplate.enable, 0);
             controller.setLineMode(controllerTemplate.ptt, 0);
             controller.setLineMode(controllerTemplate.reset, 0);
-            controller.switchLine(controllerTemplate.enable, 1);
+            controller.switchLine(controllerTemplate.enable, 0);
             controller.switchLine(controllerTemplate.pulse, 0);
             controller.switchLine(controllerTemplate.ptt, 0);
             controller.switchLine(controllerTemplate.reset, 0);
@@ -200,12 +200,18 @@ namespace NetPA
             if ( controllerTemplate.limits.ContainsValue(e.line) && e.state == 0)
             {
                 System.Diagnostics.Debug.WriteLine("Limit");
-                activeConnection.controller.switchLine(controllerTemplate.enable, 1);
-                activeConnection.controller.switchLine(controllerTemplate.pulse, 0);
                 if (e.line == controllerTemplate.limits[-1])
                     position = 0;
                 else
                     position = buttonPositions[buttonPositions.Count() - 1];
+                if (target == -1 || target == position)
+                {
+                    activeConnection.controller.switchLine(controllerTemplate.enable, 0);
+                    activeConnection.controller.switchLine(controllerTemplate.pulse, 0);
+                }
+                else
+                    rotate(target);
+
             }
         }
 
@@ -219,35 +225,41 @@ namespace NetPA
         private void rotate( int newTarget)
         {
             System.Diagnostics.Debug.WriteLine("Rotate to " + newTarget.ToString());
-            if (activeConnection.controller == null || !activeConnection.controller.connected || target == newTarget)
-                return;
             target = newTarget;
+            if (activeConnection.controller == null || !activeConnection.controller.connected || position == newTarget)
+                return;
             if (rotateTask == null)
                 rotateTask = TaskEx.Run(async () =>
                {
                    JeromeController controller = activeConnection.controller;
                    System.Diagnostics.Debug.WriteLine("start rotate to " + target.ToString());
                    blinkTimer.Change(1000, 1000);
-                   controller.switchLine(controllerTemplate.enable, 0);
+                   controller.switchLine(controllerTemplate.enable, 1);
                    controller.switchLine(controllerTemplate.ptt, 1);
                    while (target != position && controller.connected)
                    {
                        int dir = target < position || position == -1 ? -1 : 1;
-                       controller.switchLine(controllerTemplate.dir, dir == -1 ? 0 : 1);
+                       controller.switchLine(controllerTemplate.dir, dir == -1 ? 1 : 0);
                        controller.switchLine(controllerTemplate.pulse, 1);
                        await TaskEx.Delay(1);
                        controller.switchLine(controllerTemplate.pulse, 0);
                        if (position != -1 )
                            position += dir;
-                       if (position == 0 || position == buttonPositions[buttonPositions.Count() - 1])
+                       /*if (position == 0 || position == buttonPositions[buttonPositions.Count() - 1])
+                       {
+                           System.Diagnostics.Debug.WriteLine("Limit reached " + position.ToString());
                            break;
+                       }*/
                    }
+                   System.Diagnostics.Debug.WriteLine("Rotated to " + position.ToString());
                    controller.switchLine(controllerTemplate.pulse, 0);
-                   controller.switchLine(controllerTemplate.enable, 1);
+                   controller.switchLine(controllerTemplate.enable, 0);
                    controller.switchLine(controllerTemplate.ptt, 0);
                    blinkTimer.Change(Timeout.Infinite, Timeout.Infinite);
                    clearRotateTask();
                    Invoke((MethodInvoker)delegate { lRotation.Visible = false; });
+                   if (position != target)
+                       rotate(target);
                });
         }
 

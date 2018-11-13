@@ -96,6 +96,7 @@
     <Compile Include="FNetPA.designer.cs">
       <DependentUpon>FNetPA.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="WX0BStatus.cs">
       <SubType>Form</SubType>
     </Compile>
