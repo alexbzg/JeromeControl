@@ -36,7 +36,6 @@
             this.miConnectionsList = new System.Windows.Forms.ToolStripMenuItem();
             this.miRelaySettings = new System.Windows.Forms.ToolStripMenuItem();
             this.miModuleSettings = new System.Windows.Forms.ToolStripMenuItem();
-            this.bReset = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.lRotation = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip.SuspendLayout();
@@ -54,7 +53,7 @@
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ddbSettings});
             this.toolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow;
-            this.toolStrip.Location = new System.Drawing.Point(24, 0);
+            this.toolStrip.Location = new System.Drawing.Point(23, 0);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
             this.toolStrip.Size = new System.Drawing.Size(42, 25);
@@ -109,30 +108,16 @@
             this.miModuleSettings.Text = "Настройки модуля";
             this.miModuleSettings.Click += new System.EventHandler(this.miModuleSettings_Click);
             // 
-            // bReset
-            // 
-            this.bReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.bReset.Enabled = false;
-            this.bReset.Location = new System.Drawing.Point(0, 268);
-            this.bReset.Name = "bReset";
-            this.bReset.Size = new System.Drawing.Size(120, 23);
-            this.bReset.TabIndex = 1;
-            this.bReset.Text = "RESET";
-            this.bReset.UseVisualStyleBackColor = true;
-            this.bReset.MouseDown += new System.Windows.Forms.MouseEventHandler(this.bReset_MouseDown);
-            this.bReset.MouseUp += new System.Windows.Forms.MouseEventHandler(this.bReset_MouseUp);
-            // 
             // statusStrip1
             // 
             this.statusStrip1.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lRotation});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 303);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 345);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(120, 22);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
-            this.statusStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.statusStrip1_ItemClicked);
             // 
             // lRotation
             // 
@@ -146,9 +131,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(120, 325);
+            this.ClientSize = new System.Drawing.Size(120, 367);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.bReset);
             this.Controls.Add(this.toolStrip);
             this.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -181,7 +165,6 @@
         private System.Windows.Forms.ToolStripMenuItem miModuleSettings;
         private System.Windows.Forms.ToolStripMenuItem miControl;
         private System.Windows.Forms.ToolStripMenuItem miRelaySettings;
-        private System.Windows.Forms.Button bReset;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel lRotation;
     }
